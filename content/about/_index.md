@@ -11,4 +11,4 @@ services and infrastructure related tasks.
 Previously, I've worked on observability and monitoring at [Chainlink Labs](https://chain.link), media
 streaming at [SoundCloud](https://soundcloud.com), and various product and infrastructure roles elsewhere.
 
-Outside of programming, I enjoy disc golf and reading about philosophy / Catholicism.
+Outside of programming, I enjoy disc golf and reading about philosophy & Catholicism.
