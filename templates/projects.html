@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}nickmonad | {{ section.title }}{% endblock %}
+{% block page %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <div class="content is-medium">
+        My humble list of personal, work, and open-source projects.
+    </div>
+
+    {% for project in config.extra.projects %}
+        <div class="container mb-4">
+            <div class="level is-mobile mb-0">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h2 class="is-size-3 has-text-grey-light is-family-monospace">{{ project.name }}</h2>
+                    </div>
+
+                    {% if project.href %}
+                        <div class="level-item">
+                            <span class="icon is-small">
+                                <a href="{{ project.href }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    {% if project.github %}
+                        <div class="level-item">
+                            <span class="icon is-small">
+                                <a href="{{ project.github }}" target="_blank"><i class="fa-brands fa-github"></i></a>
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if project.description %}<p class="content is-medium">{{ project.description }}</p>{% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}

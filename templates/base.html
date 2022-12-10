@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="asynchronous communication about programming and whatever else.">
+    <meta name="keywords" content="nickmonad, blog, programming, tech, thoughts, rambling">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://kit.fontawesome.com/fff9d02058.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <section class="section is-fullheight">
+        <!-- header -->
+        <div class="container">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container is-family-monospace">
+                        <p class="is-size-2 has-text-weight-semi-bold has-text-grey-lighter">
+                            <a href="/">nickmonad</a> // {% block page %} {% endblock %}
+                        </p>
+                        <p class="is-size-5 mt-2 has-text-grey-light">[ asynchronous communication about programming and whatever else. ]</p>
+                        <nav class="level is-mobile is-size-5 mt-3">
+                            <div class="level-left">
+                                {% for link in config.extra.nav %}
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="{{ link.href }}">{{ link.name }}</a></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="level-right">
+                                {% for social in config.extra.socials %}
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="{{ social.href }}" target="_blank"><i class="fa-brands fa-lg fa-{{ social.name }}"></i></a>
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- primary content -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container has-text-white-ter">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- footer / copyright -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog and its content</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                    <span class="icon"><i class="fa-brands fa-creative-commons"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-by"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-nc"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-sa"></i></span>
+                    </p>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

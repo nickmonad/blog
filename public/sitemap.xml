@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://nickmonad.blog/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/2022/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/2022/initial-commit/</loc>
+        <lastmod>2022-12-09</lastmod>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/about/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/projects/</loc>
+    </url>
+</urlset>

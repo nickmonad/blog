@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}nickmonad | {{ section.title }}{% endblock %}
+{% block page %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <div class="content is-medium">
+        <h2 class="is-size-3 has-text-grey-light is-family-monospace mt-2">Latest Posts</h2>
+        <ul>
+            {% for post in section.pages %}
+                <!-- only show the last 5 posts -->
+                <!-- TODO: get pagination working -->
+                {% if loop.index == 5 %}{% break %}{% endif %}
+                <li>{{ post.date }} :: <a href="{{ post.path }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
