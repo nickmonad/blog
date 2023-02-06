@@ -1,7 +1,6 @@
 +++
 title = "nostr NIP-05 DNS Verification for a Zola-based Static Site"
 date = 2023-02-05
-draft = true
 +++
 
 <i>Skip down to the `NIP-05 & Zola` section if you already know about nostr and want to get right into the technical
@@ -26,10 +25,9 @@ where all the hype is coming from.
 Sometimes the best solutions are a blend of various approaches that, on their own, were optimized too far in one
 direction or another, as noted in the answer above. Nostr takes a different approach. It uses well-defined and
 standardized technology that has been around for quite some time, but never put together in this specific way. I think
-a lot of people see that same magic in bitcoin as well. It was developed using technology that already existed, just
-never put together in that way before.
+a lot of people see that same magic in bitcoin as well.
 
-I'll save the more philosophical rambling about nostr for another time. Now that I've finally setup a key-pair and
+I'll save more philosophical rambling about nostr for another time. Now that I've finally setup a key-pair and
 started posting to relays, I wanted to make a quick post about how I setup DNS verification of my public key using
 [`zola`](https://getzola.org), the static site generator this blog is rendered with.
 
@@ -61,7 +59,7 @@ Fortunately, `zola` can do this pretty easily, but the setup is not immediately 
 we should have markdown files and folders under our `content/` directory, and that these map to URL paths during the
 build process.
 
-Following the `NIP-05` specification, we need to have a path like `/.well-known/nostr.json` for our domain we want
+Following the `NIP-05` specification, we need to have a path like `/.well-known/nostr.json` under our domain we want
 to verify against. If we create that file at `content/.well-known/nostr.json`, build our site and try to navigate there,
 we actually get a `404` response.
 
