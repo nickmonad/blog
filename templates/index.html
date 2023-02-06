@@ -11,7 +11,7 @@
                 <!-- only show the last 5 posts -->
                 <!-- TODO: get pagination working -->
                 {% if loop.index == 5 %}{% break %}{% endif %}
-                <li>{{ post.date }} :: <a href="{{ post.path }}">{{ post.title }}</a></li>
+                <li><span class="is-family-monospace">{{ post.date }} ::</span> <a href="{{ post.path }}">{{ post.title }}</a></li>
             {% endfor %}
         </ul>
     </div>
