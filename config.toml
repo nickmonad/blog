@@ -16,8 +16,9 @@ nav = [
 ]
 
 socials = [
-    { name = "twitter", href = "https://twitter.com/nickmonad" },
-    { name = "github", href = "https://github.com/nickmonad" }
+    { name = "nostr", href = "https://nostr.band/?q=npub1tln5mjd8xjd7rqnfqp7cu77lwkvcd89kwllr7fu5a0vzru2xl6qssuq0v6", icon = "fa-lg fa-solid fa-comment-dots" },
+    { name = "twitter", href = "https://twitter.com/nickmonad", icon = "fa-lg fa-brands fa-twitter" },
+    { name = "github", href = "https://github.com/nickmonad", icon = "fa-lg fa-brands fa-github" }
 ]
 
 [[extra.projects]]
