@@ -13,6 +13,9 @@ streaming at [SoundCloud](https://soundcloud.com), and various product and infra
 
 Outside of programming, I enjoy disc golf and reading about philosophy & Catholicism.
 
-Feel free to hit me up on `nostr` @ `npub1tln5mjd8xjd7rqnfqp7cu77lwkvcd89kwllr7fu5a0vzru2xl6qssuq0v6`
+Feel free to hit me up on `nostr` @
+```
+npub1tln5mjd8xjd7rqnfqp7cu77lwkvcd89kwllr7fu5a0vzru2xl6qssuq0v6
+```
 
-If you must, you can email me `nickmonad@pm.me` - Actually, if you find an error in one my posts, please do.
+If you must, you can email me `nickmonad@pm.me` Actually, if you find an error in one my posts, please do.
