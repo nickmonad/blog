@@ -1,6 +1,8 @@
 +++
 title = "nostr NIP-05 DNS Verification for a Zola-based Static Site"
 date = 2023-02-05
+[taxonomies]
+tags = [ "nostr" ]
 +++
 
 <i>Skip down to the `NIP-05 & Zola` section if you already know about nostr and want to get right into the technical

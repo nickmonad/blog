@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}nickmonad | {{ term.name }}{% endblock %}
+{% block page %}blog{% endblock %}
+
+{% block content %}
+    <div class="content is-medium">
+        <h2 class="is-size-3 has-text-grey-light is-family-monospace mt-2">#{{ term.name }}</h2>
+        <h5 class="is-size-5 has-text-grey-light is-family-monospace mt-2">view all <a href="/{{ taxonomy.name }}">{{ taxonomy.name }}</a></h5>
+        <ul>
+            {% for post in term.pages  %}
+                <li><span class="is-family-monospace">{{ post.date }} ::</span> <a href="{{ post.path }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

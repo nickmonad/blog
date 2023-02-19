@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}nickmonad | {{ taxonomy.name }}{% endblock %}
+{% block page %}blog{% endblock %}
+
+{% block content %}
+    <div class="content is-medium">
+        <h2 class="is-size-3 has-text-grey-light is-family-monospace mt-2">#{{ taxonomy.name }}</h2>
+        <ul>
+            {% for tag in terms %}
+                <li><a class="is-family-monospace" href="{{ tag.permalink }}">{{ tag.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

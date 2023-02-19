@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title> - nostr</title>
+        <link>https://nickmonad.blog</link>
+        <description></description>
+        <generator>Zola</generator>
+        <language>en</language>
+        <atom:link href="https://nickmonad.blog/tags/nostr/rss.xml" rel="self" type="application/rss+xml"/>
+        <lastBuildDate>Sun, 05 Feb 2023 00:00:00 +0000</lastBuildDate>
+        <item>
+            <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
+            <pubDate>Sun, 05 Feb 2023 00:00:00 +0000</pubDate>
+            <link>https://nickmonad.blog/2023/nostr-verification/</link>
+            <guid>https://nickmonad.blog/2023/nostr-verification/</guid>
+            <description>&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
+specifics about nostr DNS verification with zola.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;For the past few weeks, I&#x27;ve been doing some research on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;nostr&lt;&#x2F;a&gt;,
+a new approach for decentralized social-networking.&lt;&#x2F;p&gt;
+&lt;p&gt;What I appreciate about nostr is how radically simple the protocol really is. Anybody who is reasonably technical can
+understand the protocol at a high-level in just a few minutes, and it&#x27;s fun to think about all the challenges
+and possibilities that will arise as it scales to millions of users.&lt;&#x2F;p&gt;
+&lt;p&gt;I love how straightforward and to-the-point this answer is from the protocol FAQ, which I think is really getting at
+where all the hype is coming from.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;i&gt;This is very simple. Why hasn&#x27;t anyone done it before?&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;I don&#x27;t know, but I imagine it has to do with the fact that people making social networks are either companies
+wanting to make money or P2P activists who want to make a thing completely without servers.
+They both fail to see the specific mix of both worlds that Nostr uses.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Sometimes the best solutions are a blend of various approaches that, on their own, were optimized too far in one
+direction or another, as noted in the answer above. Nostr takes a different approach. It uses well-defined and
+standardized technology that has been around for quite some time, but never put together in this specific way. I think
+a lot of people see that same magic in bitcoin as well.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ll save more philosophical rambling about nostr for another time. Now that I&#x27;ve finally setup a key-pair and
+started posting to relays, I wanted to make a quick post about how I setup DNS verification of my public key using
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;getzola.org&quot;&gt;&lt;code&gt;zola&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, the static site generator this blog is rendered with.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;nip-05&quot;&gt;NIP-05&lt;&#x2F;h3&gt;
+&lt;p&gt;The nostr protocol development process has the notion of a &amp;quot;NIP&amp;quot;, or a &amp;quot;Nostr Implementation Possibility&amp;quot;, in a similar
+vein to bitcoin&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;BIPs&lt;&#x2F;a&gt; (&amp;quot;Bitcoin Improvement Proposals&amp;quot;). These are ways the community can propose
+new ideas or extentions to the base nostr protocol. Some may be mandatory, but most are optional, and can be specified
+for relays, clients, or both.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;05.md&quot;&gt;NIP-05&lt;&#x2F;a&gt; describes how clients can use DNS and a simple
+HTTP &lt;code&gt;GET&lt;&#x2F;code&gt; request to add an extra mapping for a user on nostr. This can give some extra assurance to a follower
+that who they are following is legitimate, or mark them as part of an organization (maybe a company or development group).&lt;&#x2F;p&gt;
+&lt;p&gt;Basically, a user can sign a nostr event published to relays that sets metadata about their &amp;quot;account&amp;quot;
+(technically, their public key). One of those fields that may be set is a &lt;code&gt;nip05&lt;&#x2F;code&gt; field, containing a &lt;code&gt;name@domain.com&lt;&#x2F;code&gt;
+value. Clients can make a request to &lt;code&gt;https:&#x2F;&#x2F;domain.com&#x2F;.well-known&#x2F;nostr.json?name=name&lt;&#x2F;code&gt; and if the public key returned
+matches the public key of the signed metadata event, that &amp;quot;account&amp;quot; is a considered verified against that domain.&lt;&#x2F;p&gt;
+&lt;p&gt;To be fair, if that domain is ever compromised in some way, the key mapping could also be compromised, misleading
+followers. But, it&#x27;s a reasonable level of assurance, considering we&#x27;re operating in a decentralized context.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;nip-05-zola&quot;&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;h3&gt;
+&lt;p&gt;Since I happen to own a custom domain, and I use &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;getzola.org&quot;&gt;&lt;code&gt;zola&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; to render my content as a static site, I
+wanted to figure out a way to add &lt;code&gt;NIP-05&lt;&#x2F;code&gt; verification to my nostr profile.&lt;&#x2F;p&gt;
+&lt;p&gt;Fortunately, &lt;code&gt;zola&lt;&#x2F;code&gt; can do this pretty easily, but the setup is not immediately obvious. We know that for page content,
+we should have markdown files and folders under our &lt;code&gt;content&#x2F;&lt;&#x2F;code&gt; directory, and that these map to URL paths during the
+build process.&lt;&#x2F;p&gt;
+&lt;p&gt;Following the &lt;code&gt;NIP-05&lt;&#x2F;code&gt; specification, we need to have a path like &lt;code&gt;&#x2F;.well-known&#x2F;nostr.json&lt;&#x2F;code&gt; under our domain we want
+to verify against. If we create that file at &lt;code&gt;content&#x2F;.well-known&#x2F;nostr.json&lt;&#x2F;code&gt;, build our site and try to navigate there,
+we actually get a &lt;code&gt;404&lt;&#x2F;code&gt; response.&lt;&#x2F;p&gt;
+&lt;p&gt;This is because zola won&#x27;t build any directory or include files in the final path structure if there isn&#x27;t a &lt;code&gt;_index.md&lt;&#x2F;code&gt;
+present in that directory. To get around this, we can create one at &lt;code&gt;content&#x2F;.well-known&#x2F;_index.md&lt;&#x2F;code&gt; that looks like,&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;span&gt;title = &amp;quot;nostr.json&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;render = false
+&lt;&#x2F;span&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Looking at the section configuration options &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;documentation&#x2F;content&#x2F;section&#x2F;#front-matter&quot;&gt;here&lt;&#x2F;a&gt;
+we can see that the &lt;code&gt;render&lt;&#x2F;code&gt; option is used to prevent any actual template from being rendered into the final path,
+but still leaves &lt;code&gt;&#x2F;.well-known&#x2F;nostr.json&lt;&#x2F;code&gt; available to request.&lt;&#x2F;p&gt;
+&lt;p&gt;Once &lt;code&gt;_index.md&lt;&#x2F;code&gt; and &lt;code&gt;nostr.json&lt;&#x2F;code&gt; are present under &lt;code&gt;content&#x2F;.well-known&#x2F;&lt;&#x2F;code&gt;, we&#x27;re ready to build, re-publish our site,
+and set our &lt;code&gt;nip05&lt;&#x2F;code&gt; identifier in a nostr client that supports it. (I used &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;iris.to&quot;&gt;iris.to&lt;&#x2F;a&gt;)&lt;&#x2F;p&gt;
+&lt;p&gt;If you want to see the final result for this site, checkout
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nickmonad.blog&#x2F;.well-known&#x2F;nostr.json&quot;&gt;nickmonad.blog&#x2F;.well-known&#x2F;nostr.json&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;quick-things-to-note&quot;&gt;Quick things to note.&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;If you are not using your own server to host your zola static site, your hosting provider must support setting
+custom header responses for specific paths. In this case, I had to ensure I was setting &lt;code&gt;Access-Control-Allow-Origin: *&lt;&#x2F;code&gt;
+as a response header to all &lt;code&gt;&#x2F;.well-known&#x2F;*&lt;&#x2F;code&gt; requests, so Javascript web clients can make that request.&lt;&#x2F;li&gt;
+&lt;li&gt;If you want to just verify your top-level domain, you need to set &lt;code&gt;&amp;quot;_&amp;quot;&lt;&#x2F;code&gt; as the &amp;quot;name&amp;quot; in your &lt;code&gt;nostr.json&lt;&#x2F;code&gt;. See the
+link above for this site as an example.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</description>
+        </item>
+    </channel>
+</rss>
