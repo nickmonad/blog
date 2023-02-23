@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}nickmonad | {{ section.title }}{% endblock %}
+{% block page %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <div class="content is-medium">
+        {{ section.content | safe }}
+    </div>
+{% endblock %}
