@@ -121,7 +121,7 @@ Next, we need a way to generate the `id` for the event.
 > The serialization is done over the UTF-8 JSON-serialized string
 > (with no white space or line breaks) of the following structure:
 >
-> ...
+> TODO
 
 I'll be honest, I'm a little confused by the "with no white space or line breaks" comment. Does that also mean
 for the _content_? I could see it either way, but I'm going to lean towards we don't manipulate the content in any

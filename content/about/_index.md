@@ -1,6 +1,6 @@
 +++
 title = "about"
-template = "about.html"
+template = "standalone.html"
 +++
 
 Hey, I'm Nick. I'm a software engineer interested in all things bitcoin, infrastructure, and Rust.

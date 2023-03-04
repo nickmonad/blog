@@ -1,6 +1,6 @@
 +++
 title = "good reads"
-template = "goodreads.html"
+template = "standalone.html"
 +++
 
 The following is a collection of my favorite blog posts by other authors or developers. They are listed in (roughly)
