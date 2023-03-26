@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="asynchronous communication about programming and whatever else.">
+    <meta name="keywords" content="nickmonad, blog, programming, tech, thoughts, rambling">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>nickmonad | Building a nostr client [0]</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://kit.fontawesome.com/fff9d02058.js" crossorigin="anonymous"></script>
+
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+    
+</head>
+
+<body>
+    <section class="section is-fullheight">
+        <!-- header -->
+        <div class="container">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container is-family-monospace">
+                        <p class="is-size-2 has-text-weight-semi-bold has-text-grey-lighter">
+                            <a href="/">nickmonad</a> // blog
+                        </p>
+                        <p class="is-size-5 mt-2 has-text-grey-light">[ asynchronous communication about programming and whatever else ]</p>
+                        <nav class="level is-mobile is-size-5 mt-3">
+                            <div class="level-left">
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;about">about</a></button>
+                                </div>
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;projects">projects</a></button>
+                                </div>
+                                
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="&#x2F;rss.xml" target="_blank"><i class="fa-lg fa-solid fa-square-rss"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;twitter.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-twitter"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;github.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-github"></i></a>
+                                        </span>
+                                    </div>
+                                
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- primary content -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container has-text-white-ter">
+                        
+    <div class="is-size-3">Building a nostr client [0]</div>
+    <div class="is-size-5">Basic data structures and Event generation</div>
+    <div class="level is-mobile is-size-5 is-family-monospace">
+        <div class="level-left">
+            <div class="level-item">2023-03-26</div>
+            
+            
+                <div class="level-item"><a href="/tags/nostr">#nostr</a></div>
+            
+                <div class="level-item"><a href="/tags/rust">#rust</a></div>
+            
+            
+        </div>
+    </div>
+    <div class="content is-medium mt-4">
+        <p>Over the past few weeks, <a rel="noopener" target="_blank" href="https://nostr.how/">nostr</a> has continued to take much of my attention. I'm still
+fascinated by this protocol and I'm very curious to see where it goes in the coming years.</p>
+<p>If you haven't heard of nostr yet, it stands for &quot;Notes and Other Stuff Transmitted over Relays&quot;, and is a pretty
+simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
+federated servers that talk to each other) it uses the concept of &quot;relays&quot; that allow clients to connect to them and,
+you guessed it, <em>transmit</em> &quot;notes&quot; and &quot;other stuff&quot;, using a cryptographic key pair to sign and verify that data.</p>
+<blockquote>
+<p><i>By the way, how do people pronouce this thing? Is it &quot;nos-ter&quot;, &quot;nose-ter&quot;, ... something else? I tend towards the
+first way for some reason.</i></p>
+</blockquote>
+<p>As the protocol's <a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nostr">GitHub</a> states:</p>
+<blockquote>
+<p>The simplest open protocol that is able to create a censorship-resistant global &quot;social&quot; network once and for all.
+It doesn't rely on any trusted central server, hence it is resilient; it is based on cryptographic keys and
+signatures, so it is tamperproof; it does not rely on P2P techniques, and therefore it works.</p>
+</blockquote>
+<p>Clients have the option to connect to as many or as few relays as they want, some of which are free and open to the
+public, and some of which require payment to access. This allows for a wide variety of communities to coalesce
+around certain relays if they choose, and move to another if the one they are using decides to censor them for
+any reason.</p>
+<p>The implications of this are pretty amazing, and I think it will open up a lot of opportunity in so many directions.
+Not only from the standpoint of free speech, but also for relay operators and client developers to build features in
+a competitive way, very quickly raising the bar for the network as a whole. We are still very much in the early days,
+and things are a little bit crazy, but the hype is real, and I believe for good reason.</p>
+<h3 id="let-s-build-a-client">Let's build a client!</h3>
+<p>Besides all the reasons I mentioned above, I'm excited about nostr, because, as a programmer, I get to <em>build</em> things.
+My own things. Things that define how I interact with the network. There are a lot of good clients out there already,
+but I figured, &quot;why not try and build my own?&quot;</p>
+<p>This is the first entry (index <code>0</code>) in a series of posts I intend to write outlining the basic discovery and process
+of building a client. Hopefully we'll run into some interesting challenges that need thoughtful solutions, and we'll
+progress towards something relatively usable.</p>
+<p>I'll be writing this series as I develop the client (seriously, I haven't written a single line of code as I
+write this sentence), which is something I've never done before. I'll do my best to strike a balance between content
+and pace. I don't want to dump every single thought in my head out into this post, otherwise it could take hours
+to read, but I want to show enough to get an idea of what it takes to build a client at a technical level. I'll also
+have to stop writing these posts at <em>some</em> point (there's more to life, ya know?). But, I'll keep developing the
+client after I wrap up this series, and anyone can follow along on GitHub once we hit that point.</p>
+<blockquote>
+<p>Hopefully I won't give so much detail that it's exhausting to read. I'm hoping I'll get better about tightening up
+these posts as I go.</p>
+</blockquote>
+<p>Wait, what about the name? After looking at all sorts of weird combinations of &quot;rust&quot; and &quot;nostr&quot;, I came up
+with <code>roostr</code>. I like it because it gives the project its own identity, and is actually pronoucable as &quot;rooster&quot;.</p>
+<blockquote>
+<p>I'm aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &quot;rust&quot; and &quot;nostr&quot;
+and settled on something unique in the space!</p>
+</blockquote>
+<h3 id="the-stack">THE STACK</h3>
+<p>I'll be writing this client using Rust. That's it. That's the stack.</p>
+<p>It'll be a terminal-based client, because frankly it's just easier, but I also love the challenge of making a usable
+terminal UI. There's a neat minimalism there.</p>
+<blockquote>
+<p>I will definitely assume some Rust knowledge for this series. There are a million ways to learn Rust and I can't
+really teach it any better. I'll make clarifying notes if I think something is particularly odd about Rust that
+needs explaining, but I want to keep it to a minimum.</p>
+</blockquote>
+<h3 id="the-protocol">The Protocol</h3>
+<p>Nostr, as a protocol, is refreshingly simple. The main GitHub <a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nostr">repository</a>
+is a high-level look at the protocol and motivations behind it, but the NIPs
+<a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nips">repository</a> is where all the action is.</p>
+<p><a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a> is one of the few mandatory NIPs that relays
+and clients must implement, and is the obvious starting point for us. Highly recommend giving it a quick once over
+before continuing.</p>
+<h4 id="events">Events</h4>
+<p>Looking at the first available struct defined in NIP-01, let's take a stab at defining it in Rust. I want to start
+with the event generation and signing portion first, before we start connecting to relays.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub enum </span><span>Kind {
+</span><span>    SetMetadata,     </span><span style="color:#65737e;">// kind: 0
+</span><span>    Text,            </span><span style="color:#65737e;">// kind: 1
+</span><span>    RecommendServer, </span><span style="color:#65737e;">// kind: 2
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub enum </span><span>TagId {
+</span><span>    PubKey,  </span><span style="color:#65737e;">// tag: &quot;p&quot;
+</span><span>    Event,   </span><span style="color:#65737e;">// tag: &quot;e&quot;
+</span><span>    Unknown, </span><span style="color:#65737e;">// ... not sure how to handle this yet
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// simple 3-tuple that will be rendered as a JSON array
+</span><span style="color:#65737e;">// e.g. [&quot;e&quot;, &quot;&lt;hex&gt;&quot;, &quot;wss://some.relay.net&quot;]
+</span><span style="color:#b48ead;">pub struct </span><span>Tag(TagId, String, Option&lt;String&gt;);
+</span><span>
+</span><span style="color:#65737e;">// Event is our core data structure.
+</span><span style="color:#65737e;">// It will likely not be built directly like this, but rather from a function,
+</span><span style="color:#65737e;">// where the `id` will generated and the entire thing (possibly) signed.
+</span><span style="color:#b48ead;">pub struct </span><span>Event {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">id</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">pubkey</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">created_at</span><span>: </span><span style="color:#b48ead;">u64</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">kind</span><span>: Kind,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">tags</span><span>: Vec&lt;Tag&gt;,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">content</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">sig</span><span>: String,
+</span><span>}
+</span></code></pre>
+<p>As noted in the comments, we have some things to figure out as we get further, but for now this gives us a solid
+place to stand. It may make more sense to use more specific types for some of these fields, and we will certainly
+need to expand upon these, but I want to start simple for now.</p>
+<p>Next, we need a way to generate the <code>id</code> for the event.</p>
+<blockquote>
+<p>To obtain the event.id, we sha256 the serialized event.
+The serialization is done over the UTF-8 JSON-serialized string
+(with no white space or line breaks) of the following structure:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>[
+</span><span>  0,
+</span><span>  &lt;pubkey, as a (lowercase) hex string&gt;,
+</span><span>  &lt;created_at, as a number&gt;,
+</span><span>  &lt;kind, as a number&gt;,
+</span><span>  &lt;tags, as an array of arrays of non-null strings&gt;,
+</span><span>  &lt;content, as a string&gt;
+</span><span>]
+</span></code></pre>
+</blockquote>
+<p>I'll be honest, I'm a little confused by the &quot;with no white space or line breaks&quot; comment. Does that also mean
+for the <em>content</em>? I could see it either way, but I'm going to lean towards we don't manipulate the content in any
+way to obtain this event <code>id</code>.</p>
+<p>Before we can actually sign the event, we need that <code>id</code>, which means we need a method to generate the JSON string
+described above, based on the event.</p>
+<p>In the Rust world, <a rel="noopener" target="_blank" href="https://serde.rs/"><code>serde</code></a> has become a go-to crate for (ser)ialization, and
+(de)serialization, and has support for JSON, so it makes sense for us to start there. <code>serde</code> supports the notion
+of a <code>Serialize</code> trait (or &quot;interface&quot;), we can implement to tell <code>serde</code> how we want our custom types to look when
+they are represented as JSON. Explaining all the details of <code>serde</code> is definitely outside of the scope of this
+post, but this should give you a rough idea.</p>
+<p>For <code>Kind</code>, it's pretty straightforward, just map each <code>enum</code> variant to a number.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Serialize </span><span style="color:#b48ead;">for </span><span>Kind {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">serialize</span><span>&lt;S&gt;(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">serializer</span><span>: S) -&gt; Result&lt;</span><span style="color:#b48ead;">S::</span><span>Ok, </span><span style="color:#b48ead;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#b48ead;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        serializer.</span><span style="color:#96b5b4;">serialize_u32</span><span>(</span><span style="color:#b48ead;">match </span><span style="color:#bf616a;">self </span><span>{
+</span><span>            Kind::SetMetadata =&gt; </span><span style="color:#d08770;">0</span><span>,
+</span><span>            Kind::Text =&gt; </span><span style="color:#d08770;">1</span><span>,
+</span><span>            Kind::RecommendServer =&gt; </span><span style="color:#d08770;">2</span><span>,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>Tag</code> type is a little more complicated, since the 3rd element of the array is optional, according to NIP-01.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Serialize </span><span style="color:#b48ead;">for </span><span>Tag {
+</span><span>    </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">serialize</span><span>&lt;S&gt;(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">serializer</span><span>: S) -&gt; Result&lt;</span><span style="color:#b48ead;">S::</span><span>Ok, </span><span style="color:#b48ead;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#b48ead;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        </span><span style="color:#65737e;">// serialize tag
+</span><span>        </span><span style="color:#b48ead;">let mut</span><span> tup = </span><span style="color:#b48ead;">if let </span><span>Some(_) = &amp;</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">2 </span><span>{
+</span><span>            serializer.</span><span style="color:#96b5b4;">serialize_tuple</span><span>(</span><span style="color:#d08770;">3</span><span>)?
+</span><span>        } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>            serializer.</span><span style="color:#96b5b4;">serialize_tuple</span><span>(</span><span style="color:#d08770;">2</span><span>)?
+</span><span>        };
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// serialize tag &quot;id&quot;
+</span><span>        tup.</span><span style="color:#96b5b4;">serialize_element</span><span>(</span><span style="color:#b48ead;">match </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">0 </span><span>{
+</span><span>            TagId::PubKey =&gt; &quot;</span><span style="color:#a3be8c;">p</span><span>&quot;,
+</span><span>            TagId::Event =&gt; &quot;</span><span style="color:#a3be8c;">e</span><span>&quot;,
+</span><span>            TagId::Unknown =&gt; &quot;</span><span style="color:#a3be8c;">unknown</span><span>&quot;,
+</span><span>        })?;
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// serialize tag &quot;payload&quot;
+</span><span>        tup.</span><span style="color:#96b5b4;">serialize_element</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">1</span><span>)?;
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// serialize recommended relay (if we have it)
+</span><span>        </span><span style="color:#b48ead;">if let </span><span>Some(relay) = &amp;</span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#d08770;">2 </span><span>{
+</span><span>            tup.</span><span style="color:#96b5b4;">serialize_element</span><span>(&amp;relay)?;
+</span><span>        }
+</span><span>
+</span><span>        tup.</span><span style="color:#96b5b4;">end</span><span>()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>I'm sure they are cleaner ways of handling both of these cases, but in the spirit of just getting things working,
+let's stick with it.</p>
+<p>Lastly, we need to consider the <code>Event</code> - the center of all this. I started to go down the route
+of implementing <code>Serialize</code> for <code>Event</code>, so it would produce the <code>[0,...]</code> format described above, which we use
+in determining the event <code>id</code>, but quickly realized that wouldn't be so great.</p>
+<p>One thing that's really cool about Rust, or even just modern statically typed languages in general, is that we can
+encode certain aspects of our problem domain into the types themselves. In this case, <code>EventData</code> is something dynamic,
+generated by the user, and can reasonably be &quot;edited&quot;, up until the point we are ready to sign the event for
+publication to the network. Once that event is signed though, it doesn't make sense that we should be able to edit
+that <code>EventData</code> anymore, since changing it necessarily changes the <code>id</code>, which changes the signature
+(more on that later).</p>
+<p>So, what if our <code>Event</code> type represented this idea directly?</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(serde::Serialize)]
+</span><span style="color:#b48ead;">pub struct </span><span>Event {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">id</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">sig</span><span>: String,
+</span><span>
+</span><span>    #[</span><span style="color:#bf616a;">serde</span><span>(flatten)]
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">data</span><span>: EventData, </span><span style="color:#65737e;">// this is the old &quot;Event&quot; type, without the id and sig
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>The astute reader might comment that since our <code>Event</code> fields are &quot;pub&quot; here, it doesn't actually quite
+get us to the point where we have full encapsulation within this module. That's something I hope to address
+fully, with accessor methods later on.</p>
+</blockquote>
+<p>With this design in mind, it wouldn't make sense to write <code>Serialize</code> for <code>EventData</code> in such a way that doesn't result in
+the standard JSON representation of the struct, which we want to send over the wire to the relays. We want to lean
+on <code>serde</code>'s provided implemention of <code>Serialize</code> for structs, and include the fields of <code>EventData</code> into our final
+<code>Event</code> JSON representation, at the same level as <code>id</code> and <code>sig</code> (hence the <code>flatten</code> directive). So, we can't
+use <code>Serialize</code> to build our array for determining the event <code>id</code>. We'll have to write a simple function to do that
+using string formatting.</p>
+<p>OK! That was a bit of a detour, but hopefully a fruitful one. Here's what we have now for <code>EventData</code> and <code>Event</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(serde::Serialize)]
+</span><span style="color:#b48ead;">pub struct </span><span>EventData {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">pubkey</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">created_at</span><span>: </span><span style="color:#b48ead;">u64</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">kind</span><span>: Kind,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">tags</span><span>: Vec&lt;Tag&gt;,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">content</span><span>: String,
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>EventData {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">id</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; String {
+</span><span>        hex::encode(
+</span><span>            Sha256::new()
+</span><span>                .</span><span style="color:#96b5b4;">chain_update</span><span>(format!(
+</span><span>                    </span><span style="color:#65737e;">// just lean on serde here as well, for each element.
+</span><span>                    </span><span style="color:#65737e;">// makes the format string nicer to look at
+</span><span>                    &quot;</span><span style="color:#a3be8c;">[0,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">]</span><span>&quot;,
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.pubkey).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.created_at).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.kind).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.tags).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.content).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                ))
+</span><span>                .</span><span style="color:#96b5b4;">finalize</span><span>(),
+</span><span>        )
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// Event can only be generated from EventData,
+</span><span style="color:#65737e;">// with a provided key for signing.
+</span><span>#[</span><span style="color:#bf616a;">derive</span><span>(serde::Serialize)]
+</span><span style="color:#b48ead;">pub struct </span><span>Event {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">id</span><span>: String,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">sig</span><span>: String,
+</span><span>
+</span><span>    #[</span><span style="color:#bf616a;">serde</span><span>(flatten)]
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">data</span><span>: EventData,
+</span><span>}
+</span></code></pre>
+<p>Now, we can create a simple test case for <code>EventData</code>, and make sure we are getting some <code>id</code> back from it.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">test</span><span>]
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">event_id</span><span>() {
+</span><span>    </span><span style="color:#65737e;">// sample event
+</span><span>    </span><span style="color:#65737e;">// https://www.nostr.guru/e/c8d24e78cfedd658688bdfc23a2f7049f0032989096f3e1c5df1e5585efaa393
+</span><span>    </span><span style="color:#b48ead;">let</span><span> data = EventData {
+</span><span>        pubkey: &quot;</span><span style="color:#a3be8c;">5fe74dc9a7349be18269007d8e7bdf7599869cb677fe3f2794ebd821f146fe81</span><span>&quot;.</span><span style="color:#96b5b4;">into</span><span>(),
+</span><span>        created_at: </span><span style="color:#d08770;">1675631070</span><span>,
+</span><span>        kind: Kind::Text,
+</span><span>        tags: vec![],
+</span><span>        content: &quot;</span><span style="color:#a3be8c;">hello, nostr</span><span>&quot;.</span><span style="color:#96b5b4;">into</span><span>(),
+</span><span>    };
+</span><span>
+</span><span>    assert_eq!(
+</span><span>        data.</span><span style="color:#96b5b4;">id</span><span>(),
+</span><span>        &quot;</span><span style="color:#a3be8c;">c8d24e78cfedd658688bdfc23a2f7049f0032989096f3e1c5df1e5585efaa393</span><span>&quot;
+</span><span>    );
+</span><span>}
+</span></code></pre>
+<h4 id="signatures">Signatures</h4>
+<p>The next critical piece we need to consider is signing the events with a key pair.</p>
+<p>By utilizing digital signatures, nostr clients and relays can verify the integrity of messages. They are the core piece
+of a user's identity as they move from one relay to another. This what people mean when they say nostr is
+&quot;tamperproof&quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
+your public key.</p>
+<p>As stated in the NIP-01 specification,</p>
+<blockquote>
+<p>Each user has a keypair. Signatures, public key, and encodings are done according to the Schnorr signatures
+standard for the curve secp256k1.</p>
+</blockquote>
+<p>The whole cryptography thing is a <em>h u g e</em> topic to cover, and I am by no means an expert, so I won't go into much
+detail. The basic idea is that everybody has a public key and a private key. This is called the &quot;key pair&quot;.
+A user can &quot;sign&quot; data with their private key, and share their public key with the world. Anybody can then look
+at the signature data, and verify it was in fact signed by the user with the associated public key, all without
+revealing the private key itself, so it can be re-used.</p>
+<p>Fortunately, there is a lot of prior art out there we can utilize to get this working pretty easily.</p>
+<p>I'll be using the <a rel="noopener" target="_blank" href="https://docs.rs/secp256k1/latest/secp256k1/index.html"><code>secp256k1</code></a> crate, which has support
+for Schnorr signatures as well. We'll also need the <a rel="noopener" target="_blank" href="https://docs.rs/bech32/0.9.1/bech32/"><code>bech32</code></a> crate to
+support encoding and decoding of keys in a user-friendly way.</p>
+<p>First, let's build the signing context and key pair, by reading a value from the environment. Nostr keys use the <code>bech32</code>
+encoding, so private keys begin with <code>nsec1</code> and public keys begin with <code>npub1</code>. This makes it easier for a human
+looking at values to know which they are dealing with. The public key can be derived from the private key, so we
+only need to include the latter in our configuration.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(Parser, Debug)]
+</span><span style="color:#b48ead;">pub struct </span><span>Config {
+</span><span>    #[</span><span style="color:#bf616a;">clap</span><span>(env = &quot;</span><span style="color:#a3be8c;">ROOSTR_PRIVATE_KEY</span><span>&quot;)]
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">key</span><span>: SecretString,
+</span><span>}
+</span><span>
+</span><span>...
+</span><span>
+</span><span style="color:#b48ead;">pub struct </span><span>Signer {
+</span><span>    </span><span style="color:#bf616a;">context</span><span>: Secp256k1&lt;All&gt;,
+</span><span>    </span><span style="color:#bf616a;">keypair</span><span>: KeyPair,
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>Signer {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">from_config</span><span>(</span><span style="color:#bf616a;">config</span><span>: &amp;Config) -&gt; anyhow::Result&lt;</span><span style="color:#b48ead;">Self</span><span>&gt; {
+</span><span>        </span><span style="color:#65737e;">// decode `nsec1...` into Vec&lt;u5&gt;
+</span><span>        </span><span style="color:#b48ead;">let </span><span>(_, decoded, _) = bech32::decode(&amp;config.key.</span><span style="color:#96b5b4;">expose_secret</span><span>())?;
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// create Vec&lt;u8&gt; from Vec&lt;u5&gt; (&quot;base32&quot;)
+</span><span>        </span><span style="color:#b48ead;">let</span><span> bytes: Vec&lt;</span><span style="color:#b48ead;">u8</span><span>&gt; = Vec::from_base32(&amp;decoded)?;
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// generate a secret key on the curve from the byte vector
+</span><span>        </span><span style="color:#b48ead;">let</span><span> context = Secp256k1::new();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> key = SecretKey::from_slice(&amp;bytes)?;
+</span><span>        </span><span style="color:#b48ead;">let</span><span> keypair = KeyPair::from_secret_key(&amp;context, &amp;key);
+</span><span>
+</span><span>        Ok(</span><span style="color:#b48ead;">Self </span><span>{ context, keypair })
+</span><span>    }
+</span><span>
+</span><span>    ...
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>From a security standpoint, this isn't ready for production. I'm currently doing just about the bare minimum here
+in order to get this working, by using this <code>SecretString</code> type imported from the <a rel="noopener" target="_blank" href="https://docs.rs/secrecy/0.8.0/secrecy/"><code>secrecy</code></a>
+crate, which basically just zeros out the memory allocation when the value's memory is freed, and makes it very explicit
+when we expose the secret value to other functions. We'll revisit this topic of key management in a later post.</p>
+</blockquote>
+<p>Now that we have that, we can write the function that will sign our event <code>id</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">impl </span><span>Signer {
+</span><span>    ...
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// public key returned in the &quot;x only&quot; format,
+</span><span>    </span><span style="color:#65737e;">// which drops the first parity byte
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">public_key</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>) -&gt; String {
+</span><span>        format!(&quot;</span><span style="color:#d08770;">{:x}</span><span>&quot;, </span><span style="color:#bf616a;">self</span><span>.keypair.</span><span style="color:#96b5b4;">x_only_public_key</span><span>().</span><span style="color:#d08770;">0</span><span>)
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">sign</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">id</span><span>: &amp;</span><span style="color:#b48ead;">str</span><span>) -&gt; anyhow::Result&lt;String&gt; {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> message = Message::from_slice(&amp;hex::decode(id)?)?;
+</span><span>        </span><span style="color:#b48ead;">let</span><span> signature = </span><span style="color:#bf616a;">self</span><span>.context.</span><span style="color:#96b5b4;">sign_schnorr</span><span>(&amp;message, &amp;</span><span style="color:#bf616a;">self</span><span>.keypair);
+</span><span>
+</span><span>        Ok(format!(&quot;</span><span style="color:#d08770;">{signature:x}</span><span>&quot;))
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>I had to find the <a rel="noopener" target="_blank" href="https://docs.rs/secp256k1/latest/secp256k1/struct.KeyPair.html#method.x_only_public_key"><code>KeyPair::x_only_public_key</code></a>
+function after I had originally just tried to test with <a rel="noopener" target="_blank" href="https://docs.rs/secp256k1/latest/secp256k1/struct.KeyPair.html#method.public_key"><code>KeyPair::public_key</code></a>
+which seems to include some kind of &quot;parity&quot; byte at the front of the hex output. I can't see that being relevant
+when looking at the raw data of other valid nostr events out in the wild, so I don't think it's necessary. This makes
+sense actually when we see that &quot;X only&quot; intends the key to be used only for signature verification.</p>
+<p>Finally, we can put our types together in the way we described above to generate a signed <code>Event</code> from <code>EventData</code>.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(serde::Serialize)]
+</span><span style="color:#b48ead;">pub struct </span><span>EventData {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">created_at</span><span>: </span><span style="color:#b48ead;">u64</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">kind</span><span>: Kind,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">tags</span><span>: Vec&lt;Tag&gt;,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">content</span><span>: String,
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">impl </span><span>EventData {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">id</span><span>(&amp;</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">pubkey</span><span>: &amp;</span><span style="color:#b48ead;">str</span><span>) -&gt; String {
+</span><span>        hex::encode(
+</span><span>            Sha256::new()
+</span><span>                .</span><span style="color:#96b5b4;">chain_update</span><span>(format!(
+</span><span>                    </span><span style="color:#65737e;">// just lean on serde here as well, for each element.
+</span><span>                    </span><span style="color:#65737e;">// makes the format string nicer to look at
+</span><span>                    &quot;</span><span style="color:#a3be8c;">[0,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">,</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">]</span><span>&quot;,
+</span><span>                    json::to_string(&amp;pubkey).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.created_at).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.kind).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.tags).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                    json::to_string(&amp;</span><span style="color:#bf616a;">self</span><span>.content).</span><span style="color:#96b5b4;">unwrap</span><span>(),
+</span><span>                ))
+</span><span>                .</span><span style="color:#96b5b4;">finalize</span><span>(),
+</span><span>        )
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">sign</span><span>(</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">signer</span><span>: &amp;Signer) -&gt; anyhow::Result&lt;Event&gt; {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> pubkey = signer.</span><span style="color:#96b5b4;">public_key</span><span>();
+</span><span>        </span><span style="color:#b48ead;">let</span><span> id = </span><span style="color:#bf616a;">self</span><span>.</span><span style="color:#96b5b4;">id</span><span>(&amp;pubkey);
+</span><span>        </span><span style="color:#b48ead;">let</span><span> sig = signer.</span><span style="color:#96b5b4;">sign</span><span>(&amp;id)?;
+</span><span>
+</span><span>        Ok(Event {
+</span><span>            id,
+</span><span>            sig,
+</span><span>            pubkey,
+</span><span>            data: </span><span style="color:#bf616a;">self</span><span>,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>You may notice, I also changed up the the type definitions a little bit here. I found it a bit awkward to have the
+<code>pubkey</code> of the signing key pair on the <code>EventData</code> struct. So instead, I added it as a parameter to the <code>id()</code>
+generation function, which is then utilized in the <code>sign()</code> function. This all seemed a bit cleaner to me,
+as I really only have to give the signing &quot;context&quot; <em>once</em> when <code>EventData</code> is actually signed and produces
+an <code>Event</code>.</p>
+<p>It's also worthwhile to note some Rust semantics here. In the <code>sign()</code> function signature (no pun intended), there's
+this <code>self</code> parameter, which doesn't include the more common <code>&amp;</code>, or immutable reference. In this case, we
+actually want the <code>sign()</code> function to take &quot;ownership&quot; of the <code>EventData</code>, consuming it in a such a way that prevents
+the caller from using <em>their</em> reference to it anymore, which helps us to encode this idea that once you sign <code>EventData</code>,
+it really shouldn't be modified anymore.</p>
+<h4 id="the-result">The Result</h4>
+<p>Finally, we can generate a fully valid nostr <code>Event</code>!</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">use </span><span>clap::Parser;
+</span><span style="color:#b48ead;">use </span><span>roostr::event::{Kind, EventData};
+</span><span style="color:#b48ead;">use </span><span>roostr::signature::Signer;
+</span><span style="color:#b48ead;">use </span><span>roostr::Config;
+</span><span>
+</span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span>() -&gt; anyhow::Result&lt;()&gt; {
+</span><span>    dotenv::dotenv().</span><span style="color:#96b5b4;">ok</span><span>();
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> config = Config::parse();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> signer = Signer::from_config(&amp;config)?;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> data = EventData {
+</span><span>        created_at: </span><span style="color:#d08770;">1678648700</span><span>,
+</span><span>        kind: Kind::Text,
+</span><span>        tags: vec![],
+</span><span>        content: &quot;</span><span style="color:#a3be8c;">hello, reader!</span><span>&quot;.</span><span style="color:#96b5b4;">into</span><span>(),
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> event = data.</span><span style="color:#96b5b4;">sign</span><span>(&amp;signer)?;
+</span><span>    println!(&quot;</span><span style="color:#d08770;">{:#?}</span><span>&quot;, event);
+</span><span>
+</span><span>    Ok(())
+</span><span>}
+</span></code></pre>
+<p>Let's <code>cargo run</code> that.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Event {
+</span><span>    id: &quot;</span><span style="color:#a3be8c;">bba6b589e2cc685eb26b5558184ed3022bc5181364d16b83be73410d37fed84e</span><span>&quot;,
+</span><span>    sig: &quot;</span><span style="color:#a3be8c;">c91c91e86b6359e5ba364cd40450886ed3f34e0b7a0f5765c23f8426390ff5e23ac2c7846a351bca62b18482414a2dea7d09051b20745ff9107f11e8320a8ea7</span><span>&quot;,
+</span><span>    pubkey: &quot;</span><span style="color:#a3be8c;">e241ea8967a43f8c67eff8b16311a204fcc50906e5c2c5c87d1ec7422ea1a6d5</span><span>&quot;,
+</span><span>    data: EventData {
+</span><span>        created_at: </span><span style="color:#d08770;">1679855436</span><span>,
+</span><span>        kind: Text,
+</span><span>        tags: [],
+</span><span>        content: &quot;</span><span style="color:#a3be8c;">hello, reader!</span><span>&quot;,
+</span><span>    },
+</span><span>}
+</span></code></pre>
+<h3 id="next-up">Next Up</h3>
+<p>I do plan on releasing this on GitHub in the near future. Once I have simple relay interaction working, I think it'll
+make sense to do so. Part of this exercise is for my own learning experience as well, so I'm not quite ready to accept
+pull requests just yet.</p>
+<p>In the next post in this series, we'll look at connecting to relays, and building a simple user interface to read
+messages from those relays.</p>
+
+    </div>
+
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- footer / copyright -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                    <span class="icon"><i class="fa-brands fa-creative-commons"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-by"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-nc"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-sa"></i></span>
+                    </p>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,12 +1,18 @@
 @charset "utf-8";
 
 $link: #1f70db;
+$link-hover: #ffffff;
 // $body-background-color: #2e2e2e;
 $body-background-color: #282c34;
 
 @import "../bulma/bulma.sass";
 
-.content > p > code, .content > p > a > code, .content > p > i > code, .content > ul > li > code {
+.content > p > code,
+.content > p > a > code,
+.content > p > i > code,
+.content > ul > li > code,
+.content > blockquote > p > code,
+.content > blockquote > p > a > code {
     background-color: #3a3a3a;
     border-radius: 5px;
     color: white;
@@ -23,4 +29,27 @@ $body-background-color: #282c34;
 
 hr {
     background-color: #f5f5f512;
+}
+
+/* ===== Scrollbar CSS ===== */
+/* https://codepen.io/stephenpaton-tech/full/JjRvGmY */
+/* Firefox */
+* {
+    scrollbar-width: none;
+    scrollbar-color: #a1a1a1 #3a3a3a;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #3a3a3a;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #a1a1a1;
+    border-radius: 8px;
+    border: 0px none #3a3a3a;
 }

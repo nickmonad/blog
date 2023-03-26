@@ -4,17 +4,19 @@
 {% block page %}{{ section.title }}{% endblock %}
 
 {% block content %}
+    <hr/>
     <div class="content is-medium">
-        <h3 class="is-size-3 has-text-grey-light is-family-monospace mt-2">Latest Posts</h3>
         <ul>
             {% for post in section.pages %}
-                <!-- only show the last 5 posts -->
-                <!-- TODO: get pagination working -->
-                {% if loop.index == 5 %}{% break %}{% endif %}
-                <li><span class="is-family-monospace">{{ post.date }} ::</span> <a href="{{ post.path }}">{{ post.title }}</a></li>
+                <li class="py-2">
+                    <div class="is-flex is-flex-direction-column">
+                        <div><a href="{{ post.path }}">{{ post.title }}</a></div>
+                        <div class="is-size-6"><span class="is-family-monospace">{{ post.date }}</span> :: {{ post.description }}</div>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
         <hr/>
-        <p>Check out <a href="/goodreads">my list</a> of favorite blog posts by other authors and developers.</p>
+        <p>Check out <a href="/favorites">my list</a> of favorite blog posts by other authors and developers.</p>
     </div>
 {% endblock %}

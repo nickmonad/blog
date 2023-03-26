@@ -1,5 +1,5 @@
 +++
-title = "good reads"
+title = "favorites"
 template = "standalone.html"
 +++
 

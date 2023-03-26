@@ -7,7 +7,454 @@
         <generator>Zola</generator>
         <language>en</language>
         <atom:link href="https://nickmonad.blog/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Sun, 05 Feb 2023 00:00:00 +0000</lastBuildDate>
+        <lastBuildDate>Sun, 26 Mar 2023 00:00:00 +0000</lastBuildDate>
+        <item>
+            <title>Building a nostr client [0]</title>
+            <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
+            <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
+            <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
+            <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
+fascinated by this protocol and I&#x27;m very curious to see where it goes in the coming years.&lt;&#x2F;p&gt;
+&lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &amp;quot;Notes and Other Stuff Transmitted over Relays&amp;quot;, and is a pretty
+simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
+federated servers that talk to each other) it uses the concept of &amp;quot;relays&amp;quot; that allow clients to connect to them and,
+you guessed it, &lt;em&gt;transmit&lt;&#x2F;em&gt; &amp;quot;notes&amp;quot; and &amp;quot;other stuff&amp;quot;, using a cryptographic key pair to sign and verify that data.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;i&gt;By the way, how do people pronouce this thing? Is it &amp;quot;nos-ter&amp;quot;, &amp;quot;nose-ter&amp;quot;, ... something else? I tend towards the
+first way for some reason.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;As the protocol&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;GitHub&lt;&#x2F;a&gt; states:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The simplest open protocol that is able to create a censorship-resistant global &amp;quot;social&amp;quot; network once and for all.
+It doesn&#x27;t rely on any trusted central server, hence it is resilient; it is based on cryptographic keys and
+signatures, so it is tamperproof; it does not rely on P2P techniques, and therefore it works.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Clients have the option to connect to as many or as few relays as they want, some of which are free and open to the
+public, and some of which require payment to access. This allows for a wide variety of communities to coalesce
+around certain relays if they choose, and move to another if the one they are using decides to censor them for
+any reason.&lt;&#x2F;p&gt;
+&lt;p&gt;The implications of this are pretty amazing, and I think it will open up a lot of opportunity in so many directions.
+Not only from the standpoint of free speech, but also for relay operators and client developers to build features in
+a competitive way, very quickly raising the bar for the network as a whole. We are still very much in the early days,
+and things are a little bit crazy, but the hype is real, and I believe for good reason.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;let-s-build-a-client&quot;&gt;Let&#x27;s build a client!&lt;&#x2F;h3&gt;
+&lt;p&gt;Besides all the reasons I mentioned above, I&#x27;m excited about nostr, because, as a programmer, I get to &lt;em&gt;build&lt;&#x2F;em&gt; things.
+My own things. Things that define how I interact with the network. There are a lot of good clients out there already,
+but I figured, &amp;quot;why not try and build my own?&amp;quot;&lt;&#x2F;p&gt;
+&lt;p&gt;This is the first entry (index &lt;code&gt;0&lt;&#x2F;code&gt;) in a series of posts I intend to write outlining the basic discovery and process
+of building a client. Hopefully we&#x27;ll run into some interesting challenges that need thoughtful solutions, and we&#x27;ll
+progress towards something relatively usable.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ll be writing this series as I develop the client (seriously, I haven&#x27;t written a single line of code as I
+write this sentence), which is something I&#x27;ve never done before. I&#x27;ll do my best to strike a balance between content
+and pace. I don&#x27;t want to dump every single thought in my head out into this post, otherwise it could take hours
+to read, but I want to show enough to get an idea of what it takes to build a client at a technical level. I&#x27;ll also
+have to stop writing these posts at &lt;em&gt;some&lt;&#x2F;em&gt; point (there&#x27;s more to life, ya know?). But, I&#x27;ll keep developing the
+client after I wrap up this series, and anyone can follow along on GitHub once we hit that point.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hopefully I won&#x27;t give so much detail that it&#x27;s exhausting to read. I&#x27;m hoping I&#x27;ll get better about tightening up
+these posts as I go.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Wait, what about the name? After looking at all sorts of weird combinations of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;, I came up
+with &lt;code&gt;roostr&lt;&#x2F;code&gt;. I like it because it gives the project its own identity, and is actually pronoucable as &amp;quot;rooster&amp;quot;.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I&#x27;m aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;
+and settled on something unique in the space!&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h3 id=&quot;the-stack&quot;&gt;THE STACK&lt;&#x2F;h3&gt;
+&lt;p&gt;I&#x27;ll be writing this client using Rust. That&#x27;s it. That&#x27;s the stack.&lt;&#x2F;p&gt;
+&lt;p&gt;It&#x27;ll be a terminal-based client, because frankly it&#x27;s just easier, but I also love the challenge of making a usable
+terminal UI. There&#x27;s a neat minimalism there.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I will definitely assume some Rust knowledge for this series. There are a million ways to learn Rust and I can&#x27;t
+really teach it any better. I&#x27;ll make clarifying notes if I think something is particularly odd about Rust that
+needs explaining, but I want to keep it to a minimum.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h3 id=&quot;the-protocol&quot;&gt;The Protocol&lt;&#x2F;h3&gt;
+&lt;p&gt;Nostr, as a protocol, is refreshingly simple. The main GitHub &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;repository&lt;&#x2F;a&gt;
+is a high-level look at the protocol and motivations behind it, but the NIPs
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&quot;&gt;repository&lt;&#x2F;a&gt; is where all the action is.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;01.md&quot;&gt;NIP-01&lt;&#x2F;a&gt; is one of the few mandatory NIPs that relays
+and clients must implement, and is the obvious starting point for us. Highly recommend giving it a quick once over
+before continuing.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;events&quot;&gt;Events&lt;&#x2F;h4&gt;
+&lt;p&gt;Looking at the first available struct defined in NIP-01, let&#x27;s take a stab at defining it in Rust. I want to start
+with the event generation and signing portion first, before we start connecting to relays.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub enum &lt;&#x2F;span&gt;&lt;span&gt;Kind {
+&lt;&#x2F;span&gt;&lt;span&gt;    SetMetadata,     &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; kind: 0
+&lt;&#x2F;span&gt;&lt;span&gt;    Text,            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; kind: 1
+&lt;&#x2F;span&gt;&lt;span&gt;    RecommendServer, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; kind: 2
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub enum &lt;&#x2F;span&gt;&lt;span&gt;TagId {
+&lt;&#x2F;span&gt;&lt;span&gt;    PubKey,  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; tag: &amp;quot;p&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;    Event,   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; tag: &amp;quot;e&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;    Unknown, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; ... not sure how to handle this yet
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; simple 3-tuple that will be rendered as a JSON array
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; e.g. [&amp;quot;e&amp;quot;, &amp;quot;&amp;lt;hex&amp;gt;&amp;quot;, &amp;quot;wss:&#x2F;&#x2F;some.relay.net&amp;quot;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Tag(TagId, String, Option&amp;lt;String&amp;gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Event is our core data structure.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; It will likely not be built directly like this, but rather from a function,
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; where the `id` will generated and the entire thing (possibly) signed.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Event {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;pubkey&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;created_at&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;kind&lt;&#x2F;span&gt;&lt;span&gt;: Kind,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;tags&lt;&#x2F;span&gt;&lt;span&gt;: Vec&amp;lt;Tag&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;content&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sig&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;As noted in the comments, we have some things to figure out as we get further, but for now this gives us a solid
+place to stand. It may make more sense to use more specific types for some of these fields, and we will certainly
+need to expand upon these, but I want to start simple for now.&lt;&#x2F;p&gt;
+&lt;p&gt;Next, we need a way to generate the &lt;code&gt;id&lt;&#x2F;code&gt; for the event.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;To obtain the event.id, we sha256 the serialized event.
+The serialization is done over the UTF-8 JSON-serialized string
+(with no white space or line breaks) of the following structure:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;[
+&lt;&#x2F;span&gt;&lt;span&gt;  0,
+&lt;&#x2F;span&gt;&lt;span&gt;  &amp;lt;pubkey, as a (lowercase) hex string&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;  &amp;lt;created_at, as a number&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;  &amp;lt;kind, as a number&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;  &amp;lt;tags, as an array of arrays of non-null strings&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;  &amp;lt;content, as a string&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;I&#x27;ll be honest, I&#x27;m a little confused by the &amp;quot;with no white space or line breaks&amp;quot; comment. Does that also mean
+for the &lt;em&gt;content&lt;&#x2F;em&gt;? I could see it either way, but I&#x27;m going to lean towards we don&#x27;t manipulate the content in any
+way to obtain this event &lt;code&gt;id&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Before we can actually sign the event, we need that &lt;code&gt;id&lt;&#x2F;code&gt;, which means we need a method to generate the JSON string
+described above, based on the event.&lt;&#x2F;p&gt;
+&lt;p&gt;In the Rust world, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;serde.rs&#x2F;&quot;&gt;&lt;code&gt;serde&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; has become a go-to crate for (ser)ialization, and
+(de)serialization, and has support for JSON, so it makes sense for us to start there. &lt;code&gt;serde&lt;&#x2F;code&gt; supports the notion
+of a &lt;code&gt;Serialize&lt;&#x2F;code&gt; trait (or &amp;quot;interface&amp;quot;), we can implement to tell &lt;code&gt;serde&lt;&#x2F;code&gt; how we want our custom types to look when
+they are represented as JSON. Explaining all the details of &lt;code&gt;serde&lt;&#x2F;code&gt; is definitely outside of the scope of this
+post, but this should give you a rough idea.&lt;&#x2F;p&gt;
+&lt;p&gt;For &lt;code&gt;Kind&lt;&#x2F;code&gt;, it&#x27;s pretty straightforward, just map each &lt;code&gt;enum&lt;&#x2F;code&gt; variant to a number.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;Serialize &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;Kind {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;serialize&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;S&amp;gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;serializer&lt;&#x2F;span&gt;&lt;span&gt;: S) -&amp;gt; Result&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;S::&lt;&#x2F;span&gt;&lt;span&gt;Ok, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;S::&lt;&#x2F;span&gt;&lt;span&gt;Error&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;where
+&lt;&#x2F;span&gt;&lt;span&gt;        S: Serializer,
+&lt;&#x2F;span&gt;&lt;span&gt;    {
+&lt;&#x2F;span&gt;&lt;span&gt;        serializer.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_u32&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;match &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            Kind::SetMetadata =&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            Kind::Text =&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            Kind::RecommendServer =&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        })
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The &lt;code&gt;Tag&lt;&#x2F;code&gt; type is a little more complicated, since the 3rd element of the array is optional, according to NIP-01.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;Serialize &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;Tag {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;serialize&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;S&amp;gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;serializer&lt;&#x2F;span&gt;&lt;span&gt;: S) -&amp;gt; Result&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;S::&lt;&#x2F;span&gt;&lt;span&gt;Ok, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;S::&lt;&#x2F;span&gt;&lt;span&gt;Error&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;where
+&lt;&#x2F;span&gt;&lt;span&gt;        S: Serializer,
+&lt;&#x2F;span&gt;&lt;span&gt;    {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; serialize tag
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; tup = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(_) = &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            serializer.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_tuple&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;)?
+&lt;&#x2F;span&gt;&lt;span&gt;        } &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            serializer.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_tuple&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;)?
+&lt;&#x2F;span&gt;&lt;span&gt;        };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; serialize tag &amp;quot;id&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;        tup.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_element&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;match &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            TagId::PubKey =&amp;gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;            TagId::Event =&amp;gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;e&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;            TagId::Unknown =&amp;gt; &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;unknown&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;        })?;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; serialize tag &amp;quot;payload&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;        tup.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_element&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)?;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; serialize recommended relay (if we have it)
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(relay) = &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            tup.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;serialize_element&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;relay)?;
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        tup.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;end&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I&#x27;m sure they are cleaner ways of handling both of these cases, but in the spirit of just getting things working,
+let&#x27;s stick with it.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, we need to consider the &lt;code&gt;Event&lt;&#x2F;code&gt; - the center of all this. I started to go down the route
+of implementing &lt;code&gt;Serialize&lt;&#x2F;code&gt; for &lt;code&gt;Event&lt;&#x2F;code&gt;, so it would produce the &lt;code&gt;[0,...]&lt;&#x2F;code&gt; format described above, which we use
+in determining the event &lt;code&gt;id&lt;&#x2F;code&gt;, but quickly realized that wouldn&#x27;t be so great.&lt;&#x2F;p&gt;
+&lt;p&gt;One thing that&#x27;s really cool about Rust, or even just modern statically typed languages in general, is that we can
+encode certain aspects of our problem domain into the types themselves. In this case, &lt;code&gt;EventData&lt;&#x2F;code&gt; is something dynamic,
+generated by the user, and can reasonably be &amp;quot;edited&amp;quot;, up until the point we are ready to sign the event for
+publication to the network. Once that event is signed though, it doesn&#x27;t make sense that we should be able to edit
+that &lt;code&gt;EventData&lt;&#x2F;code&gt; anymore, since changing it necessarily changes the &lt;code&gt;id&lt;&#x2F;code&gt;, which changes the signature
+(more on that later).&lt;&#x2F;p&gt;
+&lt;p&gt;So, what if our &lt;code&gt;Event&lt;&#x2F;code&gt; type represented this idea directly?&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Event {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sig&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    #[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;serde&lt;&#x2F;span&gt;&lt;span&gt;(flatten)]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;data&lt;&#x2F;span&gt;&lt;span&gt;: EventData, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; this is the old &amp;quot;Event&amp;quot; type, without the id and sig
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The astute reader might comment that since our &lt;code&gt;Event&lt;&#x2F;code&gt; fields are &amp;quot;pub&amp;quot; here, it doesn&#x27;t actually quite
+get us to the point where we have full encapsulation within this module. That&#x27;s something I hope to address
+fully, with accessor methods later on.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;With this design in mind, it wouldn&#x27;t make sense to write &lt;code&gt;Serialize&lt;&#x2F;code&gt; for &lt;code&gt;EventData&lt;&#x2F;code&gt; in such a way that doesn&#x27;t result in
+the standard JSON representation of the struct, which we want to send over the wire to the relays. We want to lean
+on &lt;code&gt;serde&lt;&#x2F;code&gt;&#x27;s provided implemention of &lt;code&gt;Serialize&lt;&#x2F;code&gt; for structs, and include the fields of &lt;code&gt;EventData&lt;&#x2F;code&gt; into our final
+&lt;code&gt;Event&lt;&#x2F;code&gt; JSON representation, at the same level as &lt;code&gt;id&lt;&#x2F;code&gt; and &lt;code&gt;sig&lt;&#x2F;code&gt; (hence the &lt;code&gt;flatten&lt;&#x2F;code&gt; directive). So, we can&#x27;t
+use &lt;code&gt;Serialize&lt;&#x2F;code&gt; to build our array for determining the event &lt;code&gt;id&lt;&#x2F;code&gt;. We&#x27;ll have to write a simple function to do that
+using string formatting.&lt;&#x2F;p&gt;
+&lt;p&gt;OK! That was a bit of a detour, but hopefully a fruitful one. Here&#x27;s what we have now for &lt;code&gt;EventData&lt;&#x2F;code&gt; and &lt;code&gt;Event&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;pubkey&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;created_at&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;kind&lt;&#x2F;span&gt;&lt;span&gt;: Kind,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;tags&lt;&#x2F;span&gt;&lt;span&gt;: Vec&amp;lt;Tag&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;content&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; String {
+&lt;&#x2F;span&gt;&lt;span&gt;        hex::encode(
+&lt;&#x2F;span&gt;&lt;span&gt;            Sha256::new()
+&lt;&#x2F;span&gt;&lt;span&gt;                .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;chain_update&lt;&#x2F;span&gt;&lt;span&gt;(format!(
+&lt;&#x2F;span&gt;&lt;span&gt;                    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; just lean on serde here as well, for each element.
+&lt;&#x2F;span&gt;&lt;span&gt;                    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; makes the format string nicer to look at
+&lt;&#x2F;span&gt;&lt;span&gt;                    &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;[0,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;]&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.pubkey).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.created_at).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.kind).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.tags).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.content).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                ))
+&lt;&#x2F;span&gt;&lt;span&gt;                .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;finalize&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;        )
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Event can only be generated from EventData,
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; with a provided key for signing.
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Event {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sig&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    #[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;serde&lt;&#x2F;span&gt;&lt;span&gt;(flatten)]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;data&lt;&#x2F;span&gt;&lt;span&gt;: EventData,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now, we can create a simple test case for &lt;code&gt;EventData&lt;&#x2F;code&gt;, and make sure we are getting some &lt;code&gt;id&lt;&#x2F;code&gt; back from it.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;test&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;event_id&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; sample event
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; https:&#x2F;&#x2F;www.nostr.guru&#x2F;e&#x2F;c8d24e78cfedd658688bdfc23a2f7049f0032989096f3e1c5df1e5585efaa393
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; data = EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;        pubkey: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;5fe74dc9a7349be18269007d8e7bdf7599869cb677fe3f2794ebd821f146fe81&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;        created_at: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1675631070&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        kind: Kind::Text,
+&lt;&#x2F;span&gt;&lt;span&gt;        tags: vec![],
+&lt;&#x2F;span&gt;&lt;span&gt;        content: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;hello, nostr&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;    };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    assert_eq!(
+&lt;&#x2F;span&gt;&lt;span&gt;        data.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;        &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;c8d24e78cfedd658688bdfc23a2f7049f0032989096f3e1c5df1e5585efaa393&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;    );
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;signatures&quot;&gt;Signatures&lt;&#x2F;h4&gt;
+&lt;p&gt;The next critical piece we need to consider is signing the events with a key pair.&lt;&#x2F;p&gt;
+&lt;p&gt;By utilizing digital signatures, nostr clients and relays can verify the integrity of messages. They are the core piece
+of a user&#x27;s identity as they move from one relay to another. This what people mean when they say nostr is
+&amp;quot;tamperproof&amp;quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
+your public key.&lt;&#x2F;p&gt;
+&lt;p&gt;As stated in the NIP-01 specification,&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Each user has a keypair. Signatures, public key, and encodings are done according to the Schnorr signatures
+standard for the curve secp256k1.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;The whole cryptography thing is a &lt;em&gt;h u g e&lt;&#x2F;em&gt; topic to cover, and I am by no means an expert, so I won&#x27;t go into much
+detail. The basic idea is that everybody has a public key and a private key. This is called the &amp;quot;key pair&amp;quot;.
+A user can &amp;quot;sign&amp;quot; data with their private key, and share their public key with the world. Anybody can then look
+at the signature data, and verify it was in fact signed by the user with the associated public key, all without
+revealing the private key itself, so it can be re-used.&lt;&#x2F;p&gt;
+&lt;p&gt;Fortunately, there is a lot of prior art out there we can utilize to get this working pretty easily.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ll be using the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;index.html&quot;&gt;&lt;code&gt;secp256k1&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; crate, which has support
+for Schnorr signatures as well. We&#x27;ll also need the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bech32&#x2F;0.9.1&#x2F;bech32&#x2F;&quot;&gt;&lt;code&gt;bech32&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; crate to
+support encoding and decoding of keys in a user-friendly way.&lt;&#x2F;p&gt;
+&lt;p&gt;First, let&#x27;s build the signing context and key pair, by reading a value from the environment. Nostr keys use the &lt;code&gt;bech32&lt;&#x2F;code&gt;
+encoding, so private keys begin with &lt;code&gt;nsec1&lt;&#x2F;code&gt; and public keys begin with &lt;code&gt;npub1&lt;&#x2F;code&gt;. This makes it easier for a human
+looking at values to know which they are dealing with. The public key can be derived from the private key, so we
+only need to include the latter in our configuration.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Parser, Debug)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Config {
+&lt;&#x2F;span&gt;&lt;span&gt;    #[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;clap&lt;&#x2F;span&gt;&lt;span&gt;(env = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;ROOSTR_PRIVATE_KEY&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;)]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;key&lt;&#x2F;span&gt;&lt;span&gt;: SecretString,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;Signer {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;: Secp256k1&amp;lt;All&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;keypair&lt;&#x2F;span&gt;&lt;span&gt;: KeyPair,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;Signer {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;from_config&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;Config) -&amp;gt; anyhow::Result&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; decode `nsec1...` into Vec&amp;lt;u5&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span&gt;(_, decoded, _) = bech32::decode(&amp;amp;config.key.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expose_secret&lt;&#x2F;span&gt;&lt;span&gt;())?;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; create Vec&amp;lt;u8&amp;gt; from Vec&amp;lt;u5&amp;gt; (&amp;quot;base32&amp;quot;)
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; bytes: Vec&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u8&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; = Vec::from_base32(&amp;amp;decoded)?;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; generate a secret key on the curve from the byte vector
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; context = Secp256k1::new();
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; key = SecretKey::from_slice(&amp;amp;bytes)?;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; keypair = KeyPair::from_secret_key(&amp;amp;context, &amp;amp;key);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        Ok(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self &lt;&#x2F;span&gt;&lt;span&gt;{ context, keypair })
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    ...
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;From a security standpoint, this isn&#x27;t ready for production. I&#x27;m currently doing just about the bare minimum here
+in order to get this working, by using this &lt;code&gt;SecretString&lt;&#x2F;code&gt; type imported from the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secrecy&#x2F;0.8.0&#x2F;secrecy&#x2F;&quot;&gt;&lt;code&gt;secrecy&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+crate, which basically just zeros out the memory allocation when the value&#x27;s memory is freed, and makes it very explicit
+when we expose the secret value to other functions. We&#x27;ll revisit this topic of key management in a later post.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Now that we have that, we can write the function that will sign our event &lt;code&gt;id&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;Signer {
+&lt;&#x2F;span&gt;&lt;span&gt;    ...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; public key returned in the &amp;quot;x only&amp;quot; format,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; which drops the first parity byte
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;public_key&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; String {
+&lt;&#x2F;span&gt;&lt;span&gt;        format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:x}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.keypair.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;x_only_public_key&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;sign&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;str&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; anyhow::Result&amp;lt;String&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; message = Message::from_slice(&amp;amp;hex::decode(id)?)?;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; signature = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.context.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;sign_schnorr&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;message, &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.keypair);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        Ok(format!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{signature:x}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;))
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I had to find the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.x_only_public_key&quot;&gt;&lt;code&gt;KeyPair::x_only_public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+function after I had originally just tried to test with &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.public_key&quot;&gt;&lt;code&gt;KeyPair::public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+which seems to include some kind of &amp;quot;parity&amp;quot; byte at the front of the hex output. I can&#x27;t see that being relevant
+when looking at the raw data of other valid nostr events out in the wild, so I don&#x27;t think it&#x27;s necessary. This makes
+sense actually when we see that &amp;quot;X only&amp;quot; intends the key to be used only for signature verification.&lt;&#x2F;p&gt;
+&lt;p&gt;Finally, we can put our types together in the way we described above to generate a signed &lt;code&gt;Event&lt;&#x2F;code&gt; from &lt;code&gt;EventData&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;created_at&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;kind&lt;&#x2F;span&gt;&lt;span&gt;: Kind,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;tags&lt;&#x2F;span&gt;&lt;span&gt;: Vec&amp;lt;Tag&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;content&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;pubkey&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;str&lt;&#x2F;span&gt;&lt;span&gt;) -&amp;gt; String {
+&lt;&#x2F;span&gt;&lt;span&gt;        hex::encode(
+&lt;&#x2F;span&gt;&lt;span&gt;            Sha256::new()
+&lt;&#x2F;span&gt;&lt;span&gt;                .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;chain_update&lt;&#x2F;span&gt;&lt;span&gt;(format!(
+&lt;&#x2F;span&gt;&lt;span&gt;                    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; just lean on serde here as well, for each element.
+&lt;&#x2F;span&gt;&lt;span&gt;                    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; makes the format string nicer to look at
+&lt;&#x2F;span&gt;&lt;span&gt;                    &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;[0,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;]&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;pubkey).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.created_at).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.kind).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.tags).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                    json::to_string(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.content).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;                ))
+&lt;&#x2F;span&gt;&lt;span&gt;                .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;finalize&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;        )
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;sign&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;signer&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;Signer) -&amp;gt; anyhow::Result&amp;lt;Event&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; pubkey = signer.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;public_key&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; id = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;id&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;pubkey);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sig = signer.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;sign&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;id)?;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        Ok(Event {
+&lt;&#x2F;span&gt;&lt;span&gt;            id,
+&lt;&#x2F;span&gt;&lt;span&gt;            sig,
+&lt;&#x2F;span&gt;&lt;span&gt;            pubkey,
+&lt;&#x2F;span&gt;&lt;span&gt;            data: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        })
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;You may notice, I also changed up the the type definitions a little bit here. I found it a bit awkward to have the
+&lt;code&gt;pubkey&lt;&#x2F;code&gt; of the signing key pair on the &lt;code&gt;EventData&lt;&#x2F;code&gt; struct. So instead, I added it as a parameter to the &lt;code&gt;id()&lt;&#x2F;code&gt;
+generation function, which is then utilized in the &lt;code&gt;sign()&lt;&#x2F;code&gt; function. This all seemed a bit cleaner to me,
+as I really only have to give the signing &amp;quot;context&amp;quot; &lt;em&gt;once&lt;&#x2F;em&gt; when &lt;code&gt;EventData&lt;&#x2F;code&gt; is actually signed and produces
+an &lt;code&gt;Event&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;It&#x27;s also worthwhile to note some Rust semantics here. In the &lt;code&gt;sign()&lt;&#x2F;code&gt; function signature (no pun intended), there&#x27;s
+this &lt;code&gt;self&lt;&#x2F;code&gt; parameter, which doesn&#x27;t include the more common &lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;, or immutable reference. In this case, we
+actually want the &lt;code&gt;sign()&lt;&#x2F;code&gt; function to take &amp;quot;ownership&amp;quot; of the &lt;code&gt;EventData&lt;&#x2F;code&gt;, consuming it in a such a way that prevents
+the caller from using &lt;em&gt;their&lt;&#x2F;em&gt; reference to it anymore, which helps us to encode this idea that once you sign &lt;code&gt;EventData&lt;&#x2F;code&gt;,
+it really shouldn&#x27;t be modified anymore.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;the-result&quot;&gt;The Result&lt;&#x2F;h4&gt;
+&lt;p&gt;Finally, we can generate a fully valid nostr &lt;code&gt;Event&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;clap::Parser;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;roostr::event::{Kind, EventData};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;roostr::signature::Signer;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;roostr::Config;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() -&amp;gt; anyhow::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    dotenv::dotenv().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;ok&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; config = Config::parse();
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; signer = Signer::from_config(&amp;amp;config)?;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; data = EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;        created_at: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1678648700&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        kind: Kind::Text,
+&lt;&#x2F;span&gt;&lt;span&gt;        tags: vec![],
+&lt;&#x2F;span&gt;&lt;span&gt;        content: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;hello, reader!&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into&lt;&#x2F;span&gt;&lt;span&gt;(),
+&lt;&#x2F;span&gt;&lt;span&gt;    };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; event = data.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;sign&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;signer)?;
+&lt;&#x2F;span&gt;&lt;span&gt;    println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:#?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, event);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    Ok(())
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Let&#x27;s &lt;code&gt;cargo run&lt;&#x2F;code&gt; that.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;Event {
+&lt;&#x2F;span&gt;&lt;span&gt;    id: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;bba6b589e2cc685eb26b5558184ed3022bc5181364d16b83be73410d37fed84e&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;    sig: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;c91c91e86b6359e5ba364cd40450886ed3f34e0b7a0f5765c23f8426390ff5e23ac2c7846a351bca62b18482414a2dea7d09051b20745ff9107f11e8320a8ea7&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;    pubkey: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;e241ea8967a43f8c67eff8b16311a204fcc50906e5c2c5c87d1ec7422ea1a6d5&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;    data: EventData {
+&lt;&#x2F;span&gt;&lt;span&gt;        created_at: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1679855436&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        kind: Text,
+&lt;&#x2F;span&gt;&lt;span&gt;        tags: [],
+&lt;&#x2F;span&gt;&lt;span&gt;        content: &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;hello, reader!&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
+&lt;&#x2F;span&gt;&lt;span&gt;    },
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;next-up&quot;&gt;Next Up&lt;&#x2F;h3&gt;
+&lt;p&gt;I do plan on releasing this on GitHub in the near future. Once I have simple relay interaction working, I think it&#x27;ll
+make sense to do so. Part of this exercise is for my own learning experience as well, so I&#x27;m not quite ready to accept
+pull requests just yet.&lt;&#x2F;p&gt;
+&lt;p&gt;In the next post in this series, we&#x27;ll look at connecting to relays, and building a simple user interface to read
+messages from those relays.&lt;&#x2F;p&gt;
+</description>
+        </item>
         <item>
             <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
             <pubDate>Sun, 05 Feb 2023 00:00:00 +0000</pubDate>

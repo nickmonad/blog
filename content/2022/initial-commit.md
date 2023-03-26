@@ -1,6 +1,9 @@
 +++
 title = "Initial Commit"
+description = "Hello, Blog"
 date = 2022-12-09
+[taxonomies]
+tags = [ "meta" ]
 +++
 
 I did the thing.

@@ -1,5 +1,6 @@
 +++
 title = "nostr NIP-05 DNS Verification for a Zola-based Static Site"
+description = "Verifiy your identity using a custom domain"
 date = 2023-02-05
 [taxonomies]
 tags = [ "nostr" ]
