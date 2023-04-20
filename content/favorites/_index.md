@@ -6,6 +6,7 @@ template = "standalone.html"
 The following is a collection of my favorite blog posts by other authors or developers. They are listed in (roughly)
 reverse chronological order, so the most recent I've read is at or near the top.
 
+* [Load Balancing](https://samwho.dev/load-balancing/) : Sam Rose
 * [Kubernetes is Our Generation's Multics](https://www.oilshell.org/blog/2021/07/blog-backlog-2.html#kubernetes-is-our-generations-multics) : Oil Shell Blog
 * [Hacking myself to prove a point](https://www.macchaffee.com/blog/2023/hacking-myself/) : Mac Chaffee
 * [Misunderstanding mlock(2) and mlockall(2)](https://eklitzke.org/mlock-and-mlockall) : Evan Klitzke
