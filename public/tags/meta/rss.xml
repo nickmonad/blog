@@ -2,18 +2,19 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
       <title> - meta</title>
-        <link>https://nickmonad.blog</link>
-        <description></description>
-        <generator>Zola</generator>
-        <language>en</language>
-        <atom:link href="https://nickmonad.blog/tags/meta/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Fri, 09 Dec 2022 00:00:00 +0000</lastBuildDate>
-        <item>
-            <title>Initial Commit</title>
-            <pubDate>Fri, 09 Dec 2022 00:00:00 +0000</pubDate>
-            <link>https://nickmonad.blog/2022/initial-commit/</link>
-            <guid>https://nickmonad.blog/2022/initial-commit/</guid>
-            <description>&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;
+      <link>https://nickmonad.blog</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://nickmonad.blog/tags/meta/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Fri, 09 Dec 2022 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Initial Commit</title>
+          <pubDate>Fri, 09 Dec 2022 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://nickmonad.blog/2022/initial-commit/</link>
+          <guid>https://nickmonad.blog/2022/initial-commit/</guid>
+          <description>&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;
 &lt;p&gt;As they say, the 3rd (or maybe 10th) time is the charm. And just after I turned 30 too.&lt;&#x2F;p&gt;
 &lt;p&gt;Keep an eye out for some upcoming posts. I&#x27;m currently setting up NixOS on my homelab server, so that should be a
 fun one to write about.&lt;&#x2F;p&gt;
@@ -23,6 +24,6 @@ fun one to write about.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 </description>
-        </item>
+      </item>
     </channel>
 </rss>

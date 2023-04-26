@@ -2,18 +2,19 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
       <title> - rust</title>
-        <link>https://nickmonad.blog</link>
-        <description></description>
-        <generator>Zola</generator>
-        <language>en</language>
-        <atom:link href="https://nickmonad.blog/tags/rust/rss.xml" rel="self" type="application/rss+xml"/>
-        <lastBuildDate>Sun, 26 Mar 2023 00:00:00 +0000</lastBuildDate>
-        <item>
-            <title>Building a nostr client [0]</title>
-            <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
-            <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
-            <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
-            <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
+      <link>https://nickmonad.blog</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://nickmonad.blog/tags/rust/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sun, 26 Mar 2023 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Building a nostr client [0]</title>
+          <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
+          <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
+          <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
 fascinated by this protocol and I&#x27;m very curious to see where it goes in the coming years.&lt;&#x2F;p&gt;
 &lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &amp;quot;Notes and Other Stuff Transmitted over Relays&amp;quot;, and is a pretty
 simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
@@ -454,6 +455,6 @@ pull requests just yet.&lt;&#x2F;p&gt;
 &lt;p&gt;In the next post in this series, we&#x27;ll look at connecting to relays, and building a simple user interface to read
 messages from those relays.&lt;&#x2F;p&gt;
 </description>
-        </item>
+      </item>
     </channel>
 </rss>
