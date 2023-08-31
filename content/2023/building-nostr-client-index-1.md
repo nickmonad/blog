@@ -381,6 +381,8 @@ provides really simple ways to put the terminal in the correct mode it needs to 
 
 ### Demo!
 
+> This may not render correctly on mobile.
+
 <script async id="asciicast-WvpaikA286wzkJ5RqBIIT6VzT" src="https://asciinema.org/a/WvpaikA286wzkJ5RqBIIT6VzT.js"></script>
 
 Look at that TUI **magic!**

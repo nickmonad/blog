@@ -342,6 +342,9 @@ in practice either, since it&#x27;s just... outputing text to the terminal.&lt;&
 say, I chose to use &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;ratatui&#x2F;latest&#x2F;ratatui&#x2F;index.html&quot;&gt;ratatui&lt;&#x2F;a&gt;, the successor to &lt;code&gt;tui-rs&lt;&#x2F;code&gt;. It
 provides really simple ways to put the terminal in the correct mode it needs to be in, and build up layout components.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;demo&quot;&gt;Demo!&lt;&#x2F;h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This may not render correctly on mobile.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
 &lt;script async id=&quot;asciicast-WvpaikA286wzkJ5RqBIIT6VzT&quot; src=&quot;https:&#x2F;&#x2F;asciinema.org&#x2F;a&#x2F;WvpaikA286wzkJ5RqBIIT6VzT.js&quot;&gt;&lt;&#x2F;script&gt;
 &lt;p&gt;Look at that TUI &lt;strong&gt;magic!&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;next-up&quot;&gt;Next Up&lt;&#x2F;h3&gt;
