@@ -6,6 +6,7 @@ template = "standalone.html"
 The following is a collection of my favorite blog posts by other authors or developers. They are listed in (roughly)
 reverse chronological order, so the most recent I've read is at or near the top.
 
+* [My Approach to Building Large Technical Projects](https://mitchellh.com/writing/building-large-technical-projects) : Mitchell Hashimoto
 * [Automated, immutable, and declarative](https://justingarrison.com/blog/2022-11-04-immutable-declarative-automated/) : Justin Garrison
 * [Load Balancing](https://samwho.dev/load-balancing/) : Sam Rose
 * [Kubernetes is Our Generation's Multics](https://www.oilshell.org/blog/2021/07/blog-backlog-2.html#kubernetes-is-our-generations-multics) : Oil Shell Blog
