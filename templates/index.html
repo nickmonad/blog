@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block title %}nickmonad | {{ section.title }}{% endblock %}
+{% block description %}asynchronous communication about programming and whatever else.{% endblock %}
 {% block page %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <hr/>
     <div class="content is-medium">
         <ul>
             {% for post in section.pages %}

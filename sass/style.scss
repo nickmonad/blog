@@ -2,7 +2,6 @@
 
 $link: #1f70db;
 $link-hover: #ffffff;
-// $body-background-color: #2e2e2e;
 $body-background-color: #282c34;
 
 @import "../bulma/bulma.sass";
@@ -15,7 +14,6 @@ code,
 .content > blockquote > p > code,
 .content > blockquote > p > a > code {
     background-color: #3a3a3a;
-    border-radius: 5px;
     color: white;
 }
 
@@ -26,6 +24,10 @@ code,
 
 .content h1, .content h2, .content h3, .content h4, .content h5 {
     color: #f5f5f5;
+}
+
+.content > p > a > code {
+    color: $link;
 }
 
 strong {

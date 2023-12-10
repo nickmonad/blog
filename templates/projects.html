@@ -1,19 +1,20 @@
 {% extends "base.html" %}
 
 {% block title %}nickmonad | {{ section.title }}{% endblock %}
+{% block description %}{{ section.description }}{% endblock %}
 {% block page %}{{ section.title }}{% endblock %}
 
 {% block content %}
     <div class="content is-medium">
-        Links to various personal, work, and open-source projects worth sharing.
+        {{ section.description }}
     </div>
 
-    {% for project in config.extra.projects %}
-        <div class="container mb-4">
+    {% for project in section.extra.projects %}
+        <div class="container block">
             <div class="level is-mobile mb-0">
                 <div class="level-left">
                     <div class="level-item">
-                        <h2 class="is-size-3 has-text-grey-light is-family-monospace">{{ project.name }}</h2>
+                        <h2 class="is-size-4 has-text-light is-family-monospace" style="text-decoration: underline;">{{ project.name }}</h2>
                     </div>
 
                     {% if project.href %}
@@ -36,5 +37,6 @@
 
             {% if project.description %}<p class="content is-medium">{{ project.description }}</p>{% endif %}
         </div>
+
     {% endfor %}
 {% endblock %}
