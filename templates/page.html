@@ -4,6 +4,13 @@
 {% block description %}{{ page.description }}{% endblock %}
 {% block page %}blog{% endblock %}
 
+{% block meta %}
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{{ page.title }}" />
+<meta property="og:description" content="{{ page.description }}" />
+<meta property="og:url" content="{{ page.permalink }}" />
+{% endblock %}
+
 {% block content %}
     <div class="is-size-3">{{ page.title }}</div>
     <div class="is-size-5">{{ page.description }}</div>
