@@ -151,7 +151,7 @@ chosen, mainly because the full scope of how static site generators could be use
 &lt;p&gt;It&#x27;s tempting to reach for those languages and tools, since they are familiar to a lot of developers. At some point though,
 we have to use the best tool for the job, and bringing along all of React to build out a few product pages just doesn&#x27;t seem like
 the way to go.&lt;&#x2F;p&gt;
-&lt;p&gt;I could be way behind on this. If you&#x27;re reading and find all it to be blatantly obvious, or something that was figured out
+&lt;p&gt;I could be way behind on this. If you&#x27;re reading and find all of it to be blatantly obvious, or something that was figured out
 years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we&#x27;ll see a renaissance
 soon, where the simple choice is the default choice.&lt;&#x2F;p&gt;
 </description>
