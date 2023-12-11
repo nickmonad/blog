@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title> - web</title>
+      <link>https://nickmonad.blog</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://nickmonad.blog/tags/web/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Mon, 11 Dec 2023 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Static Site Generators: Not Just for Blogs</title>
+          <pubDate>Mon, 11 Dec 2023 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</link>
+          <guid>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</guid>
+          <description>&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
+programs that allow anybody with a little bit of HTML and CSS skill to produce a blog or product page quickly, write all their
+content (typically) using &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Markdown&quot;&gt;markdown&lt;&#x2F;a&gt; in a simple folder structure, and commit it
+all to git. Truly a gift and a joy to work with, compared to something like Wordpress.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.cloudflare.com&#x2F;learning&#x2F;performance&#x2F;static-site-generator&#x2F;&quot;&gt;Cloudflare&lt;&#x2F;a&gt; defines a
+static site generator (SSG) as &lt;strong&gt;&amp;quot;a tool that generates a full static HTML website based on raw data and a set of templates&amp;quot;&lt;&#x2F;strong&gt;.
+In this context, &amp;quot;static&amp;quot; means that the end result of the build is a set of HTML pages that don&#x27;t change when the page is
+refreshed, not that those pages &lt;em&gt;never&lt;&#x2F;em&gt; change.&lt;&#x2F;p&gt;
+&lt;p&gt;Static site generators are incredibly powerful tools available for modern web development and I think a lot of developers
+are missing out on what they offer in terms of development time, hosting cost, and overall simplicity.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;blog-bias&quot;&gt;Blog Bias&lt;&#x2F;h2&gt;
+&lt;p&gt;Blogs are common examples that come up when researching static site generators and how they can be used. This
+makes a lot of sense, as once blog posts are published, they rarely change, and they need to load quickly. In the context
+of a company blog, SEO is a major factor as well, since search engine crawlers need to parse content quickly.&lt;&#x2F;p&gt;
+&lt;p&gt;Unfortunately, I think a lot of the understanding around static site generation ends here, even among web developers.
+For a long time, I was in this camp as well. I knew I could use static site generation effectively for my blog site, or
+a simple &amp;quot;about&amp;quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
+the content could be shown in a long, continuous block of text.&lt;&#x2F;p&gt;
+&lt;p&gt;This understanding makes some product pages, or pages that require laying out collections of blocks in a grid-like
+structure difficult to reason about, and nearly impossible to build in some cases. If I can only store content in a big
+blob of text, and each document in my repository is a single page, how would I break it up so I can spread out the
+content to different sections of the page and style it appropriately? Worse yet, how would the non-technical team members
+update copy on the page without having to dig around in the HTML directly?&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;options-for-managing-structured-content&quot;&gt;Options for managing structured content&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;m going to use &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;zola&lt;&#x2F;a&gt; as my static site generator of choice and show some examples of
+creating and rendering &amp;quot;non-blog&amp;quot; content, in a few different ways. This is only because I&#x27;m the most familiar with it,
+but there are lots of good options out there, such as &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;gohugo.io&#x2F;&quot;&gt;hugo&lt;&#x2F;a&gt;. They may or may not work in exactly
+the same way, but what&#x27;s important here is taking the ideas and expanding our understanding of how we can utilize SSGs
+to their full potential.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1-section-and-page-metadata&quot;&gt;1. Section and Page Metadata&lt;&#x2F;h3&gt;
+&lt;p&gt;Sometimes called &amp;quot;front matter&amp;quot;, each section or page of our site can have metadata associated with it.&lt;&#x2F;p&gt;
+&lt;p&gt;Even in the case of a blog, you&#x27;ll see this metadata above the markdown content, enclosed in some kind of marker, to
+separate it from the main content of the post. This would include things like &lt;code&gt;title&lt;&#x2F;code&gt;, &lt;code&gt;description&lt;&#x2F;code&gt;, &lt;code&gt;author&lt;&#x2F;code&gt;, and &lt;code&gt;date&lt;&#x2F;code&gt;,
+and read by the static site generator itself to organize and template the page. The front matter of this post looks like,&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;span&gt;title = &amp;quot;Static Site Generators: Not Just for Blogs&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;description = &amp;quot;Static generation should be the default&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;date = 2023-12-11
+&lt;&#x2F;span&gt;&lt;span&gt;[taxonomies]
+&lt;&#x2F;span&gt;&lt;span&gt;tags = [ &amp;quot;web&amp;quot; ]
+&lt;&#x2F;span&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The easiest way to add structured data to this page would be to use the built-in &lt;code&gt;[extra]&lt;&#x2F;code&gt; field for our custom content.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[extra]
+&lt;&#x2F;span&gt;&lt;span&gt;seo_keywords = &amp;quot;please, read, my, blog&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Then, inside of the template that renders the page, we can include these keywords in our block that allows for &lt;code&gt;&amp;lt;meta&amp;gt;&lt;&#x2F;code&gt;
+tag keywords to be added,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;html&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-html &quot;&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span&gt;{% extends &amp;quot;base.html&amp;quot; %}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;{% block title %}{{ page.title }}{% endblock %}
+&lt;&#x2F;span&gt;&lt;span&gt;{% block seo_keywords %}{{ page.extra.seo_keywords }}{% endblock %}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;which could generate HTML that looks like this,&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;html&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-html &quot;&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span&gt;# template
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;meta &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;=&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;keywords&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;content&lt;&#x2F;span&gt;&lt;span&gt;=&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;{% block seo_keywords %}{% endblock seo_keywords %}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;# rendered
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;meta &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;name&lt;&#x2F;span&gt;&lt;span&gt;=&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;keywords&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;content&lt;&#x2F;span&gt;&lt;span&gt;=&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;please, read, my, blog&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;To build upon this example, imagine instead we had a product page and we wanted to specify a list of features.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[extra]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[[extra.features]]
+&lt;&#x2F;span&gt;&lt;span&gt;headline = &amp;quot;Amazing Feature&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;description = &amp;quot;Do something amazing.&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;[[extra.features]]
+&lt;&#x2F;span&gt;&lt;span&gt;headline = &amp;quot;Awesome Feature&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;description = &amp;quot;Do something awesome, instead.&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;+++
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Here, we have separated the content of each feature item from the display and styling of them. In our template,
+we can now iterate over each of these feature items and place them however we want on the page, using the &lt;code&gt;page.extra.features&lt;&#x2F;code&gt;
+array.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;2-data-in-templates&quot;&gt;2. Data in templates&lt;&#x2F;h3&gt;
+&lt;p&gt;In many cases, it&#x27;s useful to store website copy (especially marketing copy) in a content management system (CMS),
+where non-technical team members can edit and review content before it goes live on the website.&lt;&#x2F;p&gt;
+&lt;p&gt;The section and page metadata approach falls a bit short, since it still requires modifying files locally and committing
+them to git.&lt;&#x2F;p&gt;
+&lt;p&gt;Fortunately, &lt;code&gt;zola&lt;&#x2F;code&gt; offers a &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;documentation&#x2F;templates&#x2F;overview&#x2F;#load-data&quot;&gt;&lt;code&gt;load_data&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; function
+to bring in data from a remote source, within a template.&lt;&#x2F;p&gt;
+&lt;p&gt;As an example, we can build up a SaaS pricing page this way, using an endpoint in our hypothetical CMS.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;{% set token = get_env(name=&amp;quot;API_TOKEN&amp;quot;) %}
+&lt;&#x2F;span&gt;&lt;span&gt;{% set data = load_data(url=&amp;quot;https:&#x2F;&#x2F;my.cms.com&#x2F;api&#x2F;data&#x2F;pricing&amp;quot;, format=&amp;quot;json&amp;quot;, headers=[&amp;quot;Accept=application&#x2F;json&amp;quot;, &amp;quot;Authorization=Bearer &amp;quot; ~ token]) %}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;h1&amp;gt;{{ data.tiers[0].name }}&amp;lt;&#x2F;h1&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;ul&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;{% for feature in data.tiers[0].features %}
+&lt;&#x2F;span&gt;&lt;span&gt;    &amp;lt;li&amp;gt;{{ feature }}&amp;lt;&#x2F;li&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;{% endfor %}
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&#x2F;ul&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The &amp;quot;url&amp;quot; passed to &lt;code&gt;load_data&lt;&#x2F;code&gt; can be a local file as well, if it makes sense to store that JSON locally.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;This gives us the flexibility to put content somewhere else that is more accessible to a wider group of people on our team.
+Any change in the CMS can be detected (hopefully via a webhook) and the site can be rebuilt, previewed and pushed to production.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Side note&lt;&#x2F;strong&gt;: static site generators are &lt;em&gt;fast&lt;&#x2F;em&gt;. This entire site builds in just under 100ms.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h3 id=&quot;3-automated-markdown-file-generation&quot;&gt;3. Automated markdown file generation&lt;&#x2F;h3&gt;
+&lt;p&gt;Finally, there is always the option to generate a set of markdown files to be placed in the &lt;code&gt;content&lt;&#x2F;code&gt; directory. This is the
+approach I&#x27;ve taken for the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;bips.dev&lt;&#x2F;a&gt; site, where each BIP is a separate page, with front matter and markdown
+generated from a script that uses &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;pandoc.org&#x2F;&quot;&gt;&lt;code&gt;pandoc&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; to translate the media wiki format to markdown.&lt;&#x2F;p&gt;
+&lt;p&gt;Admittingly, it&#x27;s a bit of a hack, but it does work. Large documentation sites could be built this way with content from a
+CMS. This method would be needed whenever the actual structure of the site is dictated by some other source. In the case
+of &lt;code&gt;bips.dev&lt;&#x2F;code&gt;, that source is a &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;bitcoin&#x2F;bips&quot;&gt;public git repository&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;simple-as-the-default&quot;&gt;Simple as the default&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;strong&gt;TL;DR&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;With the proliferation and increasing sophistication of SSGs, I think the time has come where we can say that the &lt;em&gt;default&lt;&#x2F;em&gt;
+choice of any &amp;quot;non-application&amp;quot; website should be static generation. Statically generated sites are faster to develop,
+easier to host, and easier to reason about over the lifetime of the project.&lt;&#x2F;p&gt;
+&lt;p&gt;I want to be explicit in stating what I hope is the obvious: If you are building a highly interactive application with
+lots of business logic, &lt;em&gt;obviously&lt;&#x2F;em&gt; a fully featured programming language and deployment environment is going to be a better option.
+I think that statically generated sites still offer some room to include interaction and business logic with client-side
+Javascript (&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;alpinejs.dev&#x2F;&quot;&gt;alpine.js&lt;&#x2F;a&gt; is a great candidate here), and that can always be included as part of
+your templates and build output.&lt;&#x2F;p&gt;
+&lt;p&gt;I would even go so far as to say that needing to have a few business logic endpoints shouldn&#x27;t completely eliminate the
+possibility of using a static site generator, as you could simply have a reverse proxy forward those requests to an
+application server, and just serve the static content for everything else. Some judgement would need to be exercised there,
+to see if it makes sense for the use-case, but I would still take a moment to see if that model could satisfy your requirements.&lt;&#x2F;p&gt;
+&lt;p&gt;On the infrastructure side, hosting a statically generated site is just about the easiest thing to do.
+From a self-hosted &lt;code&gt;nginx&lt;&#x2F;code&gt; instance to a managed platform that watches for changes in your git repo and builds the latest
+version of the site with automatic certificate renewal, there are tons of reliable options.&lt;&#x2F;p&gt;
+&lt;p&gt;A recent website rebuild I worked on spent far more time than necessary dealing with the heavy frontend framework that was
+chosen, mainly because the full scope of how static site generators could be used wasn&#x27;t known at the time.&lt;&#x2F;p&gt;
+&lt;p&gt;It&#x27;s tempting to reach for those languages and tools, since they are familiar to a lot of developers. At some point though,
+we have to use the best tool for the job, and bringing along all of React to build out a few product pages just doesn&#x27;t seem like
+the way to go.&lt;&#x2F;p&gt;
+&lt;p&gt;I could be way behind on this. If you&#x27;re reading and find all it to be blatantly obvious, or something that was figured out
+years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we&#x27;ll see a renaissance
+soon, where the simple choice is the default choice.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

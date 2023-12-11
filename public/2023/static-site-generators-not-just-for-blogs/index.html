@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Static generation should be the default">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Static Site Generators: Not Just for Blogs</title>
+
+    <link rel="stylesheet" href="/style.css" />
+
+    <script src="https://kit.fontawesome.com/fff9d02058.js" crossorigin="anonymous"></script>
+    <script defer data-domain="nickmonad.blog" src="https://plausible.io/js/script.js"></script>
+
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+    
+</head>
+
+<body>
+    <section class="section is-fullheight">
+        <!-- header -->
+        <div class="container">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container is-family-monospace">
+                        <p class="is-size-2 has-text-weight-semi-bold has-text-grey-lighter">
+                            <a href="/">nickmonad</a> // blog
+                        </p>
+                        <p class="is-size-5 mt-2 has-text-grey-light">[ asynchronous communication about programming and whatever else ]</p>
+                        <nav class="level is-mobile is-size-5 mt-3">
+                            <div class="level-left">
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;about">about</a></button>
+                                </div>
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;projects">projects</a></button>
+                                </div>
+                                
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="&#x2F;rss.xml" target="_blank"><i class="fa-lg fa-solid fa-square-rss"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;twitter.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-twitter"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;github.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-github"></i></a>
+                                        </span>
+                                    </div>
+                                
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- primary content -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container has-text-white-ter">
+                        
+    <div class="is-size-3">Static Site Generators: Not Just for Blogs</div>
+    <div class="is-size-5">Static generation should be the default</div>
+    <div class="level is-mobile is-size-5 is-family-monospace">
+        <div class="level-left">
+            <div class="level-item">2023-12-11</div>
+            
+            
+                <div class="level-item"><a href="/tags/web">#web</a></div>
+            
+            
+        </div>
+    </div>
+    <div class="content is-medium mt-4">
+        <p>Static site generators have become popular within the technical and programming focused communities. They are fast, focused
+programs that allow anybody with a little bit of HTML and CSS skill to produce a blog or product page quickly, write all their
+content (typically) using <a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Markdown">markdown</a> in a simple folder structure, and commit it
+all to git. Truly a gift and a joy to work with, compared to something like Wordpress.</p>
+<p><a rel="noopener" target="_blank" href="https://www.cloudflare.com/learning/performance/static-site-generator/">Cloudflare</a> defines a
+static site generator (SSG) as <strong>&quot;a tool that generates a full static HTML website based on raw data and a set of templates&quot;</strong>.
+In this context, &quot;static&quot; means that the end result of the build is a set of HTML pages that don't change when the page is
+refreshed, not that those pages <em>never</em> change.</p>
+<p>Static site generators are incredibly powerful tools available for modern web development and I think a lot of developers
+are missing out on what they offer in terms of development time, hosting cost, and overall simplicity.</p>
+<h2 id="blog-bias">Blog Bias</h2>
+<p>Blogs are common examples that come up when researching static site generators and how they can be used. This
+makes a lot of sense, as once blog posts are published, they rarely change, and they need to load quickly. In the context
+of a company blog, SEO is a major factor as well, since search engine crawlers need to parse content quickly.</p>
+<p>Unfortunately, I think a lot of the understanding around static site generation ends here, even among web developers.
+For a long time, I was in this camp as well. I knew I could use static site generation effectively for my blog site, or
+a simple &quot;about&quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
+the content could be shown in a long, continuous block of text.</p>
+<p>This understanding makes some product pages, or pages that require laying out collections of blocks in a grid-like
+structure difficult to reason about, and nearly impossible to build in some cases. If I can only store content in a big
+blob of text, and each document in my repository is a single page, how would I break it up so I can spread out the
+content to different sections of the page and style it appropriately? Worse yet, how would the non-technical team members
+update copy on the page without having to dig around in the HTML directly?</p>
+<h2 id="options-for-managing-structured-content">Options for managing structured content</h2>
+<p>I'm going to use <a rel="noopener" target="_blank" href="https://www.getzola.org/">zola</a> as my static site generator of choice and show some examples of
+creating and rendering &quot;non-blog&quot; content, in a few different ways. This is only because I'm the most familiar with it,
+but there are lots of good options out there, such as <a rel="noopener" target="_blank" href="https://gohugo.io/">hugo</a>. They may or may not work in exactly
+the same way, but what's important here is taking the ideas and expanding our understanding of how we can utilize SSGs
+to their full potential.</p>
+<h3 id="1-section-and-page-metadata">1. Section and Page Metadata</h3>
+<p>Sometimes called &quot;front matter&quot;, each section or page of our site can have metadata associated with it.</p>
+<p>Even in the case of a blog, you'll see this metadata above the markdown content, enclosed in some kind of marker, to
+separate it from the main content of the post. This would include things like <code>title</code>, <code>description</code>, <code>author</code>, and <code>date</code>,
+and read by the static site generator itself to organize and template the page. The front matter of this post looks like,</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+++
+</span><span>title = &quot;Static Site Generators: Not Just for Blogs&quot;
+</span><span>description = &quot;Static generation should be the default&quot;
+</span><span>date = 2023-12-11
+</span><span>[taxonomies]
+</span><span>tags = [ &quot;web&quot; ]
+</span><span>+++
+</span></code></pre>
+<p>The easiest way to add structured data to this page would be to use the built-in <code>[extra]</code> field for our custom content.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+++
+</span><span>...
+</span><span>
+</span><span>[extra]
+</span><span>seo_keywords = &quot;please, read, my, blog&quot;
+</span><span>+++
+</span></code></pre>
+<p>Then, inside of the template that renders the page, we can include these keywords in our block that allows for <code>&lt;meta&gt;</code>
+tag keywords to be added,</p>
+<pre data-lang="html" style="background-color:#2b303b;color:#c0c5ce;" class="language-html "><code class="language-html" data-lang="html"><span>{% extends &quot;base.html&quot; %}
+</span><span>
+</span><span>{% block title %}{{ page.title }}{% endblock %}
+</span><span>{% block seo_keywords %}{{ page.extra.seo_keywords }}{% endblock %}
+</span></code></pre>
+<p>which could generate HTML that looks like this,</p>
+<pre data-lang="html" style="background-color:#2b303b;color:#c0c5ce;" class="language-html "><code class="language-html" data-lang="html"><span># template
+</span><span>&lt;</span><span style="color:#bf616a;">meta </span><span style="color:#d08770;">name</span><span>=&quot;</span><span style="color:#a3be8c;">keywords</span><span>&quot; </span><span style="color:#d08770;">content</span><span>=&quot;</span><span style="color:#a3be8c;">{% block seo_keywords %}{% endblock seo_keywords %}</span><span>&quot;&gt;
+</span><span>
+</span><span># rendered
+</span><span>&lt;</span><span style="color:#bf616a;">meta </span><span style="color:#d08770;">name</span><span>=&quot;</span><span style="color:#a3be8c;">keywords</span><span>&quot; </span><span style="color:#d08770;">content</span><span>=&quot;</span><span style="color:#a3be8c;">please, read, my, blog</span><span>&quot;&gt;
+</span></code></pre>
+<p>To build upon this example, imagine instead we had a product page and we wanted to specify a list of features.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>+++
+</span><span>...
+</span><span>
+</span><span>[extra]
+</span><span>
+</span><span>[[extra.features]]
+</span><span>headline = &quot;Amazing Feature&quot;
+</span><span>description = &quot;Do something amazing.&quot;
+</span><span>
+</span><span>[[extra.features]]
+</span><span>headline = &quot;Awesome Feature&quot;
+</span><span>description = &quot;Do something awesome, instead.&quot;
+</span><span>+++
+</span></code></pre>
+<p>Here, we have separated the content of each feature item from the display and styling of them. In our template,
+we can now iterate over each of these feature items and place them however we want on the page, using the <code>page.extra.features</code>
+array.</p>
+<h3 id="2-data-in-templates">2. Data in templates</h3>
+<p>In many cases, it's useful to store website copy (especially marketing copy) in a content management system (CMS),
+where non-technical team members can edit and review content before it goes live on the website.</p>
+<p>The section and page metadata approach falls a bit short, since it still requires modifying files locally and committing
+them to git.</p>
+<p>Fortunately, <code>zola</code> offers a <a rel="noopener" target="_blank" href="https://www.getzola.org/documentation/templates/overview/#load-data"><code>load_data</code></a> function
+to bring in data from a remote source, within a template.</p>
+<p>As an example, we can build up a SaaS pricing page this way, using an endpoint in our hypothetical CMS.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>{% set token = get_env(name=&quot;API_TOKEN&quot;) %}
+</span><span>{% set data = load_data(url=&quot;https://my.cms.com/api/data/pricing&quot;, format=&quot;json&quot;, headers=[&quot;Accept=application/json&quot;, &quot;Authorization=Bearer &quot; ~ token]) %}
+</span><span>
+</span><span>&lt;h1&gt;{{ data.tiers[0].name }}&lt;/h1&gt;
+</span><span>&lt;ul&gt;
+</span><span>{% for feature in data.tiers[0].features %}
+</span><span>    &lt;li&gt;{{ feature }}&lt;/li&gt;
+</span><span>{% endfor %}
+</span><span>&lt;/ul&gt;
+</span></code></pre>
+<blockquote>
+<p>The &quot;url&quot; passed to <code>load_data</code> can be a local file as well, if it makes sense to store that JSON locally.</p>
+</blockquote>
+<p>This gives us the flexibility to put content somewhere else that is more accessible to a wider group of people on our team.
+Any change in the CMS can be detected (hopefully via a webhook) and the site can be rebuilt, previewed and pushed to production.</p>
+<blockquote>
+<p><strong>Side note</strong>: static site generators are <em>fast</em>. This entire site builds in just under 100ms.</p>
+</blockquote>
+<h3 id="3-automated-markdown-file-generation">3. Automated markdown file generation</h3>
+<p>Finally, there is always the option to generate a set of markdown files to be placed in the <code>content</code> directory. This is the
+approach I've taken for the <a rel="noopener" target="_blank" href="https://bips.dev">bips.dev</a> site, where each BIP is a separate page, with front matter and markdown
+generated from a script that uses <a rel="noopener" target="_blank" href="https://pandoc.org/"><code>pandoc</code></a> to translate the media wiki format to markdown.</p>
+<p>Admittingly, it's a bit of a hack, but it does work. Large documentation sites could be built this way with content from a
+CMS. This method would be needed whenever the actual structure of the site is dictated by some other source. In the case
+of <code>bips.dev</code>, that source is a <a rel="noopener" target="_blank" href="https://github.com/bitcoin/bips">public git repository</a>.</p>
+<h2 id="simple-as-the-default">Simple as the default</h2>
+<p><strong>TL;DR</strong></p>
+<p>With the proliferation and increasing sophistication of SSGs, I think the time has come where we can say that the <em>default</em>
+choice of any &quot;non-application&quot; website should be static generation. Statically generated sites are faster to develop,
+easier to host, and easier to reason about over the lifetime of the project.</p>
+<p>I want to be explicit in stating what I hope is the obvious: If you are building a highly interactive application with
+lots of business logic, <em>obviously</em> a fully featured programming language and deployment environment is going to be a better option.
+I think that statically generated sites still offer some room to include interaction and business logic with client-side
+Javascript (<a rel="noopener" target="_blank" href="https://alpinejs.dev/">alpine.js</a> is a great candidate here), and that can always be included as part of
+your templates and build output.</p>
+<p>I would even go so far as to say that needing to have a few business logic endpoints shouldn't completely eliminate the
+possibility of using a static site generator, as you could simply have a reverse proxy forward those requests to an
+application server, and just serve the static content for everything else. Some judgement would need to be exercised there,
+to see if it makes sense for the use-case, but I would still take a moment to see if that model could satisfy your requirements.</p>
+<p>On the infrastructure side, hosting a statically generated site is just about the easiest thing to do.
+From a self-hosted <code>nginx</code> instance to a managed platform that watches for changes in your git repo and builds the latest
+version of the site with automatic certificate renewal, there are tons of reliable options.</p>
+<p>A recent website rebuild I worked on spent far more time than necessary dealing with the heavy frontend framework that was
+chosen, mainly because the full scope of how static site generators could be used wasn't known at the time.</p>
+<p>It's tempting to reach for those languages and tools, since they are familiar to a lot of developers. At some point though,
+we have to use the best tool for the job, and bringing along all of React to build out a few product pages just doesn't seem like
+the way to go.</p>
+<p>I could be way behind on this. If you're reading and find all it to be blatantly obvious, or something that was figured out
+years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we'll see a renaissance
+soon, where the simple choice is the default choice.</p>
+
+    </div>
+
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- footer / copyright -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                    <span class="icon"><i class="fa-brands fa-creative-commons"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-by"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-nc"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-sa"></i></span>
+                    </p>
+                    Built with ☕ and <a href="https://getzola.org">zola</a>.
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

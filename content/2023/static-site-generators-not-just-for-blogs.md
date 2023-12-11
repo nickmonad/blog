@@ -1,7 +1,6 @@
 +++
 title = "Static Site Generators: Not Just for Blogs"
 description = "Static generation should be the default"
-draft = true
 date = 2023-12-11
 [taxonomies]
 tags = [ "web" ]
@@ -106,7 +105,7 @@ To build upon this example, imagine instead we had a product page and we wanted 
 headline = "Amazing Feature"
 description = "Do something amazing."
 
-[[extrea.features]]
+[[extra.features]]
 headline = "Awesome Feature"
 description = "Do something awesome, instead."
 +++
