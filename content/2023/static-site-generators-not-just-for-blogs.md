@@ -187,6 +187,6 @@ It's tempting to reach for those languages and tools, since they are familiar to
 we have to use the best tool for the job, and bringing along all of React to build out a few product pages just doesn't seem like
 the way to go.
 
-I could be way behind on this. If you're reading and find all it to be blatantly obvious, or something that was figured out
+I could be way behind on this. If you're reading and find all of it to be blatantly obvious, or something that was figured out
 years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we'll see a renaissance
 soon, where the simple choice is the default choice.
