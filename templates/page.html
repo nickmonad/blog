@@ -5,10 +5,11 @@
 {% block page %}blog{% endblock %}
 
 {% block meta %}
-<meta property="og:type" content="article" />
+<meta property="og:type" content="summary" />
 <meta property="og:title" content="{{ page.title }}" />
 <meta property="og:description" content="{{ page.description }}" />
 <meta property="og:url" content="{{ page.permalink }}" />
+<meta name="twitter:site" content="@nickmonad" />
 {% endblock %}
 
 {% block content %}
