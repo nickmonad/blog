@@ -10,8 +10,13 @@
             {% for post in section.pages %}
                 <li class="py-2">
                     <div class="is-flex is-flex-direction-column">
-                        <div><a href="{{ post.path }}">{{ post.title }}</a></div>
-                        <div class="is-size-6"><span class="is-family-monospace">{{ post.date }}</span> :: {{ post.description }}</div>
+                        <div>
+                            <a class="post-link" href="{{ post.path }}">{{ post.title }}</a>
+                            <span class="is-hidden-touch is-size-6 is-family-monospace">({{ post.date }})</span>
+                        </div>
+                        <div class="is-hidden-desktop">
+                            <span class="is-size-6 is-family-monospace">({{ post.date }})</span>
+                        </div>
                     </div>
                 </li>
             {% endfor %}

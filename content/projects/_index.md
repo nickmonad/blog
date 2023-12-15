@@ -8,7 +8,7 @@ template = "projects.html"
 [[extra.projects]]
 name = "bips.dev"
 href = "https://bips.dev"
-github = "https://github.com/nickmonad/bips-dev"
+github = "https://github.com/nickmonad/bips.dev"
 description = "Easy way to read, search, and share Bitcoin Improvement Proposals (BIPs)."
 
 [[extra.projects]]
