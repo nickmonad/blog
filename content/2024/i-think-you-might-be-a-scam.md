@@ -18,6 +18,8 @@ I'm currently in encouraged me to stop building and actually talk to some custom
 thrilled to hear that at first. I thought I had a strong sense of what I should build, but he rightfully challenged me
 on those assumptions.
 
+## The Mom Test
+
 I sighed and took a step back, and started to learn how to approach customer discovery. My mentor recommended
 [The Mom Test](https://www.momtestbook.com/), and now I couldn't agree more. It's a concise little book that gives you that real, practical advice
 on how to approach customer discovery, with a particular emphasis on _not biasing the prospect._ As Rob Fitzpatrick
@@ -46,6 +48,8 @@ website.
 
 What I didn't fully take into consideration was how my language might sound to some of those prospects. One of them
 in particular responded in a way I never expected.
+
+## Bitter cold outreach
 
 I actually have no real idea how to approach cold calling, and in what was perhaps an overly enthusiastic email power
 session one Friday morning, I sent this out to a prospective customer.
