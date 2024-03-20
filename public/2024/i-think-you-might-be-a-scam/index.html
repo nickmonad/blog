@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+<meta property="og:type" content="summary" />
+<meta property="og:title" content="&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery" />
+<meta property="og:description" content="" />
+<meta property="og:url" content="https:&#x2F;&#x2F;nickmonad.blog&#x2F;2024&#x2F;i-think-you-might-be-a-scam&#x2F;" />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@nickmonad" />
+<meta name="twitter:creator" content="@nickmonad" />
+<meta name="twitter:title" content="&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery" />
+<meta name="twitter:description" content="" />
+
+
+    <title>&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</title>
+
+    <link rel="stylesheet" href="/style.css" />
+
+    <script src="https://kit.fontawesome.com/fff9d02058.js" crossorigin="anonymous"></script>
+    <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
+
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+    
+</head>
+
+<body>
+    <section class="section is-fullheight">
+        <!-- header -->
+        <div class="container">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container is-family-monospace">
+                        <p class="is-size-2 has-text-weight-semi-bold has-text-grey-lighter">
+                            <a href="/">nickmonad</a> // blog
+                        </p>
+                        <p class="is-size-5 mt-2 has-text-grey-light">[ asynchronous communication about programming and whatever else ]</p>
+                        <nav class="level is-mobile is-size-5 mt-3">
+                            <div class="level-left">
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;about">about</a></button>
+                                </div>
+                                
+                                <div class="level-item">
+                                    <button class="button is-link is-outlined"><a href="&#x2F;projects">projects</a></button>
+                                </div>
+                                
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="&#x2F;rss.xml" target="_blank"><i class="fa-lg fa-solid fa-square-rss"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;twitter.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-twitter"></i></a>
+                                        </span>
+                                    </div>
+                                
+                                    <div class="level-item">
+                                        <span class="icon is-medium">
+                                            <a href="https:&#x2F;&#x2F;github.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-github"></i></a>
+                                        </span>
+                                    </div>
+                                
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- primary content -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <div class="container has-text-white-ter">
+                        
+    <div class="post-title is-size-3">&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</div>
+    <div class="is-size-5"></div>
+    <div class="level is-mobile is-size-5 is-family-monospace">
+        <div class="level-left">
+            <div class="level-item">2024-03-20</div>
+            
+            
+                <div class="level-item"><a href="/tags/startups">#startups</a></div>
+            
+            
+        </div>
+    </div>
+    <div class="content is-medium mt-4">
+        <p>Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &quot;easy.&quot;
+Like many engineers, I struggle with this, because what we <em>really</em> know how to do is write code, and we think if we
+just buckle down and knock it out quickly, we could validate our idea that way.</p>
+<p>That might work for some product ideas, but I'm becoming increasingly convinced that &quot;build first&quot; approaches are a
+great way to waste a bunch of time, effort, and money towards building a product nobody cares about.</p>
+<p>I'm not alone in this way of thinking, and it certainly wasn't my idea. My mentor at the startup incubator
+I'm currently in encouraged me to stop building and actually talk to some customers. I definitely wasn't
+thrilled to hear that at first. I thought I had a strong sense of what I should build, but he rightfully challenged me
+on those assumptions.</p>
+<p>I sighed and took a step back, and started to learn how to approach customer discovery. My mentor recommended
+<a rel="noopener" target="_blank" href="https://www.momtestbook.com/">The Mom Test</a>, and now I couldn't agree more. It's a concise little book that gives you that real, practical advice
+on how to approach customer discovery, with a particular emphasis on <em>not biasing the prospect.</em> As Rob Fitzpatrick
+outlines his approach, he details a particular mistake he finds a lot of entrepreneurs making, where they'll pitch an
+idea and immediately ask &quot;What do you think? Is it a good idea?&quot; This leads to all sorts of psychological issues
+surrounding human behavior.</p>
+<p>The basic issue is that, nobody wants to hurt your feelings. When they are really
+thinking &quot;meh, I'm not sure why I would use that.&quot; Or, &quot;I really don't want to switch products right now.&quot;, they are
+telling you &quot;Yeah sounds great! Let me know when it launches.&quot; You walk away feeling like a business genius, but in
+reality, they just told you what they thought you wanted to hear. This is particularly the case when the person you
+are pitching your idea to is your mom. But friends and colleagues are guilty of the same thing.</p>
+<p>So, how do we address that problem? <em>Just ask people questions about their lives and jobs.</em> You can start out pretty
+broad, but it's OK to narrow focus around the industry and problem you are interested in. The idea is that by having
+casual conversations, you let your potential customer tell you what their problems actually are, not what you assume
+them to be. By hearing the same problems come up across multiple customer calls (the amount varies), you can build way
+more confidence in your solution as something people will actually buy. I can't do the entire book justice in this post, so if this idea sounds interesting to you,
+definitely pick up a copy and read it. (Not a paid promotion, I really just think this book is incredible.)</p>
+<p>I took a lot of the advice and strategy of the book to heart and set out on finding contacts. I was able to lean on my
+network for this a little bit, but I've also had to do some cold outreach via email. Waiting for my network to follow
+up was just taking too long. My product revolves around the volunteering space and fortunately, the space is huge. There is no shortage of non-profit
+organizations. I was able to email 7 solid prospects in one morning just by looking at my city's chamber of commerce
+website.</p>
+<p>What I didn't fully take into consideration was how my language might sound to some of those prospects. One of them
+in particular responded in a way I never expected.</p>
+<p>I actually have no real idea how to approach cold calling, and in what was perhaps an overly enthusiastic email power
+session one Friday morning, I sent this out to a prospective customer.</p>
+<blockquote>
+<p>Hello [redacted],</p>
+<p>My name is Nick and I'm part of a startup program at Iowa State, where I'm doing research on volunteer management
+and organization. I came across [redacted; org name] and am interested in learning more about your organization
+and volunteer program - what works for you, and maybe some of the challenges. It seems like [redacted; org name]
+has a wide range of roles volunteers can fill!</p>
+<p>Would a member of your team have 20 or 30 minutes to chat with me over the phone sometime next week?
+I have nothing to sell, I'm just interested in learning more about how your volunteer program operates.</p>
+<p>I really appreciate your time!</p>
+<p>Thank you,</p>
+<p>Nick</p>
+</blockquote>
+<p><strong>If you happen to be an expert in cold calling and outreach, I'm sure there are aspects of this email you may find
+pretty funny.</strong> I acknowledge that and I'm looking into how to improve it. In the meantime, please bear with me.
+I'm an engineer.</p>
+<p>I fired off that email and hoped to get a response the following week. Sure enough, it came through.</p>
+<blockquote>
+<p>Hello Nick,</p>
+<p>Thank you for reaching out to us.</p>
+<p>Could you provide me with a little more details of what information you're looking to gather?
+Let me know and I would be happy to help if I can.</p>
+<p>Thanks and make it a great day.</p>
+<p>[redacted; name]</p>
+<p>Volunteer Services Coordinator</p>
+</blockquote>
+<p>Fair enough. I could see how my initial message might not be clear to somebody, and they just want to be protective
+of their time. No problem.</p>
+<blockquote>
+<p>Hi [redacted],</p>
+<p>Thank you for your response!</p>
+<p>I'm looking to learn more about your volunteer program, in terms of how it operates. Thinking about the &quot;lifecycle&quot;
+of a volunteer - how they show interest, how they get approved / onboarded, and how they schedule shifts.
+I'm interested in hearing specifically how you do those kinds of things today, tools you use, and where you see some
+of the challenges. I am hoping to develop new solutions for this space, but I first need to validate some of my
+assumptions about the process across different organizations.</p>
+<p>Hopefully that makes sense. Happy to address any other questions!</p>
+<p>Thank you,</p>
+<p>Nick</p>
+</blockquote>
+<p>I sent that reply at 9:00 AM, and at 4:00 PM, I received the following.</p>
+<blockquote>
+<p>Hello Nick,</p>
+<p>I have to be honest with you... there are a couple red flags to know if this is a scam or not so I'm going to pass
+on providing our information.</p>
+<p>Thank you.</p>
+<p>[redacted]</p>
+</blockquote>
+<p>...</p>
+<p>I was honestly shocked.</p>
+<p>Maybe it's just me, but if I think something is a scam, the last thing I do is reply to it.
+Oh, I definitely want to - especially so I can mess with them - but I know I'm better off not engaging.</p>
+<p>(Although, the lone &quot;Thank you.&quot; is probably my favorite part.)</p>
+<p>In all seriousness, I expected to be ghosted by a few contacts, but I never expected to be told I might be somebody
+trying to execute a scam. I re-read my messages probably a dozen times, pouring over every word, trying to figure out
+what I said that was so concerning.</p>
+<p>I did end up sending a response that I won't show here. I wasn't mean or snarky with them, and even apologized for
+how I came across, but it's just a little embarrassing. I probably over explained what I was trying to do, and even
+mentioned things like &quot;I didn't lead with that information (about my company and idea) because I didn't want to bias you.&quot;
+It's absolutely the truth, but I'm sure they don't really care at this point. Phrasing it that way might even come
+across as me essentially admitting I was trying to play some scammer Jedi mind-trick I was certain would win them over,
+but now that they've caught me, we can get to the &quot;real&quot; facts to calm their nerves.</p>
+<p>I can laugh about this experience now, but it definitely rocked me at first. It sucks to be told something so blatantly
+wrong, especially when you make the effort to be as cordial and concise as possible. It also made me wonder if the
+people who ghosted me did so because I came across in a sketchy way.</p>
+<p>Moving forward, I will definitely adjust my approach. I think the biggest lessons are,</p>
+<ul>
+<li>
+<p><strong>Don't be afraid to say you are a software developer trying to build a new product.</strong>
+Saying you have an idea isn't the same as telling them what the idea is, and I think my prospective contact would have
+appreciated knowing what exactly I was attempting to do up front. Framing it as &quot;just a conversation&quot; works for
+some people, but others might find that to be a little odd.</p>
+</li>
+<li>
+<p><strong>Stop talking so much like an engineer.</strong> In my follow-up response to their question about what exactly
+I was looking for, I threw out words like &quot;lifecycle&quot; and started to describe the problem as I would describe
+it to another engineer. I went way over the top with detail when I should have just said, &quot;Oh my gosh, I'm sorry I
+wasn't clear. I really just want to learn more about your organization so I can better understand the problems facing
+volunteer organizers. I do some volunteering myself and I'm curious if other organizations are facing the same problems.&quot;</p>
+</li>
+</ul>
+<p>Even with all that, you can't win them all. People will ghost you, and they may not be very helpful.
+The goal is to keep talking with people who are willing to talk with you until you stop hearing new information.
+Then, go build a kick-ass product.</p>
+<p>And if you're going to scam anybody, find your own strategy. This one is mine.</p>
+
+    </div>
+
+                    </div>
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+
+        <!-- footer / copyright -->
+        <div class="container mt-3">
+            <div class="columns">
+                <div class="column is-hidden-mobile"></div>
+                <div class="column is-three-quarters">
+                    <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                    <span class="icon"><i class="fa-brands fa-creative-commons"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-by"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-nc"></i></span>
+                    <span class="icon"><i class="fa-brands fa-creative-commons-sa"></i></span>
+                    </p>
+                    Built with ☕ and <a href="https://getzola.org">zola</a>.
+                </div>
+                <div class="column is-hidden-mobile"></div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title> - startups</title>
+      <link>https://nickmonad.blog</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://nickmonad.blog/tags/startups/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Wed, 20 Mar 2024 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</title>
+          <pubDate>Wed, 20 Mar 2024 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</link>
+          <guid>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</guid>
+          <description>&lt;p&gt;Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &amp;quot;easy.&amp;quot;
+Like many engineers, I struggle with this, because what we &lt;em&gt;really&lt;&#x2F;em&gt; know how to do is write code, and we think if we
+just buckle down and knock it out quickly, we could validate our idea that way.&lt;&#x2F;p&gt;
+&lt;p&gt;That might work for some product ideas, but I&#x27;m becoming increasingly convinced that &amp;quot;build first&amp;quot; approaches are a
+great way to waste a bunch of time, effort, and money towards building a product nobody cares about.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m not alone in this way of thinking, and it certainly wasn&#x27;t my idea. My mentor at the startup incubator
+I&#x27;m currently in encouraged me to stop building and actually talk to some customers. I definitely wasn&#x27;t
+thrilled to hear that at first. I thought I had a strong sense of what I should build, but he rightfully challenged me
+on those assumptions.&lt;&#x2F;p&gt;
+&lt;p&gt;I sighed and took a step back, and started to learn how to approach customer discovery. My mentor recommended
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.momtestbook.com&#x2F;&quot;&gt;The Mom Test&lt;&#x2F;a&gt;, and now I couldn&#x27;t agree more. It&#x27;s a concise little book that gives you that real, practical advice
+on how to approach customer discovery, with a particular emphasis on &lt;em&gt;not biasing the prospect.&lt;&#x2F;em&gt; As Rob Fitzpatrick
+outlines his approach, he details a particular mistake he finds a lot of entrepreneurs making, where they&#x27;ll pitch an
+idea and immediately ask &amp;quot;What do you think? Is it a good idea?&amp;quot; This leads to all sorts of psychological issues
+surrounding human behavior.&lt;&#x2F;p&gt;
+&lt;p&gt;The basic issue is that, nobody wants to hurt your feelings. When they are really
+thinking &amp;quot;meh, I&#x27;m not sure why I would use that.&amp;quot; Or, &amp;quot;I really don&#x27;t want to switch products right now.&amp;quot;, they are
+telling you &amp;quot;Yeah sounds great! Let me know when it launches.&amp;quot; You walk away feeling like a business genius, but in
+reality, they just told you what they thought you wanted to hear. This is particularly the case when the person you
+are pitching your idea to is your mom. But friends and colleagues are guilty of the same thing.&lt;&#x2F;p&gt;
+&lt;p&gt;So, how do we address that problem? &lt;em&gt;Just ask people questions about their lives and jobs.&lt;&#x2F;em&gt; You can start out pretty
+broad, but it&#x27;s OK to narrow focus around the industry and problem you are interested in. The idea is that by having
+casual conversations, you let your potential customer tell you what their problems actually are, not what you assume
+them to be. By hearing the same problems come up across multiple customer calls (the amount varies), you can build way
+more confidence in your solution as something people will actually buy. I can&#x27;t do the entire book justice in this post, so if this idea sounds interesting to you,
+definitely pick up a copy and read it. (Not a paid promotion, I really just think this book is incredible.)&lt;&#x2F;p&gt;
+&lt;p&gt;I took a lot of the advice and strategy of the book to heart and set out on finding contacts. I was able to lean on my
+network for this a little bit, but I&#x27;ve also had to do some cold outreach via email. Waiting for my network to follow
+up was just taking too long. My product revolves around the volunteering space and fortunately, the space is huge. There is no shortage of non-profit
+organizations. I was able to email 7 solid prospects in one morning just by looking at my city&#x27;s chamber of commerce
+website.&lt;&#x2F;p&gt;
+&lt;p&gt;What I didn&#x27;t fully take into consideration was how my language might sound to some of those prospects. One of them
+in particular responded in a way I never expected.&lt;&#x2F;p&gt;
+&lt;p&gt;I actually have no real idea how to approach cold calling, and in what was perhaps an overly enthusiastic email power
+session one Friday morning, I sent this out to a prospective customer.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hello [redacted],&lt;&#x2F;p&gt;
+&lt;p&gt;My name is Nick and I&#x27;m part of a startup program at Iowa State, where I&#x27;m doing research on volunteer management
+and organization. I came across [redacted; org name] and am interested in learning more about your organization
+and volunteer program - what works for you, and maybe some of the challenges. It seems like [redacted; org name]
+has a wide range of roles volunteers can fill!&lt;&#x2F;p&gt;
+&lt;p&gt;Would a member of your team have 20 or 30 minutes to chat with me over the phone sometime next week?
+I have nothing to sell, I&#x27;m just interested in learning more about how your volunteer program operates.&lt;&#x2F;p&gt;
+&lt;p&gt;I really appreciate your time!&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you,&lt;&#x2F;p&gt;
+&lt;p&gt;Nick&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;If you happen to be an expert in cold calling and outreach, I&#x27;m sure there are aspects of this email you may find
+pretty funny.&lt;&#x2F;strong&gt; I acknowledge that and I&#x27;m looking into how to improve it. In the meantime, please bear with me.
+I&#x27;m an engineer.&lt;&#x2F;p&gt;
+&lt;p&gt;I fired off that email and hoped to get a response the following week. Sure enough, it came through.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hello Nick,&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you for reaching out to us.&lt;&#x2F;p&gt;
+&lt;p&gt;Could you provide me with a little more details of what information you&#x27;re looking to gather?
+Let me know and I would be happy to help if I can.&lt;&#x2F;p&gt;
+&lt;p&gt;Thanks and make it a great day.&lt;&#x2F;p&gt;
+&lt;p&gt;[redacted; name]&lt;&#x2F;p&gt;
+&lt;p&gt;Volunteer Services Coordinator&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Fair enough. I could see how my initial message might not be clear to somebody, and they just want to be protective
+of their time. No problem.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hi [redacted],&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you for your response!&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m looking to learn more about your volunteer program, in terms of how it operates. Thinking about the &amp;quot;lifecycle&amp;quot;
+of a volunteer - how they show interest, how they get approved &#x2F; onboarded, and how they schedule shifts.
+I&#x27;m interested in hearing specifically how you do those kinds of things today, tools you use, and where you see some
+of the challenges. I am hoping to develop new solutions for this space, but I first need to validate some of my
+assumptions about the process across different organizations.&lt;&#x2F;p&gt;
+&lt;p&gt;Hopefully that makes sense. Happy to address any other questions!&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you,&lt;&#x2F;p&gt;
+&lt;p&gt;Nick&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;I sent that reply at 9:00 AM, and at 4:00 PM, I received the following.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Hello Nick,&lt;&#x2F;p&gt;
+&lt;p&gt;I have to be honest with you... there are a couple red flags to know if this is a scam or not so I&#x27;m going to pass
+on providing our information.&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you.&lt;&#x2F;p&gt;
+&lt;p&gt;[redacted]&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;...&lt;&#x2F;p&gt;
+&lt;p&gt;I was honestly shocked.&lt;&#x2F;p&gt;
+&lt;p&gt;Maybe it&#x27;s just me, but if I think something is a scam, the last thing I do is reply to it.
+Oh, I definitely want to - especially so I can mess with them - but I know I&#x27;m better off not engaging.&lt;&#x2F;p&gt;
+&lt;p&gt;(Although, the lone &amp;quot;Thank you.&amp;quot; is probably my favorite part.)&lt;&#x2F;p&gt;
+&lt;p&gt;In all seriousness, I expected to be ghosted by a few contacts, but I never expected to be told I might be somebody
+trying to execute a scam. I re-read my messages probably a dozen times, pouring over every word, trying to figure out
+what I said that was so concerning.&lt;&#x2F;p&gt;
+&lt;p&gt;I did end up sending a response that I won&#x27;t show here. I wasn&#x27;t mean or snarky with them, and even apologized for
+how I came across, but it&#x27;s just a little embarrassing. I probably over explained what I was trying to do, and even
+mentioned things like &amp;quot;I didn&#x27;t lead with that information (about my company and idea) because I didn&#x27;t want to bias you.&amp;quot;
+It&#x27;s absolutely the truth, but I&#x27;m sure they don&#x27;t really care at this point. Phrasing it that way might even come
+across as me essentially admitting I was trying to play some scammer Jedi mind-trick I was certain would win them over,
+but now that they&#x27;ve caught me, we can get to the &amp;quot;real&amp;quot; facts to calm their nerves.&lt;&#x2F;p&gt;
+&lt;p&gt;I can laugh about this experience now, but it definitely rocked me at first. It sucks to be told something so blatantly
+wrong, especially when you make the effort to be as cordial and concise as possible. It also made me wonder if the
+people who ghosted me did so because I came across in a sketchy way.&lt;&#x2F;p&gt;
+&lt;p&gt;Moving forward, I will definitely adjust my approach. I think the biggest lessons are,&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Don&#x27;t be afraid to say you are a software developer trying to build a new product.&lt;&#x2F;strong&gt;
+Saying you have an idea isn&#x27;t the same as telling them what the idea is, and I think my prospective contact would have
+appreciated knowing what exactly I was attempting to do up front. Framing it as &amp;quot;just a conversation&amp;quot; works for
+some people, but others might find that to be a little odd.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Stop talking so much like an engineer.&lt;&#x2F;strong&gt; In my follow-up response to their question about what exactly
+I was looking for, I threw out words like &amp;quot;lifecycle&amp;quot; and started to describe the problem as I would describe
+it to another engineer. I went way over the top with detail when I should have just said, &amp;quot;Oh my gosh, I&#x27;m sorry I
+wasn&#x27;t clear. I really just want to learn more about your organization so I can better understand the problems facing
+volunteer organizers. I do some volunteering myself and I&#x27;m curious if other organizations are facing the same problems.&amp;quot;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Even with all that, you can&#x27;t win them all. People will ghost you, and they may not be very helpful.
+The goal is to keep talking with people who are willing to talk with you until you stop hearing new information.
+Then, go build a kick-ass product.&lt;&#x2F;p&gt;
+&lt;p&gt;And if you&#x27;re going to scam anybody, find your own strategy. This one is mine.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>
