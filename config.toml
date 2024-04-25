@@ -1,5 +1,5 @@
 base_url = "https://nickmonad.blog"
-compile_sass = true
+compile_sass = false
 generate_feed = true
 feed_filename = "rss.xml"
 taxonomies = [
@@ -9,15 +9,3 @@ taxonomies = [
 [markdown]
 highlight_code = true
 external_links_target_blank = true
-
-[extra]
-nav = [
-    { name = "about", href = "/about" },
-    { name = "projects", href = "/projects" }
-]
-
-socials = [
-    { name = "rss", href = "/rss.xml", icon = "fa-lg fa-solid fa-square-rss" },
-    { name = "twitter", href = "https://twitter.com/nickmonad", icon = "fa-lg fa-brands fa-twitter" },
-    { name = "github", href = "https://github.com/nickmonad", icon = "fa-lg fa-brands fa-github" }
-]

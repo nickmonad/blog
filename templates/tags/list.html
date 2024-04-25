@@ -4,11 +4,11 @@
 {% block page %}blog{% endblock %}
 
 {% block content %}
-    <div class="content is-medium">
-        <h2 class="is-size-3 has-text-grey-light is-family-monospace mt-2">#{{ taxonomy.name }}</h2>
-        <ul>
-            {% for tag in terms %}
-                <li><a class="is-family-monospace" href="{{ tag.permalink }}">{{ tag.name }}</a></li>
+    <div class="flex flex-col space-y-4">
+        <div class="font-semibold text-2xl underline underline-offset-4 decoration-2 decoration-sky-700">#{{ taxonomy.name }}</div>
+        <ul class="space-y-2">
+            {% for term in terms  %}
+                <li class="text-lg"><a class="underline underline-offset-4 decoration-2 decoration-sky-700" href="{{ term.permalink }}">{{ term.name }}</a></li>
             {% endfor %}
         </ul>
     </div>

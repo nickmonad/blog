@@ -5,38 +5,18 @@
 {% block page %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <div class="content is-medium">
-        {{ section.description }}
-    </div>
+    <div class="flex flex-col space-y-6">
+        <div class="text-lg">{{ section.description }}</div>
 
-    {% for project in section.extra.projects %}
-        <div class="container block">
-            <div class="level is-mobile mb-0">
-                <div class="level-left">
-                    <div class="level-item">
-                        <h2 class="project-name is-size-4 has-text-light is-family-monospace">{{ project.name }}</h2>
-                    </div>
-
-                    {% if project.href %}
-                        <div class="level-item">
-                            <span class="icon is-small">
-                                <a href="{{ project.href }}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                            </span>
-                        </div>
-                    {% endif %}
-
-                    {% if project.github %}
-                        <div class="level-item">
-                            <span class="icon is-small">
-                                <a href="{{ project.github }}" target="_blank"><i class="fa-brands fa-github"></i></a>
-                            </span>
-                        </div>
-                    {% endif %}
+        {% for project in section.extra.projects %}
+            <div class="flex flex-col space-y-1">
+                <div class="font-semibold text-3xl underline underline-offset-4 decoration-2 decoration-sky-700">
+                    <a href="{{ project.href }}">{{ project.name }}</a>
+                </div>
+                <div class="text-lg">
+                    {{ project.description }}
                 </div>
             </div>
-
-            {% if project.description %}<p class="content is-medium">{{ project.description }}</p>{% endif %}
-        </div>
-
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}

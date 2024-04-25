@@ -4,13 +4,20 @@
 {% block page %}blog{% endblock %}
 
 {% block content %}
-    <div class="content is-medium">
-        <h2 class="is-size-3 has-text-grey-light is-family-monospace mt-2">#{{ term.name }}</h2>
-        <h5 class="is-size-5 has-text-grey-light is-family-monospace mt-2">view all <a href="/{{ taxonomy.name }}">{{ taxonomy.name }}</a></h5>
-        <ul>
-            {% for post in term.pages  %}
-                <li><span class="is-family-monospace">{{ post.date }} ::</span> <a href="{{ post.path }}">{{ post.title }}</a></li>
-            {% endfor %}
-        </ul>
+    <div class="flex flex-col space-y-2">
+        <div class="font-semibold text-2xl underline underline-offset-4 decoration-2 decoration-sky-700">#{{ term.name }}</div>
+        <div class="text-xl">view all <a class="underline underline-offset-4 decoration-2 decoration-sky-700" href="/{{ taxonomy.name}}">{{ taxonomy.name }}</a></div>
+        <article class="max-w-none prose prose-lg prose-zinc prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
+            <ul>
+                {% for post in term.pages  %}
+                    <li>
+                        <div class="flex flex-col space-y-1">
+                            <a href="{{ post.path }}">{{ post.title }}</a>
+                            <div class="font-mono">{{ post.date }}</div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </article>
     </div>
 {% endblock %}

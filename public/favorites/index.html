@@ -11,116 +11,99 @@
 
     <title>nickmonad | favorites</title>
 
-    <link rel="stylesheet" href="/style.css" />
-
-    <script src="https://kit.fontawesome.com/fff9d02058.js" crossorigin="anonymous"></script>
-    <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
+    
+        <link rel="stylesheet" href="/style.css" />
+    
 
     
     <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
     
+
+    <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
+    <script>
+        // setup and initialize dark mode
+        // https://tailwindcss.com/docs/dark-mode
+        window.setTheme = function() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+            } else {
+                document.documentElement.classList.remove('dark')
+            }
+        }
+        window.setTheme();
+    </script>
 </head>
 
-<body>
-    <section class="section is-fullheight">
-        <!-- header -->
-        <div class="container">
-            <div class="columns">
-                <div class="column is-hidden-mobile"></div>
-                <div class="column is-three-quarters">
-                    <div class="container is-family-monospace">
-                        <p class="is-size-2 has-text-weight-semi-bold has-text-grey-lighter">
-                            <a href="/">nickmonad</a> // favorites
-                        </p>
-                        <p class="is-size-5 mt-2 has-text-grey-light">[ asynchronous communication about programming and whatever else ]</p>
-                        <nav class="level is-mobile is-size-5 mt-3">
-                            <div class="level-left">
-                                
-                                <div class="level-item">
-                                    <button class="button is-link is-outlined"><a href="&#x2F;about">about</a></button>
-                                </div>
-                                
-                                <div class="level-item">
-                                    <button class="button is-link is-outlined"><a href="&#x2F;projects">projects</a></button>
-                                </div>
-                                
-                                
-                                    <div class="level-item">
-                                        <span class="icon is-medium">
-                                            <a href="&#x2F;rss.xml" target="_blank"><i class="fa-lg fa-solid fa-square-rss"></i></a>
-                                        </span>
-                                    </div>
-                                
-                                    <div class="level-item">
-                                        <span class="icon is-medium">
-                                            <a href="https:&#x2F;&#x2F;twitter.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-twitter"></i></a>
-                                        </span>
-                                    </div>
-                                
-                                    <div class="level-item">
-                                        <span class="icon is-medium">
-                                            <a href="https:&#x2F;&#x2F;github.com&#x2F;nickmonad" target="_blank"><i class="fa-lg fa-brands fa-github"></i></a>
-                                        </span>
-                                    </div>
-                                
-                            </div>
-                        </nav>
+<body class="bg-stone-100 dark:bg-zinc-800">
+    <div class="container mx-auto flex justify-center px-6 py-14 w-auto md:w-[1000px]">
+        <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 md:w-[1000px]">
+            <div class="flex flex-col space-y-2">
+                <div class="flex items-center justify-between">
+                    <div class="font-mono font-semibold text-4xl">
+                        <span class="underline underline-offset-4 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
                     </div>
-                </div>
-                <div class="column is-hidden-mobile"></div>
-            </div>
-        </div>
 
-        <!-- primary content -->
-        <div class="container mt-3">
-            <div class="columns">
-                <div class="column is-hidden-mobile"></div>
-                <div class="column is-three-quarters">
-                    <div class="container has-text-white-ter">
-                        
-    <div class="content is-medium">
+                    <svg id="toggleDark_light" class="hidden dark:flex w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'light'; window.setTheme()"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                    </svg>
+                    <svg id="toggleDark_dark" class="flex dark:hidden w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'dark'; window.setTheme()"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                    </svg>
+                </div>
+                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="flex space-x-2 font-semibold text-xl">
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
+                    <div>-</div>
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
+                    <div>-</div>
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
+                </div>
+            </div>
+
+            <div class="flex">
+                
+    <article class="max-w-none prose prose-lg prose-zinc prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
         <p>The following is a collection of my favorite blog posts by other authors or developers. They are listed in (roughly)
 reverse chronological order, so the most recent I've read is at or near the top.</p>
 <ul>
-<li><a rel="noopener" target="_blank" href="https://berthub.eu/articles/posts/a-2024-plea-for-lean-software/">A 2024 Plea for Lean Software</a> : Bert Hubert</li>
-<li><a rel="noopener" target="_blank" href="https://mitchellh.com/writing/building-large-technical-projects">My Approach to Building Large Technical Projects</a> : Mitchell Hashimoto</li>
-<li><a rel="noopener" target="_blank" href="https://justingarrison.com/blog/2022-11-04-immutable-declarative-automated/">Automated, immutable, and declarative</a> : Justin Garrison</li>
-<li><a rel="noopener" target="_blank" href="https://samwho.dev/load-balancing/">Load Balancing</a> : Sam Rose</li>
-<li><a rel="noopener" target="_blank" href="https://www.oilshell.org/blog/2021/07/blog-backlog-2.html#kubernetes-is-our-generations-multics">Kubernetes is Our Generation's Multics</a> : Oil Shell Blog</li>
-<li><a rel="noopener" target="_blank" href="https://www.macchaffee.com/blog/2023/hacking-myself/">Hacking myself to prove a point</a> : Mac Chaffee</li>
-<li><a rel="noopener" target="_blank" href="https://eklitzke.org/mlock-and-mlockall">Misunderstanding mlock(2) and mlockall(2)</a> : Evan Klitzke</li>
-<li><a rel="noopener" target="_blank" href="http://widgetsandshit.com/teddziuba/2010/10/taco-bell-programming.html">Taco Bell Programming</a> : Ted Dziuba</li>
-<li><a rel="noopener" target="_blank" href="https://maverickphilosopher.typepad.com/maverick_philosopher/2011/06/burden-of-proof-in-philosophy-1.html">Burden of Proof in Philosophy?</a> : Bill Vallicella</li>
-<li><a rel="noopener" target="_blank" href="https://increment.com/testing/i-test-in-production/">I test in prod</a> : Charity Majors</li>
-<li><a rel="noopener" target="_blank" href="http://www.rntz.net/post/against-software-development.html">Against software development</a> : Michael Arntzenius</li>
+<li><a rel="noopener" target="_blank" href="https://berthub.eu/articles/posts/a-2024-plea-for-lean-software/">A 2024 Plea for Lean Software</a>
+<br/>Bert Hubert</li>
+<li><a rel="noopener" target="_blank" href="https://mitchellh.com/writing/building-large-technical-projects">My Approach to Building Large Technical Projects</a>
+<br/>Mitchell Hashimoto</li>
+<li><a rel="noopener" target="_blank" href="https://justingarrison.com/blog/2022-11-04-immutable-declarative-automated/">Automated, immutable, and declarative</a>
+<br/>Justin Garrison</li>
+<li><a rel="noopener" target="_blank" href="https://samwho.dev/load-balancing/">Load Balancing</a>
+<br/>Sam Rose</li>
+<li><a rel="noopener" target="_blank" href="https://www.oilshell.org/blog/2021/07/blog-backlog-2.html#kubernetes-is-our-generations-multics">Kubernetes is Our Generation's Multics</a>
+<br/>Oil Shell Blog</li>
+<li><a rel="noopener" target="_blank" href="https://www.macchaffee.com/blog/2023/hacking-myself/">Hacking myself to prove a point</a>
+<br/>Mac Chaffee</li>
+<li><a rel="noopener" target="_blank" href="https://eklitzke.org/mlock-and-mlockall">Misunderstanding mlock(2) and mlockall(2)</a>
+<br/>Evan Klitzke</li>
+<li><a rel="noopener" target="_blank" href="http://widgetsandshit.com/teddziuba/2010/10/taco-bell-programming.html">Taco Bell Programming</a>
+<br/>Ted Dziuba</li>
+<li><a rel="noopener" target="_blank" href="https://maverickphilosopher.typepad.com/maverick_philosopher/2011/06/burden-of-proof-in-philosophy-1.html">Burden of Proof in Philosophy?</a>
+<br/>Bill Vallicella</li>
+<li><a rel="noopener" target="_blank" href="https://increment.com/testing/i-test-in-production/">I test in prod</a>
+<br/>Charity Majors</li>
+<li><a rel="noopener" target="_blank" href="http://www.rntz.net/post/against-software-development.html">Against software development</a>
+<br/>Michael Arntzenius</li>
 </ul>
 
+    </article>
+
+            </div>
+
+            <div class="flex flex-col space-y-1 text-zinc-600">
+                <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                </p>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+            </div>
+        </div>
     </div>
-
-                    </div>
-                </div>
-                <div class="column is-hidden-mobile"></div>
-            </div>
-        </div>
-
-        <!-- footer / copyright -->
-        <div class="container mt-3">
-            <div class="columns">
-                <div class="column is-hidden-mobile"></div>
-                <div class="column is-three-quarters">
-                    <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
-                    <a property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
-                    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
-                    <span class="icon"><i class="fa-brands fa-creative-commons"></i></span>
-                    <span class="icon"><i class="fa-brands fa-creative-commons-by"></i></span>
-                    <span class="icon"><i class="fa-brands fa-creative-commons-nc"></i></span>
-                    <span class="icon"><i class="fa-brands fa-creative-commons-sa"></i></span>
-                    </p>
-                    Built with ☕ and <a href="https://getzola.org">zola</a>.
-                </div>
-                <div class="column is-hidden-mobile"></div>
-            </div>
-        </div>
-    </section>
 </body>
 </html>

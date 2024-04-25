@@ -8,7 +8,6 @@ template = "projects.html"
 [[extra.projects]]
 name = "bips.dev"
 href = "https://bips.dev"
-github = "https://github.com/nickmonad/bips.dev"
 description = "Easy way to read, search, and share Bitcoin Improvement Proposals (BIPs)."
 
 [[extra.projects]]
@@ -18,6 +17,6 @@ description = "Discover and watch the best professional disc golf tournament cov
 
 [[extra.projects]]
 name = "servus"
-github = "https://github.com/Foundation-Devices/servus"
+href = "https://github.com/Foundation-Devices/servus"
 description = "Opinionated collection of libraries and code for backend web services in Rust. Developed at Foundation."
 +++

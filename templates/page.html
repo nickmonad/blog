@@ -18,19 +18,21 @@
 {% endblock %}
 
 {% block content %}
-    <div class="is-size-3">{{ page.title }}</div>
-    <div class="is-size-5">{{ page.description }}</div>
-    <div class="level is-mobile is-size-5 is-family-monospace">
-        <div class="level-left">
-            <div class="level-item">{{ page.date | date(format="%Y-%m-%d") }}</div>
-            {% if page.taxonomies["tags"] %}
-            {% for tag in page.taxonomies["tags"] %}
-                <div class="level-item"><a href="/tags/{{ tag }}">#{{ tag }}</a></div>
-            {% endfor %}
-            {% endif %}
+    <div class="flex flex-col space-y-8 max-w-auto md:max-w-[1000px]">
+        <div class="flex flex-col space-y-2">
+            <div class="text-3xl font-semibold">{{ page.title }}</div>
+            <div class="text-xl font-semibold">{{ page.description }}</div>
+            <div class="flex space-x-4">
+                <div>{{ page.date | date(format="%B %d, %Y") }}</div>
+                {% if page.taxonomies["tags"] %}
+                {% for tag in page.taxonomies["tags"] %}
+                    <div class="text-sky-700"><a href="/tags/{{ tag }}">#{{ tag }}</a></div>
+                {% endfor %}
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="content is-medium mt-4">
-        {{ page.content | safe }}
+        <article class="max-w-none prose prose-lg prose-zinc prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
+            {{ page.content | safe }}
+        </article>
     </div>
 {% endblock %}
