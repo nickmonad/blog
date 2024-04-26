@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="flex flex-col space-y-8 max-w-auto md:max-w-[1000px]">
+    <div class="flex flex-col space-y-8">
         <div class="flex flex-col space-y-2">
             <div class="text-3xl font-semibold">{{ page.title }}</div>
             <div class="text-xl font-semibold">{{ page.description }}</div>
@@ -31,7 +31,7 @@
                 {% endif %}
             </div>
         </div>
-        <article class="max-w-none prose prose-lg prose-zinc prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
+        <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
             {{ page.content | safe }}
         </article>
     </div>
