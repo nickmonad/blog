@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+<meta property="og:type" content="summary" />
+<meta property="og:title" content="Advent of Performance: Go Edition" />
+<meta property="og:description" content="" />
+<meta property="og:url" content="https:&#x2F;&#x2F;nickmonad.blog&#x2F;2024&#x2F;advent-of-performance-go-edition&#x2F;" />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@nickmonad" />
+<meta name="twitter:creator" content="@nickmonad" />
+<meta name="twitter:title" content="Advent of Performance: Go Edition" />
+<meta name="twitter:description" content="" />
+
+
+    <title>Advent of Performance: Go Edition</title>
+
+    
+        <link rel="stylesheet" href="/style.css" />
+    
+
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+    
+
+    <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
+    <script>
+        // setup and initialize dark mode
+        // https://tailwindcss.com/docs/dark-mode
+        window.setTheme = function() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+            } else {
+                document.documentElement.classList.remove('dark')
+            }
+        }
+        window.setTheme();
+    </script>
+</head>
+
+<body class="bg-stone-100 dark:bg-zinc-800">
+    <div class="container mx-auto flex justify-center px-6 py-14">
+        <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
+
+            <div class="flex flex-col space-y-2">
+                <div class="flex items-center justify-between">
+                    <div class="font-mono font-semibold text-4xl">
+                        <span class="underline underline-offset-4 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
+                    </div>
+
+                    <svg id="toggleDark_light" class="hidden dark:flex w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'light'; window.setTheme()"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                    </svg>
+                    <svg id="toggleDark_dark" class="flex dark:hidden w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'dark'; window.setTheme()"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                    </svg>
+                </div>
+                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="flex space-x-2 font-semibold text-xl">
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
+                    <div>-</div>
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
+                    <div>-</div>
+                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
+                </div>
+            </div>
+
+                
+    <div class="flex flex-col space-y-8">
+        <div class="flex flex-col space-y-2">
+            <div class="text-3xl font-semibold">Advent of Performance: Go Edition</div>
+            <div class="text-xl font-semibold"></div>
+            <div class="flex space-x-4">
+                <div>June 03, 2024</div>
+                
+                
+                    <div class="text-sky-700"><a href="/tags/golang">#golang</a></div>
+                
+                    <div class="text-sky-700"><a href="/tags/performance">#performance</a></div>
+                
+                
+            </div>
+        </div>
+        <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
+            <p>Every so often I like to spend some time working on <a rel="noopener" target="_blank" href="https://adventofcode.com/">Advent of Code</a> problems when I need
+a break from my primary projects. It's also a great way to learn a new language, or sharpen skills in one I already know.</p>
+<p>Another fun angle is to spend time making solutions fast. Usually, they are &quot;fast enough&quot; for the purposes of solving
+the problem and moving on, just to get the gist of how to think algorithmically. But, in some cases, there is an obvious
+slow down when going from part 1 to part 2 of a problem statement, which usually means there's a faster alternative.
+<a rel="noopener" target="_blank" href="https://adventofcode.com/2015/day/4">Day 4</a> from the 2015 problem set provided exactly that opportunity.</p>
+<h2 id="mining-adventcoin">Mining AdventCoin</h2>
+<p>The problem statement for this day is essentially a simplified example of how <a rel="noopener" target="_blank" href="https://en.bitcoin.it/wiki/Mining">bitcoin mining</a>
+works, by finding a hash collision. Given some input string (e.g. <code>yzbqklnj</code>), the goal is to find some &quot;nonce&quot; integer,
+that when appended to the input string and hashed (using MD5), the resulting hash will have some number of leading zeros.</p>
+<p>For example,</p>
+<blockquote>
+<p>If your secret key is <code>abcdef</code>, the answer is <code>609043</code>, because the MD5 hash of <code>abcdef609043</code> starts with five zeroes (<code>000001dbbfa...</code>), and it is the lowest such number to do so.</p>
+</blockquote>
+<p>Hashes can't be &quot;reversed&quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
+with the required number of leading zeros.</p>
+<p>Fortunately, Go's standard <code>crypto</code> package gives us a function to compute an MD5 hash of a byte array, so we can do this
+pretty simply.</p>
+<pre data-lang="go" style="background-color:#2b303b;color:#c0c5ce;" class="language-go "><code class="language-go" data-lang="go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">naive</span><span>(</span><span style="color:#bf616a;">input </span><span>[]</span><span style="color:#b48ead;">byte</span><span>, </span><span style="color:#bf616a;">prefix </span><span style="color:#b48ead;">string</span><span>) </span><span style="color:#b48ead;">string </span><span>{
+</span><span>	</span><span style="color:#bf616a;">seed </span><span>:= </span><span style="color:#bf616a;">strings</span><span>.</span><span style="color:#bf616a;">TrimSpace</span><span>(</span><span style="color:#bf616a;">string</span><span>(</span><span style="color:#bf616a;">input</span><span>))
+</span><span>	</span><span style="color:#bf616a;">nonce </span><span>:= </span><span style="color:#d08770;">1
+</span><span>
+</span><span>	</span><span style="color:#b48ead;">for </span><span>{
+</span><span>		</span><span style="color:#bf616a;">preimage </span><span>:= []</span><span style="color:#b48ead;">byte</span><span>(</span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Sprintf</span><span>(&quot;</span><span style="color:#d08770;">%s%d</span><span>&quot;, </span><span style="color:#bf616a;">seed</span><span>, </span><span style="color:#bf616a;">nonce</span><span>))
+</span><span>		</span><span style="color:#bf616a;">hash </span><span>:= </span><span style="color:#bf616a;">md5</span><span>.</span><span style="color:#bf616a;">Sum</span><span>(</span><span style="color:#bf616a;">preimage</span><span>)
+</span><span>
+</span><span>		</span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">check</span><span>(</span><span style="color:#bf616a;">hash</span><span>, </span><span style="color:#bf616a;">prefix</span><span>) {
+</span><span>			</span><span style="color:#b48ead;">break </span><span style="color:#65737e;">// found nonce
+</span><span>		}
+</span><span>
+</span><span>		</span><span style="color:#bf616a;">nonce </span><span>+= </span><span style="color:#d08770;">1
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Sprintf</span><span>(&quot;</span><span style="color:#d08770;">%d</span><span>&quot;, </span><span style="color:#bf616a;">nonce</span><span>)
+</span><span>}
+</span></code></pre>
+<p>The <code>check</code> function just formats the resulting hash in hex and looks at the prefix. We've separated it out so we can
+change it later...</p>
+<pre data-lang="go" style="background-color:#2b303b;color:#c0c5ce;" class="language-go "><code class="language-go" data-lang="go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">check</span><span>(</span><span style="color:#bf616a;">hash </span><span>[</span><span style="color:#d08770;">16</span><span>]</span><span style="color:#b48ead;">byte</span><span>, </span><span style="color:#bf616a;">prefix </span><span style="color:#b48ead;">string</span><span>) </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>	</span><span style="color:#bf616a;">hex </span><span>:= </span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Sprintf</span><span>(&quot;</span><span style="color:#d08770;">%x</span><span>&quot;, </span><span style="color:#bf616a;">hash</span><span>)
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">strings</span><span>.</span><span style="color:#bf616a;">HasPrefix</span><span>(</span><span style="color:#bf616a;">hex</span><span>, </span><span style="color:#bf616a;">prefix</span><span>)
+</span><span>}
+</span></code></pre>
+<p>Easy enough! We've solved Part 1. For part 2, we just have to run the same loop, but instead of looking
+for a hash with 5 leading zeros, we have to find one with 6 leading zeros.</p>
+<p>Updating our input and running it again... Oh. Well. It definitely takes longer. Noticeably longer. In these situations,
+you always wonder if something else went wrong and you've introduced an infinite loop. In this case, we definitely get correct output,
+but it's just slow.</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> go build</span><span style="color:#bf616a;"> -o</span><span> day4 solutions/day4/main.go
+</span><span>
+</span><span style="color:#65737e;"># find hash with 5 leading zeros (00000)
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 1 input/day4
+</span><span style="color:#bf616a;">282749
+</span><span style="color:#bf616a;">time:</span><span> 134.816113ms
+</span><span>
+</span><span style="color:#65737e;"># find hash with 6 leading zeros (000000)
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 2 input/day4
+</span><span style="color:#bf616a;">9962624
+</span><span style="color:#bf616a;">time:</span><span> 4.029076709s
+</span></code></pre>
+<p>Technically, nothing is &quot;wrong&quot; with our algorithm here. It's just dealing with a much larger space of possibilities.
+Generally speaking, the more specific your target hash is, the longer it's going to take, effectively trying random
+nonce values until you find the needle in a ridiculously large haystack.</p>
+<p>Of course, Go is known for making concurrency relatively easy, so let's just spin up a goroutine for each CPU core
+and try as many different nonces as we can simultaneously.</p>
+<p>Originally, I had thought I would have <code>runtime.NumCPU()</code> goroutines as &quot;workers&quot; crunching on our hash function, with
+<em>another</em> goroutine that would act as a &quot;ticket counter&quot;, giving out the next nonce over a channel when a worker needed
+a new one after failing to find the desired hash prefix.</p>
+<p>Although, it didn't actually work. At least not in the way I expected. We got the right number, but it took <em>even longer</em> than
+the naive solution when looking for 6 leading zeros.</p>
+<p>I figured that the overhead of the coordination between all the goroutines was just too much to be worth the
+parallel effort. The hashing function is so quick that it was likely the workers were putting too much contention
+on the nonce channel, too quickly, causing a lot of runtime context switching and blocking.</p>
+<h2 id="actually-making-it-fast">Actually making it fast</h2>
+<p>I knew that parallelization was definitely the way to go here because each hashing function is completely independent of the
+other. No state needs to be carried over between testing nonce <code>32535</code> and nonce <code>871279</code>. Ultimately, <em>that</em> was the key insight
+needed to make this work.</p>
+<p>If we consider each worker in isolation, we can define a simple formula for determining the next nonce in its sequence to test.
+Just make it count upwards, skipping by some fixed amount each iteration. In this case, the number of goroutines. This way, each worker
+tests a unique sequence of integers, but doesn't overlap with any other worker.</p>
+<p>For simplicity, let's assume we have 4 workers. If they each count by 4, starting from a different place, they'll never overlap.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>worker 0 -&gt; 0, 4, 8, 12, ...
+</span><span>worker 1 -&gt; 1, 5, 9, 13, ...
+</span><span>worker 2 -&gt; 2, 6, 10, 14, ...
+</span><span>worker 3 -&gt; 3, 7, 11, 15, ...
+</span></code></pre>
+<p>Each worker can calculate this sequence with 2 constants, the &quot;base&quot; (starting point), and &quot;N&quot;, the number of workers.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>nonce = base + (i * N)
+</span></code></pre>
+<p>If <code>i</code> increases indefinitely until we either find a solution, or are told to stop looking, we can parallelize this
+and eliminate virtually all coordination between each worker, until it needs to notify us of a solution.</p>
+<pre data-lang="go" style="background-color:#2b303b;color:#c0c5ce;" class="language-go "><code class="language-go" data-lang="go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">optimized</span><span>(</span><span style="color:#bf616a;">input </span><span>[]</span><span style="color:#b48ead;">byte</span><span>, </span><span style="color:#bf616a;">prefix </span><span style="color:#b48ead;">string</span><span>) </span><span style="color:#b48ead;">string </span><span>{
+</span><span>	</span><span style="color:#bf616a;">seed </span><span>:= </span><span style="color:#bf616a;">strings</span><span>.</span><span style="color:#bf616a;">TrimSpace</span><span>(</span><span style="color:#bf616a;">string</span><span>(</span><span style="color:#bf616a;">input</span><span>))
+</span><span>	</span><span style="color:#bf616a;">numWorkers </span><span>:= </span><span style="color:#bf616a;">runtime</span><span>.</span><span style="color:#bf616a;">NumCPU</span><span>()
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// wait group ensures all goroutines clean up after cancellation
+</span><span>	</span><span style="color:#b48ead;">var </span><span style="color:#bf616a;">wg sync</span><span>.</span><span style="color:#b48ead;">WaitGroup
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// cancellable context is cancelled once a solution is found
+</span><span>	</span><span style="color:#bf616a;">ctx</span><span>, </span><span style="color:#bf616a;">cancel </span><span>:= </span><span style="color:#bf616a;">context</span><span>.</span><span style="color:#bf616a;">WithCancel</span><span>(</span><span style="color:#bf616a;">context</span><span>.</span><span style="color:#bf616a;">Background</span><span>())
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// given to each worker
+</span><span>	</span><span style="color:#bf616a;">solution </span><span>:= </span><span style="color:#96b5b4;">make</span><span>(</span><span style="color:#b48ead;">chan int</span><span>, </span><span style="color:#d08770;">1</span><span>)
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// spawn a worker for each CPU core
+</span><span>	</span><span style="color:#b48ead;">for </span><span style="color:#bf616a;">b </span><span>:= </span><span style="color:#d08770;">0</span><span>; </span><span style="color:#bf616a;">b </span><span>&lt; </span><span style="color:#bf616a;">numWorkers</span><span>; </span><span style="color:#bf616a;">b</span><span>++ {
+</span><span>		</span><span style="color:#bf616a;">wg</span><span>.</span><span style="color:#bf616a;">Add</span><span>(</span><span style="color:#d08770;">1</span><span>)
+</span><span>		</span><span style="color:#b48ead;">go func</span><span>(</span><span style="color:#bf616a;">base</span><span>, </span><span style="color:#bf616a;">n </span><span style="color:#b48ead;">int</span><span>) {
+</span><span>			</span><span style="color:#b48ead;">defer </span><span style="color:#bf616a;">wg</span><span>.</span><span style="color:#bf616a;">Done</span><span>()
+</span><span>
+</span><span>			</span><span style="color:#bf616a;">i </span><span>:= </span><span style="color:#d08770;">0
+</span><span>			</span><span style="color:#b48ead;">for </span><span>{
+</span><span>				</span><span style="color:#b48ead;">select </span><span>{
+</span><span>				</span><span style="color:#b48ead;">case </span><span>&lt;-</span><span style="color:#bf616a;">ctx</span><span>.</span><span style="color:#bf616a;">Done</span><span>():
+</span><span>					</span><span style="color:#b48ead;">return
+</span><span>
+</span><span>				</span><span style="color:#b48ead;">default</span><span>:
+</span><span>					</span><span style="color:#bf616a;">nonce </span><span>:= </span><span style="color:#bf616a;">base </span><span>+ (</span><span style="color:#bf616a;">i </span><span>* </span><span style="color:#bf616a;">n</span><span>) </span><span style="color:#65737e;">// independently calculate next nonce in sequence
+</span><span>					</span><span style="color:#bf616a;">preimage </span><span>:= []</span><span style="color:#b48ead;">byte</span><span>(</span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Sprintf</span><span>(&quot;</span><span style="color:#d08770;">%s%d</span><span>&quot;, </span><span style="color:#bf616a;">seed</span><span>, </span><span style="color:#bf616a;">nonce</span><span>))
+</span><span>					</span><span style="color:#bf616a;">hash </span><span>:= </span><span style="color:#bf616a;">md5</span><span>.</span><span style="color:#bf616a;">Sum</span><span>(</span><span style="color:#bf616a;">preimage</span><span>)
+</span><span>
+</span><span>					</span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">check</span><span>(</span><span style="color:#bf616a;">hash</span><span>, </span><span style="color:#bf616a;">prefix</span><span>) {
+</span><span>						</span><span style="color:#bf616a;">solution </span><span>&lt;- </span><span style="color:#bf616a;">nonce
+</span><span>						</span><span style="color:#b48ead;">return
+</span><span>					}
+</span><span>
+</span><span>					</span><span style="color:#bf616a;">i </span><span>= </span><span style="color:#bf616a;">i </span><span>+ </span><span style="color:#d08770;">1
+</span><span>				}
+</span><span>			}
+</span><span>		}(</span><span style="color:#bf616a;">b</span><span>, </span><span style="color:#bf616a;">numWorkers</span><span>)
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#bf616a;">winner </span><span>:= &lt;-</span><span style="color:#bf616a;">solution
+</span><span>	</span><span style="color:#bf616a;">cancel</span><span>()
+</span><span>
+</span><span>	</span><span style="color:#bf616a;">wg</span><span>.</span><span style="color:#bf616a;">Wait</span><span>()
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Sprintf</span><span>(&quot;</span><span style="color:#d08770;">%d</span><span>&quot;, </span><span style="color:#bf616a;">winner</span><span>)
+</span><span>}
+</span></code></pre>
+<p>And the result...</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 2 input/day4
+</span><span style="color:#bf616a;">9962624
+</span><span style="color:#bf616a;">time:</span><span> 3.976446064s
+</span><span>
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 2</span><span style="color:#bf616a;"> -optimized</span><span> input/day4
+</span><span style="color:#bf616a;">9962624
+</span><span style="color:#bf616a;">time:</span><span> 699.66703ms
+</span></code></pre>
+<p>Boom. Huge difference!</p>
+<p>This solution actually helps improve performance in part 1 as well.</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 1 input/day4
+</span><span style="color:#bf616a;">282749
+</span><span style="color:#bf616a;">time:</span><span> 119.919216ms
+</span><span>
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 1</span><span style="color:#bf616a;"> -optimized</span><span> input/day4
+</span><span style="color:#bf616a;">282749
+</span><span style="color:#bf616a;">time:</span><span> 22.183944ms
+</span></code></pre>
+<h2 id="one-more-thing">One more thing!</h2>
+<p>Remember the <code>check</code> function above? It encodes the resulting MD5 hash into hexadecimal and looks at that string
+to see if the nonce results in a hash with the desired number of leading zeros.</p>
+<p>Primarily leaning on <code>fmt.Sprintf()</code> and the hex formatting directive, it requires allocating heap memory to build the hex string, which must be done
+on every iteration of the loop.</p>
+<p>Since all we really need to do is check the leading byte values of the hash, we can perform that check
+without any heap allocation at all.</p>
+<pre data-lang="go" style="background-color:#2b303b;color:#c0c5ce;" class="language-go "><code class="language-go" data-lang="go"><span style="color:#65737e;">// Check if the given MD5 hash has the given leading number of zeros.
+</span><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">check</span><span>(</span><span style="color:#bf616a;">hash </span><span>[</span><span style="color:#d08770;">16</span><span>]</span><span style="color:#b48ead;">byte</span><span>, </span><span style="color:#bf616a;">leading </span><span style="color:#b48ead;">int</span><span>) </span><span style="color:#b48ead;">bool </span><span>{
+</span><span>	</span><span style="color:#bf616a;">numBytes </span><span>:= </span><span style="color:#bf616a;">leading </span><span>/ </span><span style="color:#d08770;">2
+</span><span>	</span><span style="color:#b48ead;">for </span><span style="color:#bf616a;">i </span><span>:= </span><span style="color:#d08770;">0</span><span>; </span><span style="color:#bf616a;">i </span><span>&lt; </span><span style="color:#bf616a;">numBytes</span><span>; </span><span style="color:#bf616a;">i</span><span>++ {
+</span><span>		</span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">hash</span><span>[</span><span style="color:#bf616a;">i</span><span>] != </span><span style="color:#d08770;">0x00 </span><span>{
+</span><span>			</span><span style="color:#b48ead;">return </span><span style="color:#d08770;">false
+</span><span>		}
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#b48ead;">if </span><span style="color:#bf616a;">leading</span><span>%</span><span style="color:#d08770;">2 </span><span>!= </span><span style="color:#d08770;">0 </span><span>{
+</span><span>		</span><span style="color:#65737e;">// looking for odd number of zeros...
+</span><span>		</span><span style="color:#65737e;">// since each hex character represents 4 bits, we have to use a bit shift to check our last byte
+</span><span>		</span><span style="color:#65737e;">// in the hash if the desired number of leading zeros is odd. For example, if we are looking for
+</span><span>		</span><span style="color:#65737e;">// `000` (odd number of zeros), the byte sequence _could_ be `0x00 0x01`, or `0x00 0x02`, etc...
+</span><span>		</span><span style="color:#65737e;">// In this case, we bit shift the last byte to the right by 4, and check if that result is 0,
+</span><span>		</span><span style="color:#65737e;">// ignoring 4 least significant bits.
+</span><span>
+</span><span>		</span><span style="color:#65737e;">// last index in hash to check is equal to `numBytes` because of the integer division above.
+</span><span>		</span><span style="color:#65737e;">// for example, if leading == 5, numBytes == 2 (due to integer division), and we need to
+</span><span>		</span><span style="color:#65737e;">// check the 3rd byte in the sequence (i.e. index 2)
+</span><span>		</span><span style="color:#b48ead;">return </span><span>(</span><span style="color:#bf616a;">hash</span><span>[</span><span style="color:#bf616a;">numBytes</span><span>] &gt;&gt; </span><span style="color:#d08770;">4</span><span>) == </span><span style="color:#d08770;">0x00
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#b48ead;">return </span><span style="color:#d08770;">true
+</span><span>}
+</span></code></pre>
+<p>Because a single digit of a hex value actually represents 4 bits, looking for 6 leading zeros in the resulting hash
+means we look at the first 3 bytes. (<code>0x000000</code> split on each byte looks like <code>0x00 0x00 0x00</code>.)</p>
+<p>If we need to check for an odd number of leading zeros (say, 5 like in part 1), we can lean on some integer division
+and a modulo check to ensure we check the last byte in the sequence correctly. As we said, that last 0 to check only
+represents 4 bits, so we can use a bit shift to ignore the 4 least significant bits of the byte, and check that result
+against the <code>0x00</code> byte value.</p>
+<p>Assuming we get through those checks, we've found a solution!</p>
+<p>Looking at the run time, this updated version of <code>check</code> improves performance across the board, in both
+the naive solution, and optimized solution that uses parallelization!</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 1 input/day4
+</span><span style="color:#bf616a;">282749
+</span><span style="color:#bf616a;">time:</span><span> 55.216603ms
+</span><span>
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 2 input/day4
+</span><span style="color:#bf616a;">9962624
+</span><span style="color:#bf616a;">time:</span><span> 1.818860088s
+</span></code></pre>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 1</span><span style="color:#bf616a;"> -optimized</span><span> input/day4
+</span><span style="color:#bf616a;">282749
+</span><span style="color:#bf616a;">time:</span><span> 11.829511ms
+</span><span>
+</span><span style="color:#bf616a;">$</span><span> ./day4</span><span style="color:#bf616a;"> -part</span><span> 2</span><span style="color:#bf616a;"> -optimized</span><span> input/day4
+</span><span style="color:#bf616a;">9962624
+</span><span style="color:#bf616a;">time:</span><span> 319.841772ms
+</span></code></pre>
+<h2 id="summary">Summary</h2>
+<p>Here's a table summarizing the performance improvements for both part 1 and part 2. In each case, I ran the
+solutions 10 times and took the average of those reported run times, rounded to 2 decimal places.</p>
+<p>(&quot;no alloc&quot; means the version of <code>check</code> that doesn't allocate a string and encode to hex)</p>
+<table><thead><tr><th>Solution</th><th>Version</th><th>Run Time</th><th>Speedup</th></tr></thead><tbody>
+<tr><td>Part 1</td><td><code>naive</code></td><td><code>118.16 ms</code></td><td><code>1.0x</code></td></tr>
+<tr><td></td><td><code>naive + no alloc</code></td><td><code>53.2 ms</code></td><td><code>2.2x</code></td></tr>
+<tr><td></td><td><code>optimized</code></td><td><code>20.04 ms</code></td><td><code>5.9x</code></td></tr>
+<tr><td></td><td><code>optimized + no alloc</code></td><td><code>10.2 ms</code></td><td><code>11.6x</code></td></tr>
+<tr><td>Part 2</td><td><code>naive</code></td><td><code>4.01 s</code></td><td><code>1.0x</code></td></tr>
+<tr><td></td><td><code>naive + no alloc</code></td><td><code>1.81 s</code></td><td><code>2.2x</code></td></tr>
+<tr><td></td><td><code>optimized</code></td><td><code>778.41 ms</code></td><td><code>5.2x</code></td></tr>
+<tr><td></td><td><code>optimized + no alloc</code></td><td><code>358.53 ms</code></td><td><code>11.2x</code></td></tr>
+</tbody></table>
+<h4 id="environment">Environment</h4>
+<p>I ran these tests using Go version <code>go1.22.3 linux/amd64</code>, on a ThinkPad X1 Extreme Gen 4i, rocking an
+11th Gen Intel i7-11800H (16) @ 4.600GHz (reported by <code>neofetch</code>)</p>
+<p>All code for this and other solutions can be found on <a rel="noopener" target="_blank" href="https://github.com/nickmonad/advent-of-code/">GitHub</a></p>
+
+        </article>
+    </div>
+
+
+            <div class="flex flex-col space-y-1 text-zinc-600">
+                <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
+                    <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
+                    <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
+                </p>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

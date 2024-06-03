@@ -33,6 +33,10 @@
         <loc>https://nickmonad.blog/2024/</loc>
     </url>
     <url>
+        <loc>https://nickmonad.blog/2024/advent-of-performance-go-edition/</loc>
+        <lastmod>2024-06-03</lastmod>
+    </url>
+    <url>
         <loc>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</loc>
         <lastmod>2024-03-20</lastmod>
     </url>
@@ -49,10 +53,16 @@
         <loc>https://nickmonad.blog/tags/</loc>
     </url>
     <url>
+        <loc>https://nickmonad.blog/tags/golang/</loc>
+    </url>
+    <url>
         <loc>https://nickmonad.blog/tags/meta/</loc>
     </url>
     <url>
         <loc>https://nickmonad.blog/tags/nostr/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/tags/performance/</loc>
     </url>
     <url>
         <loc>https://nickmonad.blog/tags/rust/</loc>
