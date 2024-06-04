@@ -11,7 +11,7 @@
       <item>
           <title>Advent of Performance: Go Edition</title>
           <pubDate>Mon, 03 Jun 2024 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2024/advent-of-performance-go-edition/</link>
           <guid>https://nickmonad.blog/2024/advent-of-performance-go-edition/</guid>
           <description>&lt;p&gt;Every so often I like to spend some time working on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; problems when I need
@@ -253,7 +253,7 @@ solutions 10 times and took the average of those reported run times, rounded to 
       <item>
           <title>&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</title>
           <pubDate>Wed, 20 Mar 2024 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</link>
           <guid>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</guid>
           <description>&lt;p&gt;Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &amp;quot;easy.&amp;quot;
@@ -382,7 +382,7 @@ Then, go build a kick-ass product.&lt;&#x2F;p&gt;
       <item>
           <title>Static Site Generators: Not Just for Blogs</title>
           <pubDate>Mon, 11 Dec 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</link>
           <guid>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</guid>
           <description>&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
@@ -530,7 +530,7 @@ soon, where the simple choice is the default choice.&lt;&#x2F;p&gt;
       <item>
           <title>Building a nostr client [1]</title>
           <pubDate>Thu, 31 Aug 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/building-nostr-client-index-1/</link>
           <guid>https://nickmonad.blog/2023/building-nostr-client-index-1/</guid>
           <description>&lt;p&gt;Welcome to the second installation of the &amp;quot;Building a nostr client&amp;quot; series. The goal of this series is to walk through
@@ -881,7 +881,7 @@ for signing and publishing events.&lt;&#x2F;p&gt;
       <item>
           <title>Building a nostr client [0]</title>
           <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
           <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
           <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
@@ -1329,7 +1329,7 @@ messages from those relays.&lt;&#x2F;p&gt;
       <item>
           <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
           <pubDate>Sun, 05 Feb 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/nostr-verification/</link>
           <guid>https://nickmonad.blog/2023/nostr-verification/</guid>
           <description>&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
@@ -1404,7 +1404,7 @@ link above for this site as an example.&lt;&#x2F;li&gt;
       <item>
           <title>Initial Commit</title>
           <pubDate>Fri, 09 Dec 2022 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2022/initial-commit/</link>
           <guid>https://nickmonad.blog/2022/initial-commit/</guid>
           <description>&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;

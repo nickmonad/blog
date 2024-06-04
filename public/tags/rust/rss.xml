@@ -11,7 +11,7 @@
       <item>
           <title>Building a nostr client [1]</title>
           <pubDate>Thu, 31 Aug 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/building-nostr-client-index-1/</link>
           <guid>https://nickmonad.blog/2023/building-nostr-client-index-1/</guid>
           <description>&lt;p&gt;Welcome to the second installation of the &amp;quot;Building a nostr client&amp;quot; series. The goal of this series is to walk through
@@ -362,7 +362,7 @@ for signing and publishing events.&lt;&#x2F;p&gt;
       <item>
           <title>Building a nostr client [0]</title>
           <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
-          <author>Unknown</author>
+          <author>Nick Miller</author>
           <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
           <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
           <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
