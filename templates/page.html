@@ -26,7 +26,7 @@
                 <div>{{ page.date | date(format="%B %d, %Y") }}</div>
                 {% if page.taxonomies["tags"] %}
                 {% for tag in page.taxonomies["tags"] %}
-                    <div class="text-sky-700"><a href="/tags/{{ tag }}">#{{ tag }}</a></div>
+                    <div class="font-mono text-sky-700"><a href="/tags/{{ tag }}">#{{ tag }}</a></div>
                 {% endfor %}
                 {% endif %}
             </div>
