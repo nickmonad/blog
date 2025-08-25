@@ -1,3 +1,4 @@
+title = "nickmonad"
 author = "Nick Miller"
 base_url = "https://nickmonad.blog"
 compile_sass = false
