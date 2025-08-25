@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="Relays and a simple TUI">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -90,7 +88,7 @@
             </div>
         </div>
         <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
-            <p>Welcome to the second installation of the &quot;Building a nostr client&quot; series. The goal of this series is to walk through
+            <p>Welcome to the second installation of the "Building a nostr client" series. The goal of this series is to walk through
 building a simple nostr client in Rust. If you haven't seen the first post <a href="https://nickmonad.blog/2023/building-nostr-client-index-0/">here</a>,
 I would recommend doing so, as we'll build on those concepts. Also, if you aren't familiar with nostr and why I'm doing this,
 that would be a good place to start as well!</p>
@@ -99,7 +97,7 @@ could look like.</p>
 <p>In this post, I want to start connecting to relays, and build a simple TUI (terminal user interface) to display events.</p>
 <h3 id="building-on-prior-art">Building on prior art...</h3>
 <p>When I first considered doing this series of posts, I had the thought that I would do pretty much everything
-&quot;from scratch&quot;. Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
+"from scratch". Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
 <a rel="noopener" target="_blank" href="https://docs.rs/nostr/latest/nostr/index.html">nostr crate</a> and giving it some thought, I decided that I would, at the very least,
 use its core data structures, event generation and signing capabilities to build my client. <a rel="noopener" target="_blank" href="https://github.com/yukibtc">yukibtc</a>
 and other contributors have done an incredible job with this crate so far. Much better than I could do. It's easy
@@ -114,14 +112,14 @@ crate, so we'll have plenty of code to write there.</p>
 interested clients. By design, there are many relays a client could possibly connect to. Some require payment for access,
 but many are free. Some are built for a specific community or topic in mind, but most right now seem to be pretty
 free-form. If one relay goes down, for any reason, temporarily or permanently, clients can just connect to another.</p>
-<p>Clients connect to relays and send events (or &quot;notes&quot;) across them, and clients on the other end set up <em>filters</em>
+<p>Clients connect to relays and send events (or "notes") across them, and clients on the other end set up <em>filters</em>
 for those events. Not every user is automatically connected to every other user, as they would be on the global
 feed of a centralized platform, so there are some issues around discovery, as you need to know which relays
 people are posting to. But, in practice, it's not a big deal. (And there are some NIPs out there attempting to mitigate this.)</p>
 <p>As you start to think about how a client should interact with its configured relays, you tend to realize:</p>
 <ol>
 <li>
-<p><strong>There is no &quot;should&quot;.</strong> Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
+<p><strong>There is no "should".</strong> Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
 all sorts of things to transmit and receive events to and from relays. Without <a rel="noopener" target="_blank" href="https://github.com/twitter/the-algorithm">The Algorithm</a>
 handed down from on high, there are really no rules here. You want events chronologically? Great. You want events from your
 followed accounts and the accounts they follow? Sure. Only show events whose ID ends with the hex digit <code>f</code>? I guess.
@@ -129,7 +127,7 @@ Allow the user to selectively send events to some relays but not others? Yes, ab
 </li>
 <li>
 <p><strong>It's suprisingly deep.</strong> There are a lot of practical elements to consider when building a client's view
-of the nostr world, especially in a &quot;twitter-like&quot; way. Generally you want to have the option of viewing something other than the &quot;global&quot; feed
+of the nostr world, especially in a "twitter-like" way. Generally you want to have the option of viewing something other than the "global" feed
 of all their connected relays, as it can either be extremely spammy, or just too much information, too quickly. So,
 you need some kind of view filtering, even if it's just showing events from the user's followed accounts. Also, what if the user
 is away from the client for a while (say a month) and decides to come back? Do you start showing them events from exactly
@@ -146,7 +144,7 @@ followed accounts, in the order we receive them. But first, we need to connect t
 <p>Fortunately, the really low-level details are already handled for us in a crate called
 <a rel="noopener" target="_blank" href="https://docs.rs/tokio-tungstenite/latest/tokio_tungstenite/index.html">tokio-tungstenite</a>. <code>tungstenite</code> is a popular
 Rust crate for handling <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket</a> connections, which
-nostr uses for its protocol communication layer. The &quot;tokio&quot; side of this crate just brings it into the
+nostr uses for its protocol communication layer. The "tokio" side of this crate just brings it into the
 most popular ecosystem for asynchronous programming in Rust... <a rel="noopener" target="_blank" href="https://tokio.rs/">tokio</a>.</p>
 <blockquote>
 <p>I believe the primary motivating factor for using WebSockets in nostr instead of some other transport protocol
@@ -167,36 +165,36 @@ typically on the same thread.</p>
 and have another task that is aggregating these events together in some way: de-duplicating them,
 showing them to the user, saving them to disk, etc.</p>
 <p>So, we need a way to spawn the async I/O task for each relay we want to interact with, and then communicate with that task
-using nifty little tools called &quot;channels&quot;. I'll try to illustrate how this is going to look.</p>
+using nifty little tools called "channels". I'll try to illustrate how this is going to look.</p>
 <h4 id="architecture">Architecture</h4>
 <p>Relays are implemented as a Rust <code>struct</code> type, with a few properties. First, it must be configured with a WebSocket
 URL, which is published by a relay operator, and is up to our client to store and use. Internally, a <code>Relay</code> must
-also create and reference a &quot;channel&quot;, that is used by the client to communicate with it asynchronously. These are
-<a rel="noopener" target="_blank" href="https://docs.rs/tokio/latest/tokio/sync/mpsc/index.html"><code>tokio::sync::mpsc</code></a> channels (<strong>&quot;multiple producer, single
-consumer&quot;</strong>), and aren't exposed directly to the client, but is indirectly through a function interface, as illustrated
+also create and reference a "channel", that is used by the client to communicate with it asynchronously. These are
+<a rel="noopener" target="_blank" href="https://docs.rs/tokio/latest/tokio/sync/mpsc/index.html"><code>tokio::sync::mpsc</code></a> channels (<strong>"multiple producer, single
+consumer"</strong>), and aren't exposed directly to the client, but is indirectly through a function interface, as illustrated
 below. Relays are created in a <code>disconnected</code> state.</p>
 <div align="center"><img alt="nostr relay architecture disconnected" src="../images/nostr-relay-disconnected.png"/></div>
-<p>These &quot;control&quot; messages are used to tell the relay to send us events that match a certain filter
+<p>These "control" messages are used to tell the relay to send us events that match a certain filter
 (as defined by <a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nips/blob/master/01.md">NIP-01</a>), publish our own events, or disconnect.
 They must be sent over a channel that the <code>Relay</code> manages since there is an underlying async task that must listen for
 events from the relay and be responsive.</p>
 <p>But first, we have to actually connect to the relay with its WebSocket address, and receive those events from it. When we
 call the <code>Relay::connect()</code> method, we use the <code>tungstenite</code> crate underneath to open a WebSocket connection, and spin
-up an async task to handle the &quot;up&quot; stream (messages <em>to</em> the relay), and the &quot;down&quot; stream (messages <em>from</em> the relay).
-These &quot;up&quot; and &quot;down&quot; handles are also part of a <code>Stream</code> construct that is well beyond the scope of this post, but for
-our purposes, &quot;up&quot; is like a <code>mpsc::Sender</code> and &quot;down&quot; is like a <code>mpsc::Receiver</code>.</p>
+up an async task to handle the "up" stream (messages <em>to</em> the relay), and the "down" stream (messages <em>from</em> the relay).
+These "up" and "down" handles are also part of a <code>Stream</code> construct that is well beyond the scope of this post, but for
+our purposes, "up" is like a <code>mpsc::Sender</code> and "down" is like a <code>mpsc::Receiver</code>.</p>
 <div align="center"><img alt="nostr relay architecture connected" src="../images/nostr-relay-connected.png"/></div>
 <p>These relay messages are written over the wire as <code>Message</code> types from the <code>tungstenite</code> crate, and are translated
 from the <code>nostr::ClientMessage</code> and to <code>nostr::RelayMessage</code> types.</p>
 <p>Lastly, we have to consider how it looks when there are multiple relays involved, as is expected within a nostr client.
 When the <code>Relay::connect()</code> method is called, it expects to be given a <code>mpsc::Sender</code> side of a channel, which can
-be cloned and given to <em>every</em> relay we are interested in. These &quot;producers&quot; will all funnel to one &quot;consumer&quot; (<code>mpsc::Receiver</code>),
+be cloned and given to <em>every</em> relay we are interested in. These "producers" will all funnel to one "consumer" (<code>mpsc::Receiver</code>),
 which acts as our firehose of events coming from all relays we have a connection with. There's nothing required about this,
 it just makes it easier to deal with in a simple implementation like this one. We can treat all <code>Relay</code> structs as if they
 were one big set of relays, producing a single stream of events.</p>
 <div align="center"><img alt="nostr relay architecture stream" src="../images/nostr-relay-stream.png"/></div>
 <p>As far as technical implementation details, there's a lot left to go over here. I think the best way to think about this
-is you have an async task (&quot;thread&quot;) driving the inbound/outbound connection with the WebSocket relay
+is you have an async task ("thread") driving the inbound/outbound connection with the WebSocket relay
 itself, and another, at the client level, that is driving the state of the <code>Relay</code> struct, and that is why we need
 to use async channels behind <code>Arc&lt;Mutex&lt;...&gt;&gt;</code> primitives, so they can be safely cloned and shared throughout the client as necessary.
 The <code>Relay</code> struct is a effectively just a handle over a set of common data structures, making the initial connection and
@@ -228,8 +226,8 @@ user hits Ctrl-C, we disconnect from each relay and shutdown.</p>
 </span></code></pre>
 <blockquote>
 <p>The inital messages showing <code>EndOfStoredEvents</code> from each configured relay are due to the fact we set the <code>since</code>
-value on our filter message to be <code>Timestamp::now()</code> and the relay is just saying, &quot;eveything after this will be in
-real-time.&quot;</p>
+value on our filter message to be <code>Timestamp::now()</code> and the relay is just saying, "eveything after this will be in
+real-time."</p>
 </blockquote>
 <h3 id="tui">TUI</h3>
 <p>Now that we have events coming in from the relay, we can start on the real <em>client</em> functionality. As I stated earlier,
@@ -237,9 +235,9 @@ this can go really deep on implementation, and wide on feature set. I want to ke
 it won't do much for now.</p>
 <p>To help set some direction on where to focus next, I think we can break it down like so:</p>
 <ul>
-<li>First, read a list of public keys to &quot;follow&quot; from a local config file.</li>
+<li>First, read a list of public keys to "follow" from a local config file.</li>
 <li>Using the public keys present in that config, setup and send filters to each relay, asking first for kind <code>0</code> events
-associated with the public key(s), giving us &quot;profile&quot; metadata, like the user's preferred display name, followed by kind <code>1</code> events, the actual text notes,
+associated with the public key(s), giving us "profile" metadata, like the user's preferred display name, followed by kind <code>1</code> events, the actual text notes,
 from the past <strong>day</strong>. (Arbitrary choice.)</li>
 <li>Listening on the aggregated event stream, use some kind of mechanism to ensure that events aren't shown twice, in the case where
 a followed public key is published to more than one of the relays we are interested in. This is quite common, and must be handled
@@ -248,10 +246,10 @@ in performance and memory usage over time. We could use a SQLite based implement
 but for now, let's just use a simple in-memory set, and vector (list) of events.</li>
 <li>Build a simple TUI (terminal user interface) for showing the events and navigating through the list.</li>
 </ul>
-<p>This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a &quot;real&quot; client
+<p>This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a "real" client
 won't be considered here, but, it'll be fun to continue adding features over time.</p>
 <h4 id="starting-up">Starting up</h4>
-<p>First, we need to read our config file, and create our primary <code>mpsc</code> channels. One for that relay &quot;firehose&quot; mentioned
+<p>First, we need to read our config file, and create our primary <code>mpsc</code> channels. One for that relay "firehose" mentioned
 above, and another for terminal events (user input, resize notifications, etc). The first block here is our example
 <code>config.toml</code> file.</p>
 <pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span style="color:#bf616a;">follow </span><span>= [
@@ -314,7 +312,7 @@ not to implement that right now, since we don't have a database yet.</p>
 <h4 id="processing-and-displaying-events">Processing and displaying events</h4>
 <p>Once the client has completed this initial startup, it can run its primary processing loop, reading events
 from the relays, and user input from the terminal.</p>
-<p>Since we aren't using SQLite right now as we prove all this out, we'll use an in-memory &quot;database&quot; structure.</p>
+<p>Since we aren't using SQLite right now as we prove all this out, we'll use an in-memory "database" structure.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// Simple &quot;database&quot; implementation,
 </span><span style="color:#65737e;">// storing a list of Events, and a map of Metadata objects, accessible via pubkey
 </span><span>#[</span><span style="color:#bf616a;">derive</span><span>(Default)]
@@ -323,11 +321,11 @@ from the relays, and user input from the terminal.</p>
 </span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">metadata</span><span>: HashMap&lt;String, Metadata&gt;,
 </span><span>}
 </span></code></pre>
-<p>The <code>metadata</code> attribute is important, as we want to show every pubkey's &quot;username&quot; as they have published them
+<p>The <code>metadata</code> attribute is important, as we want to show every pubkey's "username" as they have published them
 under the <code>kind:0</code> event. Since we have a filter setup for those, we can update this struct as a mapping between the
 followed pubkeys and their metadata. The <code>events</code> attribute is a simple vector of all the <code>kind:1</code> events we receive.</p>
 <blockquote>
-<p>Obviously, this isn't really scalable for &quot;real-world&quot; usage. We'd ideally push these to a local SQLite file,
+<p>Obviously, this isn't really scalable for "real-world" usage. We'd ideally push these to a local SQLite file,
 and maybe use these in-memory structures for a bounded cache. Just indefinitely growing this vector isn't
 efficient at all, but again, this is more of a proof-of-concept.</p>
 </blockquote>
@@ -428,7 +426,7 @@ provides really simple ways to put the terminal in the correct mode it needs to 
 it to take. It's been a really busy summer - full of good and beautiful things, just not as much coding time outside of work.</p>
 <p>There's a lot that can still be done to make this TUI more functional, useful, and pretty. I think the first
 thing I would do is make the rendered height of each note fixed and consistent, and allow the user to expand longer notes
-if they want to read them. Since the terminal doesn't have a &quot;continuous&quot; scrolling frame, like a fully graphical UI would
+if they want to read them. Since the terminal doesn't have a "continuous" scrolling frame, like a fully graphical UI would
 have, notes of different length can really break the rendering flow while scrolling through, as you can see in the demo.</p>
 <p>But, for now, let's move onto other things!</p>
 <p>In the next (and likely final) installation of this series, I'll add some basic key management, paving the way
@@ -443,7 +441,7 @@ for signing and publishing events.</p>
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

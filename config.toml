@@ -1,8 +1,7 @@
 author = "Nick Miller"
 base_url = "https://nickmonad.blog"
 compile_sass = false
-feed_filename = "rss.xml"
-generate_feed = true
+generate_feeds = true
 
 taxonomies = [
     { name = "tags", feed = true }

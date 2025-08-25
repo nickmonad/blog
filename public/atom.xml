@@ -1,34 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-      <title></title>
-      <link>https://nickmonad.blog</link>
-      <description></description>
-      <generator>Zola</generator>
-      <language>en</language>
-      <atom:link href="https://nickmonad.blog/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Mon, 03 Jun 2024 00:00:00 +0000</lastBuildDate>
-      <item>
-          <title>Advent of Performance: Go Edition</title>
-          <pubDate>Mon, 03 Jun 2024 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2024/advent-of-performance-go-edition/</link>
-          <guid>https://nickmonad.blog/2024/advent-of-performance-go-edition/</guid>
-          <description>&lt;p&gt;Every so often I like to spend some time working on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; problems when I need
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title></title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-06-03T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Advent of Performance: Go Edition</title>
+        <published>2024-06-03T00:00:00+00:00</published>
+        <updated>2024-06-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2024/advent-of-performance-go-edition/"/>
+        <id>https://nickmonad.blog/2024/advent-of-performance-go-edition/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2024/advent-of-performance-go-edition/">&lt;p&gt;Every so often I like to spend some time working on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; problems when I need
 a break from my primary projects. It&#x27;s also a great way to learn a new language, or sharpen skills in one I already know.&lt;&#x2F;p&gt;
-&lt;p&gt;Another fun angle is to spend time making solutions fast. Usually, they are &amp;quot;fast enough&amp;quot; for the purposes of solving
+&lt;p&gt;Another fun angle is to spend time making solutions fast. Usually, they are &quot;fast enough&quot; for the purposes of solving
 the problem and moving on, just to get the gist of how to think algorithmically. But, in some cases, there is an obvious
 slow down when going from part 1 to part 2 of a problem statement, which usually means there&#x27;s a faster alternative.
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;2015&#x2F;day&#x2F;4&quot;&gt;Day 4&lt;&#x2F;a&gt; from the 2015 problem set provided exactly that opportunity.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;mining-adventcoin&quot;&gt;Mining AdventCoin&lt;&#x2F;h2&gt;
 &lt;p&gt;The problem statement for this day is essentially a simplified example of how &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.bitcoin.it&#x2F;wiki&#x2F;Mining&quot;&gt;bitcoin mining&lt;&#x2F;a&gt;
-works, by finding a hash collision. Given some input string (e.g. &lt;code&gt;yzbqklnj&lt;&#x2F;code&gt;), the goal is to find some &amp;quot;nonce&amp;quot; integer,
+works, by finding a hash collision. Given some input string (e.g. &lt;code&gt;yzbqklnj&lt;&#x2F;code&gt;), the goal is to find some &quot;nonce&quot; integer,
 that when appended to the input string and hashed (using MD5), the resulting hash will have some number of leading zeros.&lt;&#x2F;p&gt;
 &lt;p&gt;For example,&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;If your secret key is &lt;code&gt;abcdef&lt;&#x2F;code&gt;, the answer is &lt;code&gt;609043&lt;&#x2F;code&gt;, because the MD5 hash of &lt;code&gt;abcdef609043&lt;&#x2F;code&gt; starts with five zeroes (&lt;code&gt;000001dbbfa...&lt;&#x2F;code&gt;), and it is the lowest such number to do so.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;Hashes can&#x27;t be &amp;quot;reversed&amp;quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
+&lt;p&gt;Hashes can&#x27;t be &quot;reversed&quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
 with the required number of leading zeros.&lt;&#x2F;p&gt;
 &lt;p&gt;Fortunately, Go&#x27;s standard &lt;code&gt;crypto&lt;&#x2F;code&gt; package gives us a function to compute an MD5 hash of a byte array, so we can do this
 pretty simply.&lt;&#x2F;p&gt;
@@ -74,13 +82,13 @@ but it&#x27;s just slow.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;9962624
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;time:&lt;&#x2F;span&gt;&lt;span&gt; 4.029076709s
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;Technically, nothing is &amp;quot;wrong&amp;quot; with our algorithm here. It&#x27;s just dealing with a much larger space of possibilities.
+&lt;p&gt;Technically, nothing is &quot;wrong&quot; with our algorithm here. It&#x27;s just dealing with a much larger space of possibilities.
 Generally speaking, the more specific your target hash is, the longer it&#x27;s going to take, effectively trying random
 nonce values until you find the needle in a ridiculously large haystack.&lt;&#x2F;p&gt;
 &lt;p&gt;Of course, Go is known for making concurrency relatively easy, so let&#x27;s just spin up a goroutine for each CPU core
 and try as many different nonces as we can simultaneously.&lt;&#x2F;p&gt;
-&lt;p&gt;Originally, I had thought I would have &lt;code&gt;runtime.NumCPU()&lt;&#x2F;code&gt; goroutines as &amp;quot;workers&amp;quot; crunching on our hash function, with
-&lt;em&gt;another&lt;&#x2F;em&gt; goroutine that would act as a &amp;quot;ticket counter&amp;quot;, giving out the next nonce over a channel when a worker needed
+&lt;p&gt;Originally, I had thought I would have &lt;code&gt;runtime.NumCPU()&lt;&#x2F;code&gt; goroutines as &quot;workers&quot; crunching on our hash function, with
+&lt;em&gt;another&lt;&#x2F;em&gt; goroutine that would act as a &quot;ticket counter&quot;, giving out the next nonce over a channel when a worker needed
 a new one after failing to find the desired hash prefix.&lt;&#x2F;p&gt;
 &lt;p&gt;Although, it didn&#x27;t actually work. At least not in the way I expected. We got the right number, but it took &lt;em&gt;even longer&lt;&#x2F;em&gt; than
 the naive solution when looking for 6 leading zeros.&lt;&#x2F;p&gt;
@@ -100,7 +108,7 @@ tests a unique sequence of integers, but doesn&#x27;t overlap with any other wor
 &lt;&#x2F;span&gt;&lt;span&gt;worker 2 -&amp;gt; 2, 6, 10, 14, ...
 &lt;&#x2F;span&gt;&lt;span&gt;worker 3 -&amp;gt; 3, 7, 11, 15, ...
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;Each worker can calculate this sequence with 2 constants, the &amp;quot;base&amp;quot; (starting point), and &amp;quot;N&amp;quot;, the number of workers.&lt;&#x2F;p&gt;
+&lt;p&gt;Each worker can calculate this sequence with 2 constants, the &quot;base&quot; (starting point), and &quot;N&quot;, the number of workers.&lt;&#x2F;p&gt;
 &lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;nonce = base + (i * N)
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;If &lt;code&gt;i&lt;&#x2F;code&gt; increases indefinitely until we either find a solution, or are told to stop looking, we can parallelize this
@@ -233,7 +241,7 @@ the naive solution, and optimized solution that uses parallelization!&lt;&#x2F;p
 &lt;h2 id=&quot;summary&quot;&gt;Summary&lt;&#x2F;h2&gt;
 &lt;p&gt;Here&#x27;s a table summarizing the performance improvements for both part 1 and part 2. In each case, I ran the
 solutions 10 times and took the average of those reported run times, rounded to 2 decimal places.&lt;&#x2F;p&gt;
-&lt;p&gt;(&amp;quot;no alloc&amp;quot; means the version of &lt;code&gt;check&lt;&#x2F;code&gt; that doesn&#x27;t allocate a string and encode to hex)&lt;&#x2F;p&gt;
+&lt;p&gt;(&quot;no alloc&quot; means the version of &lt;code&gt;check&lt;&#x2F;code&gt; that doesn&#x27;t allocate a string and encode to hex)&lt;&#x2F;p&gt;
 &lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Solution&lt;&#x2F;th&gt;&lt;th&gt;Version&lt;&#x2F;th&gt;&lt;th&gt;Run Time&lt;&#x2F;th&gt;&lt;th&gt;Speedup&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
 &lt;tr&gt;&lt;td&gt;Part 1&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;naive&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;118.16 ms&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;1.0x&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;naive + no alloc&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;53.2 ms&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;2.2x&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
@@ -248,18 +256,29 @@ solutions 10 times and took the average of those reported run times, rounded to 
 &lt;p&gt;I ran these tests using Go version &lt;code&gt;go1.22.3 linux&#x2F;amd64&lt;&#x2F;code&gt;, on a ThinkPad X1 Extreme Gen 4i, rocking an
 11th Gen Intel i7-11800H (16) @ 4.600GHz (reported by &lt;code&gt;neofetch&lt;&#x2F;code&gt;)&lt;&#x2F;p&gt;
 &lt;p&gt;All code for this and other solutions can be found on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;advent-of-code&#x2F;&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</title>
-          <pubDate>Wed, 20 Mar 2024 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</link>
-          <guid>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</guid>
-          <description>&lt;p&gt;Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &amp;quot;easy.&amp;quot;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>&quot;I think you might be a scam&quot; - A Lesson in Customer Discovery</title>
+        <published>2024-03-20T00:00:00+00:00</published>
+        <updated>2024-03-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2024/i-think-you-might-be-a-scam/"/>
+        <id>https://nickmonad.blog/2024/i-think-you-might-be-a-scam/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2024/i-think-you-might-be-a-scam/">&lt;p&gt;Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &quot;easy.&quot;
 Like many engineers, I struggle with this, because what we &lt;em&gt;really&lt;&#x2F;em&gt; know how to do is write code, and we think if we
 just buckle down and knock it out quickly, we could validate our idea that way.&lt;&#x2F;p&gt;
-&lt;p&gt;That might work for some product ideas, but I&#x27;m becoming increasingly convinced that &amp;quot;build first&amp;quot; approaches are a
+&lt;p&gt;That might work for some product ideas, but I&#x27;m becoming increasingly convinced that &quot;build first&quot; approaches are a
 great way to waste a bunch of time, effort, and money towards building a product nobody cares about.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;m not alone in this way of thinking, and it certainly wasn&#x27;t my idea. My mentor at the startup incubator
 I&#x27;m currently in encouraged me to stop building and actually talk to some customers. I definitely wasn&#x27;t
@@ -270,11 +289,11 @@ on those assumptions.&lt;&#x2F;p&gt;
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.momtestbook.com&#x2F;&quot;&gt;The Mom Test&lt;&#x2F;a&gt;, and now I couldn&#x27;t agree more. It&#x27;s a concise little book that gives you that real, practical advice
 on how to approach customer discovery, with a particular emphasis on &lt;em&gt;not biasing the prospect.&lt;&#x2F;em&gt; As Rob Fitzpatrick
 outlines his approach, he details a particular mistake he finds a lot of entrepreneurs making, where they&#x27;ll pitch an
-idea and immediately ask &amp;quot;What do you think? Is it a good idea?&amp;quot; This leads to all sorts of psychological issues
+idea and immediately ask &quot;What do you think? Is it a good idea?&quot; This leads to all sorts of psychological issues
 surrounding human behavior.&lt;&#x2F;p&gt;
 &lt;p&gt;The basic issue is that, nobody wants to hurt your feelings. When they are really
-thinking &amp;quot;meh, I&#x27;m not sure why I would use that.&amp;quot; Or, &amp;quot;I really don&#x27;t want to switch products right now.&amp;quot;, they are
-telling you &amp;quot;Yeah sounds great! Let me know when it launches.&amp;quot; You walk away feeling like a business genius, but in
+thinking &quot;meh, I&#x27;m not sure why I would use that.&quot; Or, &quot;I really don&#x27;t want to switch products right now.&quot;, they are
+telling you &quot;Yeah sounds great! Let me know when it launches.&quot; You walk away feeling like a business genius, but in
 reality, they just told you what they thought you wanted to hear. This is particularly the case when the person you
 are pitching your idea to is your mom. But friends and colleagues are guilty of the same thing.&lt;&#x2F;p&gt;
 &lt;p&gt;So, how do we address that problem? &lt;em&gt;Just ask people questions about their lives and jobs.&lt;&#x2F;em&gt; You can start out pretty
@@ -323,7 +342,7 @@ of their time. No problem.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Hi [redacted],&lt;&#x2F;p&gt;
 &lt;p&gt;Thank you for your response!&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;m looking to learn more about your volunteer program, in terms of how it operates. Thinking about the &amp;quot;lifecycle&amp;quot;
+&lt;p&gt;I&#x27;m looking to learn more about your volunteer program, in terms of how it operates. Thinking about the &quot;lifecycle&quot;
 of a volunteer - how they show interest, how they get approved &#x2F; onboarded, and how they schedule shifts.
 I&#x27;m interested in hearing specifically how you do those kinds of things today, tools you use, and where you see some
 of the challenges. I am hoping to develop new solutions for this space, but I first need to validate some of my
@@ -344,16 +363,16 @@ on providing our information.&lt;&#x2F;p&gt;
 &lt;p&gt;I was honestly shocked.&lt;&#x2F;p&gt;
 &lt;p&gt;Maybe it&#x27;s just me, but if I think something is a scam, the last thing I do is reply to it.
 Oh, I definitely want to - especially so I can mess with them - but I know I&#x27;m better off not engaging.&lt;&#x2F;p&gt;
-&lt;p&gt;(Although, the lone &amp;quot;Thank you.&amp;quot; is probably my favorite part.)&lt;&#x2F;p&gt;
+&lt;p&gt;(Although, the lone &quot;Thank you.&quot; is probably my favorite part.)&lt;&#x2F;p&gt;
 &lt;p&gt;In all seriousness, I expected to be ghosted by a few contacts, but I never expected to be told I might be somebody
 trying to execute a scam. I re-read my messages probably a dozen times, pouring over every word, trying to figure out
 what I said that was so concerning.&lt;&#x2F;p&gt;
 &lt;p&gt;I did end up sending a response that I won&#x27;t show here. I wasn&#x27;t mean or snarky with them, and even apologized for
 how I came across, but it&#x27;s just a little embarrassing. I probably over explained what I was trying to do, and even
-mentioned things like &amp;quot;I didn&#x27;t lead with that information (about my company and idea) because I didn&#x27;t want to bias you.&amp;quot;
+mentioned things like &quot;I didn&#x27;t lead with that information (about my company and idea) because I didn&#x27;t want to bias you.&quot;
 It&#x27;s absolutely the truth, but I&#x27;m sure they don&#x27;t really care at this point. Phrasing it that way might even come
 across as me essentially admitting I was trying to play some scammer Jedi mind-trick I was certain would win them over,
-but now that they&#x27;ve caught me, we can get to the &amp;quot;real&amp;quot; facts to calm their nerves.&lt;&#x2F;p&gt;
+but now that they&#x27;ve caught me, we can get to the &quot;real&quot; facts to calm their nerves.&lt;&#x2F;p&gt;
 &lt;p&gt;I can laugh about this experience now, but it definitely rocked me at first. It sucks to be told something so blatantly
 wrong, especially when you make the effort to be as cordial and concise as possible. It also made me wonder if the
 people who ghosted me did so because I came across in a sketchy way.&lt;&#x2F;p&gt;
@@ -362,36 +381,47 @@ people who ghosted me did so because I came across in a sketchy way.&lt;&#x2F;p&
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Don&#x27;t be afraid to say you are a software developer trying to build a new product.&lt;&#x2F;strong&gt;
 Saying you have an idea isn&#x27;t the same as telling them what the idea is, and I think my prospective contact would have
-appreciated knowing what exactly I was attempting to do up front. Framing it as &amp;quot;just a conversation&amp;quot; works for
+appreciated knowing what exactly I was attempting to do up front. Framing it as &quot;just a conversation&quot; works for
 some people, but others might find that to be a little odd.&lt;&#x2F;p&gt;
 &lt;&#x2F;li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Stop talking so much like an engineer.&lt;&#x2F;strong&gt; In my follow-up response to their question about what exactly
-I was looking for, I threw out words like &amp;quot;lifecycle&amp;quot; and started to describe the problem as I would describe
-it to another engineer. I went way over the top with detail when I should have just said, &amp;quot;Oh my gosh, I&#x27;m sorry I
+I was looking for, I threw out words like &quot;lifecycle&quot; and started to describe the problem as I would describe
+it to another engineer. I went way over the top with detail when I should have just said, &quot;Oh my gosh, I&#x27;m sorry I
 wasn&#x27;t clear. I really just want to learn more about your organization so I can better understand the problems facing
-volunteer organizers. I do some volunteering myself and I&#x27;m curious if other organizations are facing the same problems.&amp;quot;&lt;&#x2F;p&gt;
+volunteer organizers. I do some volunteering myself and I&#x27;m curious if other organizations are facing the same problems.&quot;&lt;&#x2F;p&gt;
 &lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 &lt;p&gt;Even with all that, you can&#x27;t win them all. People will ghost you, and they may not be very helpful.
 The goal is to keep talking with people who are willing to talk with you until you stop hearing new information.
 Then, go build a kick-ass product.&lt;&#x2F;p&gt;
 &lt;p&gt;And if you&#x27;re going to scam anybody, find your own strategy. This one is mine.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>Static Site Generators: Not Just for Blogs</title>
-          <pubDate>Mon, 11 Dec 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</link>
-          <guid>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</guid>
-          <description>&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Static Site Generators: Not Just for Blogs</title>
+        <published>2023-12-11T00:00:00+00:00</published>
+        <updated>2023-12-11T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/"/>
+        <id>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/">&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
 programs that allow anybody with a little bit of HTML and CSS skill to produce a blog or product page quickly, write all their
 content (typically) using &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Markdown&quot;&gt;markdown&lt;&#x2F;a&gt; in a simple folder structure, and commit it
 all to git. Truly a gift and a joy to work with, compared to something like Wordpress.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.cloudflare.com&#x2F;learning&#x2F;performance&#x2F;static-site-generator&#x2F;&quot;&gt;Cloudflare&lt;&#x2F;a&gt; defines a
-static site generator (SSG) as &lt;strong&gt;&amp;quot;a tool that generates a full static HTML website based on raw data and a set of templates&amp;quot;&lt;&#x2F;strong&gt;.
-In this context, &amp;quot;static&amp;quot; means that the end result of the build is a set of HTML pages that don&#x27;t change when the page is
+static site generator (SSG) as &lt;strong&gt;&quot;a tool that generates a full static HTML website based on raw data and a set of templates&quot;&lt;&#x2F;strong&gt;.
+In this context, &quot;static&quot; means that the end result of the build is a set of HTML pages that don&#x27;t change when the page is
 refreshed, not that those pages &lt;em&gt;never&lt;&#x2F;em&gt; change.&lt;&#x2F;p&gt;
 &lt;p&gt;Static site generators are incredibly powerful tools available for modern web development and I think a lot of developers
 are missing out on what they offer in terms of development time, hosting cost, and overall simplicity.&lt;&#x2F;p&gt;
@@ -401,7 +431,7 @@ makes a lot of sense, as once blog posts are published, they rarely change, and 
 of a company blog, SEO is a major factor as well, since search engine crawlers need to parse content quickly.&lt;&#x2F;p&gt;
 &lt;p&gt;Unfortunately, I think a lot of the understanding around static site generation ends here, even among web developers.
 For a long time, I was in this camp as well. I knew I could use static site generation effectively for my blog site, or
-a simple &amp;quot;about&amp;quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
+a simple &quot;about&quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
 the content could be shown in a long, continuous block of text.&lt;&#x2F;p&gt;
 &lt;p&gt;This understanding makes some product pages, or pages that require laying out collections of blocks in a grid-like
 structure difficult to reason about, and nearly impossible to build in some cases. If I can only store content in a big
@@ -410,12 +440,12 @@ content to different sections of the page and style it appropriately? Worse yet,
 update copy on the page without having to dig around in the HTML directly?&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;options-for-managing-structured-content&quot;&gt;Options for managing structured content&lt;&#x2F;h2&gt;
 &lt;p&gt;I&#x27;m going to use &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;zola&lt;&#x2F;a&gt; as my static site generator of choice and show some examples of
-creating and rendering &amp;quot;non-blog&amp;quot; content, in a few different ways. This is only because I&#x27;m the most familiar with it,
+creating and rendering &quot;non-blog&quot; content, in a few different ways. This is only because I&#x27;m the most familiar with it,
 but there are lots of good options out there, such as &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;gohugo.io&#x2F;&quot;&gt;hugo&lt;&#x2F;a&gt;. They may or may not work in exactly
 the same way, but what&#x27;s important here is taking the ideas and expanding our understanding of how we can utilize SSGs
 to their full potential.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;1-section-and-page-metadata&quot;&gt;1. Section and Page Metadata&lt;&#x2F;h3&gt;
-&lt;p&gt;Sometimes called &amp;quot;front matter&amp;quot;, each section or page of our site can have metadata associated with it.&lt;&#x2F;p&gt;
+&lt;p&gt;Sometimes called &quot;front matter&quot;, each section or page of our site can have metadata associated with it.&lt;&#x2F;p&gt;
 &lt;p&gt;Even in the case of a blog, you&#x27;ll see this metadata above the markdown content, enclosed in some kind of marker, to
 separate it from the main content of the post. This would include things like &lt;code&gt;title&lt;&#x2F;code&gt;, &lt;code&gt;description&lt;&#x2F;code&gt;, &lt;code&gt;author&lt;&#x2F;code&gt;, and &lt;code&gt;date&lt;&#x2F;code&gt;,
 and read by the static site generator itself to organize and template the page. The front matter of this post looks like,&lt;&#x2F;p&gt;
@@ -486,7 +516,7 @@ to bring in data from a remote source, within a template.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&#x2F;ul&amp;gt;
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The &amp;quot;url&amp;quot; passed to &lt;code&gt;load_data&lt;&#x2F;code&gt; can be a local file as well, if it makes sense to store that JSON locally.&lt;&#x2F;p&gt;
+&lt;p&gt;The &quot;url&quot; passed to &lt;code&gt;load_data&lt;&#x2F;code&gt; can be a local file as well, if it makes sense to store that JSON locally.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;This gives us the flexibility to put content somewhere else that is more accessible to a wider group of people on our team.
 Any change in the CMS can be detected (hopefully via a webhook) and the site can be rebuilt, previewed and pushed to production.&lt;&#x2F;p&gt;
@@ -503,7 +533,7 @@ of &lt;code&gt;bips.dev&lt;&#x2F;code&gt;, that source is a &lt;a rel=&quot;noop
 &lt;h2 id=&quot;simple-as-the-default&quot;&gt;Simple as the default&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;With the proliferation and increasing sophistication of SSGs, I think the time has come where we can say that the &lt;em&gt;default&lt;&#x2F;em&gt;
-choice of any &amp;quot;non-application&amp;quot; website should be static generation. Statically generated sites are faster to develop,
+choice of any &quot;non-application&quot; website should be static generation. Statically generated sites are faster to develop,
 easier to host, and easier to reason about over the lifetime of the project.&lt;&#x2F;p&gt;
 &lt;p&gt;I want to be explicit in stating what I hope is the obvious: If you are building a highly interactive application with
 lots of business logic, &lt;em&gt;obviously&lt;&#x2F;em&gt; a fully featured programming language and deployment environment is going to be a better option.
@@ -525,15 +555,26 @@ the way to go.&lt;&#x2F;p&gt;
 &lt;p&gt;I could be way behind on this. If you&#x27;re reading and find all of it to be blatantly obvious, or something that was figured out
 years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we&#x27;ll see a renaissance
 soon, where the simple choice is the default choice.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>Building a nostr client [1]</title>
-          <pubDate>Thu, 31 Aug 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/building-nostr-client-index-1/</link>
-          <guid>https://nickmonad.blog/2023/building-nostr-client-index-1/</guid>
-          <description>&lt;p&gt;Welcome to the second installation of the &amp;quot;Building a nostr client&amp;quot; series. The goal of this series is to walk through
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Building a nostr client [1]</title>
+        <published>2023-08-31T00:00:00+00:00</published>
+        <updated>2023-08-31T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/building-nostr-client-index-1/"/>
+        <id>https://nickmonad.blog/2023/building-nostr-client-index-1/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/building-nostr-client-index-1/">&lt;p&gt;Welcome to the second installation of the &quot;Building a nostr client&quot; series. The goal of this series is to walk through
 building a simple nostr client in Rust. If you haven&#x27;t seen the first post &lt;a href=&quot;https:&#x2F;&#x2F;nickmonad.blog&#x2F;2023&#x2F;building-nostr-client-index-0&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;,
 I would recommend doing so, as we&#x27;ll build on those concepts. Also, if you aren&#x27;t familiar with nostr and why I&#x27;m doing this,
 that would be a good place to start as well!&lt;&#x2F;p&gt;
@@ -542,7 +583,7 @@ could look like.&lt;&#x2F;p&gt;
 &lt;p&gt;In this post, I want to start connecting to relays, and build a simple TUI (terminal user interface) to display events.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;building-on-prior-art&quot;&gt;Building on prior art...&lt;&#x2F;h3&gt;
 &lt;p&gt;When I first considered doing this series of posts, I had the thought that I would do pretty much everything
-&amp;quot;from scratch&amp;quot;. Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
+&quot;from scratch&quot;. Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;nostr&#x2F;latest&#x2F;nostr&#x2F;index.html&quot;&gt;nostr crate&lt;&#x2F;a&gt; and giving it some thought, I decided that I would, at the very least,
 use its core data structures, event generation and signing capabilities to build my client. &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;yukibtc&quot;&gt;yukibtc&lt;&#x2F;a&gt;
 and other contributors have done an incredible job with this crate so far. Much better than I could do. It&#x27;s easy
@@ -557,14 +598,14 @@ crate, so we&#x27;ll have plenty of code to write there.&lt;&#x2F;p&gt;
 interested clients. By design, there are many relays a client could possibly connect to. Some require payment for access,
 but many are free. Some are built for a specific community or topic in mind, but most right now seem to be pretty
 free-form. If one relay goes down, for any reason, temporarily or permanently, clients can just connect to another.&lt;&#x2F;p&gt;
-&lt;p&gt;Clients connect to relays and send events (or &amp;quot;notes&amp;quot;) across them, and clients on the other end set up &lt;em&gt;filters&lt;&#x2F;em&gt;
+&lt;p&gt;Clients connect to relays and send events (or &quot;notes&quot;) across them, and clients on the other end set up &lt;em&gt;filters&lt;&#x2F;em&gt;
 for those events. Not every user is automatically connected to every other user, as they would be on the global
 feed of a centralized platform, so there are some issues around discovery, as you need to know which relays
 people are posting to. But, in practice, it&#x27;s not a big deal. (And there are some NIPs out there attempting to mitigate this.)&lt;&#x2F;p&gt;
 &lt;p&gt;As you start to think about how a client should interact with its configured relays, you tend to realize:&lt;&#x2F;p&gt;
 &lt;ol&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;strong&gt;There is no &amp;quot;should&amp;quot;.&lt;&#x2F;strong&gt; Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
+&lt;p&gt;&lt;strong&gt;There is no &quot;should&quot;.&lt;&#x2F;strong&gt; Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
 all sorts of things to transmit and receive events to and from relays. Without &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;twitter&#x2F;the-algorithm&quot;&gt;The Algorithm&lt;&#x2F;a&gt;
 handed down from on high, there are really no rules here. You want events chronologically? Great. You want events from your
 followed accounts and the accounts they follow? Sure. Only show events whose ID ends with the hex digit &lt;code&gt;f&lt;&#x2F;code&gt;? I guess.
@@ -572,7 +613,7 @@ Allow the user to selectively send events to some relays but not others? Yes, ab
 &lt;&#x2F;li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;It&#x27;s suprisingly deep.&lt;&#x2F;strong&gt; There are a lot of practical elements to consider when building a client&#x27;s view
-of the nostr world, especially in a &amp;quot;twitter-like&amp;quot; way. Generally you want to have the option of viewing something other than the &amp;quot;global&amp;quot; feed
+of the nostr world, especially in a &quot;twitter-like&quot; way. Generally you want to have the option of viewing something other than the &quot;global&quot; feed
 of all their connected relays, as it can either be extremely spammy, or just too much information, too quickly. So,
 you need some kind of view filtering, even if it&#x27;s just showing events from the user&#x27;s followed accounts. Also, what if the user
 is away from the client for a while (say a month) and decides to come back? Do you start showing them events from exactly
@@ -589,7 +630,7 @@ followed accounts, in the order we receive them. But first, we need to connect t
 &lt;p&gt;Fortunately, the really low-level details are already handled for us in a crate called
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio-tungstenite&#x2F;latest&#x2F;tokio_tungstenite&#x2F;index.html&quot;&gt;tokio-tungstenite&lt;&#x2F;a&gt;. &lt;code&gt;tungstenite&lt;&#x2F;code&gt; is a popular
 Rust crate for handling &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;developer.mozilla.org&#x2F;en-US&#x2F;docs&#x2F;Web&#x2F;API&#x2F;WebSockets_API&quot;&gt;WebSocket&lt;&#x2F;a&gt; connections, which
-nostr uses for its protocol communication layer. The &amp;quot;tokio&amp;quot; side of this crate just brings it into the
+nostr uses for its protocol communication layer. The &quot;tokio&quot; side of this crate just brings it into the
 most popular ecosystem for asynchronous programming in Rust... &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;tokio.rs&#x2F;&quot;&gt;tokio&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;I believe the primary motivating factor for using WebSockets in nostr instead of some other transport protocol
@@ -610,36 +651,36 @@ typically on the same thread.&lt;&#x2F;p&gt;
 and have another task that is aggregating these events together in some way: de-duplicating them,
 showing them to the user, saving them to disk, etc.&lt;&#x2F;p&gt;
 &lt;p&gt;So, we need a way to spawn the async I&#x2F;O task for each relay we want to interact with, and then communicate with that task
-using nifty little tools called &amp;quot;channels&amp;quot;. I&#x27;ll try to illustrate how this is going to look.&lt;&#x2F;p&gt;
+using nifty little tools called &quot;channels&quot;. I&#x27;ll try to illustrate how this is going to look.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;architecture&quot;&gt;Architecture&lt;&#x2F;h4&gt;
 &lt;p&gt;Relays are implemented as a Rust &lt;code&gt;struct&lt;&#x2F;code&gt; type, with a few properties. First, it must be configured with a WebSocket
 URL, which is published by a relay operator, and is up to our client to store and use. Internally, a &lt;code&gt;Relay&lt;&#x2F;code&gt; must
-also create and reference a &amp;quot;channel&amp;quot;, that is used by the client to communicate with it asynchronously. These are
-&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio&#x2F;latest&#x2F;tokio&#x2F;sync&#x2F;mpsc&#x2F;index.html&quot;&gt;&lt;code&gt;tokio::sync::mpsc&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; channels (&lt;strong&gt;&amp;quot;multiple producer, single
-consumer&amp;quot;&lt;&#x2F;strong&gt;), and aren&#x27;t exposed directly to the client, but is indirectly through a function interface, as illustrated
+also create and reference a &quot;channel&quot;, that is used by the client to communicate with it asynchronously. These are
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio&#x2F;latest&#x2F;tokio&#x2F;sync&#x2F;mpsc&#x2F;index.html&quot;&gt;&lt;code&gt;tokio::sync::mpsc&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; channels (&lt;strong&gt;&quot;multiple producer, single
+consumer&quot;&lt;&#x2F;strong&gt;), and aren&#x27;t exposed directly to the client, but is indirectly through a function interface, as illustrated
 below. Relays are created in a &lt;code&gt;disconnected&lt;&#x2F;code&gt; state.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture disconnected&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-disconnected.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
-&lt;p&gt;These &amp;quot;control&amp;quot; messages are used to tell the relay to send us events that match a certain filter
+&lt;p&gt;These &quot;control&quot; messages are used to tell the relay to send us events that match a certain filter
 (as defined by &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;01.md&quot;&gt;NIP-01&lt;&#x2F;a&gt;), publish our own events, or disconnect.
 They must be sent over a channel that the &lt;code&gt;Relay&lt;&#x2F;code&gt; manages since there is an underlying async task that must listen for
 events from the relay and be responsive.&lt;&#x2F;p&gt;
 &lt;p&gt;But first, we have to actually connect to the relay with its WebSocket address, and receive those events from it. When we
 call the &lt;code&gt;Relay::connect()&lt;&#x2F;code&gt; method, we use the &lt;code&gt;tungstenite&lt;&#x2F;code&gt; crate underneath to open a WebSocket connection, and spin
-up an async task to handle the &amp;quot;up&amp;quot; stream (messages &lt;em&gt;to&lt;&#x2F;em&gt; the relay), and the &amp;quot;down&amp;quot; stream (messages &lt;em&gt;from&lt;&#x2F;em&gt; the relay).
-These &amp;quot;up&amp;quot; and &amp;quot;down&amp;quot; handles are also part of a &lt;code&gt;Stream&lt;&#x2F;code&gt; construct that is well beyond the scope of this post, but for
-our purposes, &amp;quot;up&amp;quot; is like a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; and &amp;quot;down&amp;quot; is like a &lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+up an async task to handle the &quot;up&quot; stream (messages &lt;em&gt;to&lt;&#x2F;em&gt; the relay), and the &quot;down&quot; stream (messages &lt;em&gt;from&lt;&#x2F;em&gt; the relay).
+These &quot;up&quot; and &quot;down&quot; handles are also part of a &lt;code&gt;Stream&lt;&#x2F;code&gt; construct that is well beyond the scope of this post, but for
+our purposes, &quot;up&quot; is like a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; and &quot;down&quot; is like a &lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture connected&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-connected.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;These relay messages are written over the wire as &lt;code&gt;Message&lt;&#x2F;code&gt; types from the &lt;code&gt;tungstenite&lt;&#x2F;code&gt; crate, and are translated
 from the &lt;code&gt;nostr::ClientMessage&lt;&#x2F;code&gt; and to &lt;code&gt;nostr::RelayMessage&lt;&#x2F;code&gt; types.&lt;&#x2F;p&gt;
 &lt;p&gt;Lastly, we have to consider how it looks when there are multiple relays involved, as is expected within a nostr client.
 When the &lt;code&gt;Relay::connect()&lt;&#x2F;code&gt; method is called, it expects to be given a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; side of a channel, which can
-be cloned and given to &lt;em&gt;every&lt;&#x2F;em&gt; relay we are interested in. These &amp;quot;producers&amp;quot; will all funnel to one &amp;quot;consumer&amp;quot; (&lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;),
+be cloned and given to &lt;em&gt;every&lt;&#x2F;em&gt; relay we are interested in. These &quot;producers&quot; will all funnel to one &quot;consumer&quot; (&lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;),
 which acts as our firehose of events coming from all relays we have a connection with. There&#x27;s nothing required about this,
 it just makes it easier to deal with in a simple implementation like this one. We can treat all &lt;code&gt;Relay&lt;&#x2F;code&gt; structs as if they
 were one big set of relays, producing a single stream of events.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture stream&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-stream.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;As far as technical implementation details, there&#x27;s a lot left to go over here. I think the best way to think about this
-is you have an async task (&amp;quot;thread&amp;quot;) driving the inbound&#x2F;outbound connection with the WebSocket relay
+is you have an async task (&quot;thread&quot;) driving the inbound&#x2F;outbound connection with the WebSocket relay
 itself, and another, at the client level, that is driving the state of the &lt;code&gt;Relay&lt;&#x2F;code&gt; struct, and that is why we need
 to use async channels behind &lt;code&gt;Arc&amp;lt;Mutex&amp;lt;...&amp;gt;&amp;gt;&lt;&#x2F;code&gt; primitives, so they can be safely cloned and shared throughout the client as necessary.
 The &lt;code&gt;Relay&lt;&#x2F;code&gt; struct is a effectively just a handle over a set of common data structures, making the initial connection and
@@ -671,8 +712,8 @@ user hits Ctrl-C, we disconnect from each relay and shutdown.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The inital messages showing &lt;code&gt;EndOfStoredEvents&lt;&#x2F;code&gt; from each configured relay are due to the fact we set the &lt;code&gt;since&lt;&#x2F;code&gt;
-value on our filter message to be &lt;code&gt;Timestamp::now()&lt;&#x2F;code&gt; and the relay is just saying, &amp;quot;eveything after this will be in
-real-time.&amp;quot;&lt;&#x2F;p&gt;
+value on our filter message to be &lt;code&gt;Timestamp::now()&lt;&#x2F;code&gt; and the relay is just saying, &quot;eveything after this will be in
+real-time.&quot;&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;h3 id=&quot;tui&quot;&gt;TUI&lt;&#x2F;h3&gt;
 &lt;p&gt;Now that we have events coming in from the relay, we can start on the real &lt;em&gt;client&lt;&#x2F;em&gt; functionality. As I stated earlier,
@@ -680,9 +721,9 @@ this can go really deep on implementation, and wide on feature set. I want to ke
 it won&#x27;t do much for now.&lt;&#x2F;p&gt;
 &lt;p&gt;To help set some direction on where to focus next, I think we can break it down like so:&lt;&#x2F;p&gt;
 &lt;ul&gt;
-&lt;li&gt;First, read a list of public keys to &amp;quot;follow&amp;quot; from a local config file.&lt;&#x2F;li&gt;
+&lt;li&gt;First, read a list of public keys to &quot;follow&quot; from a local config file.&lt;&#x2F;li&gt;
 &lt;li&gt;Using the public keys present in that config, setup and send filters to each relay, asking first for kind &lt;code&gt;0&lt;&#x2F;code&gt; events
-associated with the public key(s), giving us &amp;quot;profile&amp;quot; metadata, like the user&#x27;s preferred display name, followed by kind &lt;code&gt;1&lt;&#x2F;code&gt; events, the actual text notes,
+associated with the public key(s), giving us &quot;profile&quot; metadata, like the user&#x27;s preferred display name, followed by kind &lt;code&gt;1&lt;&#x2F;code&gt; events, the actual text notes,
 from the past &lt;strong&gt;day&lt;&#x2F;strong&gt;. (Arbitrary choice.)&lt;&#x2F;li&gt;
 &lt;li&gt;Listening on the aggregated event stream, use some kind of mechanism to ensure that events aren&#x27;t shown twice, in the case where
 a followed public key is published to more than one of the relays we are interested in. This is quite common, and must be handled
@@ -691,10 +732,10 @@ in performance and memory usage over time. We could use a SQLite based implement
 but for now, let&#x27;s just use a simple in-memory set, and vector (list) of events.&lt;&#x2F;li&gt;
 &lt;li&gt;Build a simple TUI (terminal user interface) for showing the events and navigating through the list.&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
-&lt;p&gt;This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a &amp;quot;real&amp;quot; client
+&lt;p&gt;This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a &quot;real&quot; client
 won&#x27;t be considered here, but, it&#x27;ll be fun to continue adding features over time.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;starting-up&quot;&gt;Starting up&lt;&#x2F;h4&gt;
-&lt;p&gt;First, we need to read our config file, and create our primary &lt;code&gt;mpsc&lt;&#x2F;code&gt; channels. One for that relay &amp;quot;firehose&amp;quot; mentioned
+&lt;p&gt;First, we need to read our config file, and create our primary &lt;code&gt;mpsc&lt;&#x2F;code&gt; channels. One for that relay &quot;firehose&quot; mentioned
 above, and another for terminal events (user input, resize notifications, etc). The first block here is our example
 &lt;code&gt;config.toml&lt;&#x2F;code&gt; file.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;toml&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-toml &quot;&gt;&lt;code class=&quot;language-toml&quot; data-lang=&quot;toml&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;follow &lt;&#x2F;span&gt;&lt;span&gt;= [
@@ -757,7 +798,7 @@ not to implement that right now, since we don&#x27;t have a database yet.&lt;&#x
 &lt;h4 id=&quot;processing-and-displaying-events&quot;&gt;Processing and displaying events&lt;&#x2F;h4&gt;
 &lt;p&gt;Once the client has completed this initial startup, it can run its primary processing loop, reading events
 from the relays, and user input from the terminal.&lt;&#x2F;p&gt;
-&lt;p&gt;Since we aren&#x27;t using SQLite right now as we prove all this out, we&#x27;ll use an in-memory &amp;quot;database&amp;quot; structure.&lt;&#x2F;p&gt;
+&lt;p&gt;Since we aren&#x27;t using SQLite right now as we prove all this out, we&#x27;ll use an in-memory &quot;database&quot; structure.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Simple &amp;quot;database&amp;quot; implementation,
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; storing a list of Events, and a map of Metadata objects, accessible via pubkey
 &lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Default)]
@@ -766,11 +807,11 @@ from the relays, and user input from the terminal.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;metadata&lt;&#x2F;span&gt;&lt;span&gt;: HashMap&amp;lt;String, Metadata&amp;gt;,
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;The &lt;code&gt;metadata&lt;&#x2F;code&gt; attribute is important, as we want to show every pubkey&#x27;s &amp;quot;username&amp;quot; as they have published them
+&lt;p&gt;The &lt;code&gt;metadata&lt;&#x2F;code&gt; attribute is important, as we want to show every pubkey&#x27;s &quot;username&quot; as they have published them
 under the &lt;code&gt;kind:0&lt;&#x2F;code&gt; event. Since we have a filter setup for those, we can update this struct as a mapping between the
 followed pubkeys and their metadata. The &lt;code&gt;events&lt;&#x2F;code&gt; attribute is a simple vector of all the &lt;code&gt;kind:1&lt;&#x2F;code&gt; events we receive.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Obviously, this isn&#x27;t really scalable for &amp;quot;real-world&amp;quot; usage. We&#x27;d ideally push these to a local SQLite file,
+&lt;p&gt;Obviously, this isn&#x27;t really scalable for &quot;real-world&quot; usage. We&#x27;d ideally push these to a local SQLite file,
 and maybe use these in-memory structures for a bounded cache. Just indefinitely growing this vector isn&#x27;t
 efficient at all, but again, this is more of a proof-of-concept.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -871,32 +912,43 @@ provides really simple ways to put the terminal in the correct mode it needs to 
 it to take. It&#x27;s been a really busy summer - full of good and beautiful things, just not as much coding time outside of work.&lt;&#x2F;p&gt;
 &lt;p&gt;There&#x27;s a lot that can still be done to make this TUI more functional, useful, and pretty. I think the first
 thing I would do is make the rendered height of each note fixed and consistent, and allow the user to expand longer notes
-if they want to read them. Since the terminal doesn&#x27;t have a &amp;quot;continuous&amp;quot; scrolling frame, like a fully graphical UI would
+if they want to read them. Since the terminal doesn&#x27;t have a &quot;continuous&quot; scrolling frame, like a fully graphical UI would
 have, notes of different length can really break the rendering flow while scrolling through, as you can see in the demo.&lt;&#x2F;p&gt;
 &lt;p&gt;But, for now, let&#x27;s move onto other things!&lt;&#x2F;p&gt;
 &lt;p&gt;In the next (and likely final) installation of this series, I&#x27;ll add some basic key management, paving the way
 for signing and publishing events.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>Building a nostr client [0]</title>
-          <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
-          <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
-          <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Building a nostr client [0]</title>
+        <published>2023-03-26T00:00:00+00:00</published>
+        <updated>2023-03-26T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/building-nostr-client-index-0/"/>
+        <id>https://nickmonad.blog/2023/building-nostr-client-index-0/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/building-nostr-client-index-0/">&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
 fascinated by this protocol and I&#x27;m very curious to see where it goes in the coming years.&lt;&#x2F;p&gt;
-&lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &amp;quot;Notes and Other Stuff Transmitted over Relays&amp;quot;, and is a pretty
+&lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &quot;Notes and Other Stuff Transmitted over Relays&quot;, and is a pretty
 simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
-federated servers that talk to each other) it uses the concept of &amp;quot;relays&amp;quot; that allow clients to connect to them and,
-you guessed it, &lt;em&gt;transmit&lt;&#x2F;em&gt; &amp;quot;notes&amp;quot; and &amp;quot;other stuff&amp;quot;, using a cryptographic key pair to sign and verify that data.&lt;&#x2F;p&gt;
+federated servers that talk to each other) it uses the concept of &quot;relays&quot; that allow clients to connect to them and,
+you guessed it, &lt;em&gt;transmit&lt;&#x2F;em&gt; &quot;notes&quot; and &quot;other stuff&quot;, using a cryptographic key pair to sign and verify that data.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;i&gt;By the way, how do people pronouce this thing? Is it &amp;quot;nos-ter&amp;quot;, &amp;quot;nose-ter&amp;quot;, ... something else? I tend towards the
+&lt;p&gt;&lt;i&gt;By the way, how do people pronouce this thing? Is it &quot;nos-ter&quot;, &quot;nose-ter&quot;, ... something else? I tend towards the
 first way for some reason.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;As the protocol&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;GitHub&lt;&#x2F;a&gt; states:&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The simplest open protocol that is able to create a censorship-resistant global &amp;quot;social&amp;quot; network once and for all.
+&lt;p&gt;The simplest open protocol that is able to create a censorship-resistant global &quot;social&quot; network once and for all.
 It doesn&#x27;t rely on any trusted central server, hence it is resilient; it is based on cryptographic keys and
 signatures, so it is tamperproof; it does not rely on P2P techniques, and therefore it works.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -911,7 +963,7 @@ and things are a little bit crazy, but the hype is real, and I believe for good 
 &lt;h3 id=&quot;let-s-build-a-client&quot;&gt;Let&#x27;s build a client!&lt;&#x2F;h3&gt;
 &lt;p&gt;Besides all the reasons I mentioned above, I&#x27;m excited about nostr, because, as a programmer, I get to &lt;em&gt;build&lt;&#x2F;em&gt; things.
 My own things. Things that define how I interact with the network. There are a lot of good clients out there already,
-but I figured, &amp;quot;why not try and build my own?&amp;quot;&lt;&#x2F;p&gt;
+but I figured, &quot;why not try and build my own?&quot;&lt;&#x2F;p&gt;
 &lt;p&gt;This is the first entry (index &lt;code&gt;0&lt;&#x2F;code&gt;) in a series of posts I intend to write outlining the basic discovery and process
 of building a client. Hopefully we&#x27;ll run into some interesting challenges that need thoughtful solutions, and we&#x27;ll
 progress towards something relatively usable.&lt;&#x2F;p&gt;
@@ -925,10 +977,10 @@ client after I wrap up this series, and anyone can follow along on GitHub once w
 &lt;p&gt;Hopefully I won&#x27;t give so much detail that it&#x27;s exhausting to read. I&#x27;m hoping I&#x27;ll get better about tightening up
 these posts as I go.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;Wait, what about the name? After looking at all sorts of weird combinations of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;, I came up
-with &lt;code&gt;roostr&lt;&#x2F;code&gt;. I like it because it gives the project its own identity, and is actually pronoucable as &amp;quot;rooster&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;Wait, what about the name? After looking at all sorts of weird combinations of &quot;rust&quot; and &quot;nostr&quot;, I came up
+with &lt;code&gt;roostr&lt;&#x2F;code&gt;. I like it because it gives the project its own identity, and is actually pronoucable as &quot;rooster&quot;.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;I&#x27;m aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;
+&lt;p&gt;I&#x27;m aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &quot;rust&quot; and &quot;nostr&quot;
 and settled on something unique in the space!&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;h3 id=&quot;the-stack&quot;&gt;THE STACK&lt;&#x2F;h3&gt;
@@ -997,14 +1049,14 @@ The serialization is done over the UTF-8 JSON-serialized string
 &lt;&#x2F;span&gt;&lt;span&gt;]
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;I&#x27;ll be honest, I&#x27;m a little confused by the &amp;quot;with no white space or line breaks&amp;quot; comment. Does that also mean
+&lt;p&gt;I&#x27;ll be honest, I&#x27;m a little confused by the &quot;with no white space or line breaks&quot; comment. Does that also mean
 for the &lt;em&gt;content&lt;&#x2F;em&gt;? I could see it either way, but I&#x27;m going to lean towards we don&#x27;t manipulate the content in any
 way to obtain this event &lt;code&gt;id&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;Before we can actually sign the event, we need that &lt;code&gt;id&lt;&#x2F;code&gt;, which means we need a method to generate the JSON string
 described above, based on the event.&lt;&#x2F;p&gt;
 &lt;p&gt;In the Rust world, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;serde.rs&#x2F;&quot;&gt;&lt;code&gt;serde&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; has become a go-to crate for (ser)ialization, and
 (de)serialization, and has support for JSON, so it makes sense for us to start there. &lt;code&gt;serde&lt;&#x2F;code&gt; supports the notion
-of a &lt;code&gt;Serialize&lt;&#x2F;code&gt; trait (or &amp;quot;interface&amp;quot;), we can implement to tell &lt;code&gt;serde&lt;&#x2F;code&gt; how we want our custom types to look when
+of a &lt;code&gt;Serialize&lt;&#x2F;code&gt; trait (or &quot;interface&quot;), we can implement to tell &lt;code&gt;serde&lt;&#x2F;code&gt; how we want our custom types to look when
 they are represented as JSON. Explaining all the details of &lt;code&gt;serde&lt;&#x2F;code&gt; is definitely outside of the scope of this
 post, but this should give you a rough idea.&lt;&#x2F;p&gt;
 &lt;p&gt;For &lt;code&gt;Kind&lt;&#x2F;code&gt;, it&#x27;s pretty straightforward, just map each &lt;code&gt;enum&lt;&#x2F;code&gt; variant to a number.&lt;&#x2F;p&gt;
@@ -1060,7 +1112,7 @@ of implementing &lt;code&gt;Serialize&lt;&#x2F;code&gt; for &lt;code&gt;Event&lt
 in determining the event &lt;code&gt;id&lt;&#x2F;code&gt;, but quickly realized that wouldn&#x27;t be so great.&lt;&#x2F;p&gt;
 &lt;p&gt;One thing that&#x27;s really cool about Rust, or even just modern statically typed languages in general, is that we can
 encode certain aspects of our problem domain into the types themselves. In this case, &lt;code&gt;EventData&lt;&#x2F;code&gt; is something dynamic,
-generated by the user, and can reasonably be &amp;quot;edited&amp;quot;, up until the point we are ready to sign the event for
+generated by the user, and can reasonably be &quot;edited&quot;, up until the point we are ready to sign the event for
 publication to the network. Once that event is signed though, it doesn&#x27;t make sense that we should be able to edit
 that &lt;code&gt;EventData&lt;&#x2F;code&gt; anymore, since changing it necessarily changes the &lt;code&gt;id&lt;&#x2F;code&gt;, which changes the signature
 (more on that later).&lt;&#x2F;p&gt;
@@ -1075,7 +1127,7 @@ that &lt;code&gt;EventData&lt;&#x2F;code&gt; anymore, since changing it necessar
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The astute reader might comment that since our &lt;code&gt;Event&lt;&#x2F;code&gt; fields are &amp;quot;pub&amp;quot; here, it doesn&#x27;t actually quite
+&lt;p&gt;The astute reader might comment that since our &lt;code&gt;Event&lt;&#x2F;code&gt; fields are &quot;pub&quot; here, it doesn&#x27;t actually quite
 get us to the point where we have full encapsulation within this module. That&#x27;s something I hope to address
 fully, with accessor methods later on.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -1148,7 +1200,7 @@ using string formatting.&lt;&#x2F;p&gt;
 &lt;p&gt;The next critical piece we need to consider is signing the events with a key pair.&lt;&#x2F;p&gt;
 &lt;p&gt;By utilizing digital signatures, nostr clients and relays can verify the integrity of messages. They are the core piece
 of a user&#x27;s identity as they move from one relay to another. This what people mean when they say nostr is
-&amp;quot;tamperproof&amp;quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
+&quot;tamperproof&quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
 your public key.&lt;&#x2F;p&gt;
 &lt;p&gt;As stated in the NIP-01 specification,&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
@@ -1156,8 +1208,8 @@ your public key.&lt;&#x2F;p&gt;
 standard for the curve secp256k1.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;The whole cryptography thing is a &lt;em&gt;h u g e&lt;&#x2F;em&gt; topic to cover, and I am by no means an expert, so I won&#x27;t go into much
-detail. The basic idea is that everybody has a public key and a private key. This is called the &amp;quot;key pair&amp;quot;.
-A user can &amp;quot;sign&amp;quot; data with their private key, and share their public key with the world. Anybody can then look
+detail. The basic idea is that everybody has a public key and a private key. This is called the &quot;key pair&quot;.
+A user can &quot;sign&quot; data with their private key, and share their public key with the world. Anybody can then look
 at the signature data, and verify it was in fact signed by the user with the associated public key, all without
 revealing the private key itself, so it can be re-used.&lt;&#x2F;p&gt;
 &lt;p&gt;Fortunately, there is a lot of prior art out there we can utilize to get this working pretty easily.&lt;&#x2F;p&gt;
@@ -1226,9 +1278,9 @@ when we expose the secret value to other functions. We&#x27;ll revisit this topi
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;I had to find the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.x_only_public_key&quot;&gt;&lt;code&gt;KeyPair::x_only_public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
 function after I had originally just tried to test with &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.public_key&quot;&gt;&lt;code&gt;KeyPair::public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
-which seems to include some kind of &amp;quot;parity&amp;quot; byte at the front of the hex output. I can&#x27;t see that being relevant
+which seems to include some kind of &quot;parity&quot; byte at the front of the hex output. I can&#x27;t see that being relevant
 when looking at the raw data of other valid nostr events out in the wild, so I don&#x27;t think it&#x27;s necessary. This makes
-sense actually when we see that &amp;quot;X only&amp;quot; intends the key to be used only for signature verification.&lt;&#x2F;p&gt;
+sense actually when we see that &quot;X only&quot; intends the key to be used only for signature verification.&lt;&#x2F;p&gt;
 &lt;p&gt;Finally, we can put our types together in the way we described above to generate a signed &lt;code&gt;Event&lt;&#x2F;code&gt; from &lt;code&gt;EventData&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;EventData {
@@ -1273,11 +1325,11 @@ sense actually when we see that &amp;quot;X only&amp;quot; intends the key to be
 &lt;p&gt;You may notice, I also changed up the the type definitions a little bit here. I found it a bit awkward to have the
 &lt;code&gt;pubkey&lt;&#x2F;code&gt; of the signing key pair on the &lt;code&gt;EventData&lt;&#x2F;code&gt; struct. So instead, I added it as a parameter to the &lt;code&gt;id()&lt;&#x2F;code&gt;
 generation function, which is then utilized in the &lt;code&gt;sign()&lt;&#x2F;code&gt; function. This all seemed a bit cleaner to me,
-as I really only have to give the signing &amp;quot;context&amp;quot; &lt;em&gt;once&lt;&#x2F;em&gt; when &lt;code&gt;EventData&lt;&#x2F;code&gt; is actually signed and produces
+as I really only have to give the signing &quot;context&quot; &lt;em&gt;once&lt;&#x2F;em&gt; when &lt;code&gt;EventData&lt;&#x2F;code&gt; is actually signed and produces
 an &lt;code&gt;Event&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;It&#x27;s also worthwhile to note some Rust semantics here. In the &lt;code&gt;sign()&lt;&#x2F;code&gt; function signature (no pun intended), there&#x27;s
 this &lt;code&gt;self&lt;&#x2F;code&gt; parameter, which doesn&#x27;t include the more common &lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;, or immutable reference. In this case, we
-actually want the &lt;code&gt;sign()&lt;&#x2F;code&gt; function to take &amp;quot;ownership&amp;quot; of the &lt;code&gt;EventData&lt;&#x2F;code&gt;, consuming it in a such a way that prevents
+actually want the &lt;code&gt;sign()&lt;&#x2F;code&gt; function to take &quot;ownership&quot; of the &lt;code&gt;EventData&lt;&#x2F;code&gt;, consuming it in a such a way that prevents
 the caller from using &lt;em&gt;their&lt;&#x2F;em&gt; reference to it anymore, which helps us to encode this idea that once you sign &lt;code&gt;EventData&lt;&#x2F;code&gt;,
 it really shouldn&#x27;t be modified anymore.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;the-result&quot;&gt;The Result&lt;&#x2F;h4&gt;
@@ -1324,15 +1376,26 @@ make sense to do so. Part of this exercise is for my own learning experience as 
 pull requests just yet.&lt;&#x2F;p&gt;
 &lt;p&gt;In the next post in this series, we&#x27;ll look at connecting to relays, and building a simple user interface to read
 messages from those relays.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
-          <pubDate>Sun, 05 Feb 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/nostr-verification/</link>
-          <guid>https://nickmonad.blog/2023/nostr-verification/</guid>
-          <description>&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
+        <published>2023-02-05T00:00:00+00:00</published>
+        <updated>2023-02-05T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/nostr-verification/"/>
+        <id>https://nickmonad.blog/2023/nostr-verification/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/nostr-verification/">&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
 specifics about nostr DNS verification with zola.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;For the past few weeks, I&#x27;ve been doing some research on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;nostr&lt;&#x2F;a&gt;,
 a new approach for decentralized social-networking.&lt;&#x2F;p&gt;
@@ -1355,17 +1418,17 @@ a lot of people see that same magic in bitcoin as well.&lt;&#x2F;p&gt;
 started posting to relays, I wanted to make a quick post about how I setup DNS verification of my public key using
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;getzola.org&quot;&gt;&lt;code&gt;zola&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, the static site generator this blog is rendered with.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nip-05&quot;&gt;NIP-05&lt;&#x2F;h3&gt;
-&lt;p&gt;The nostr protocol development process has the notion of a &amp;quot;NIP&amp;quot;, or a &amp;quot;Nostr Implementation Possibility&amp;quot;, in a similar
-vein to bitcoin&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;BIPs&lt;&#x2F;a&gt; (&amp;quot;Bitcoin Improvement Proposals&amp;quot;). These are ways the community can propose
+&lt;p&gt;The nostr protocol development process has the notion of a &quot;NIP&quot;, or a &quot;Nostr Implementation Possibility&quot;, in a similar
+vein to bitcoin&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;BIPs&lt;&#x2F;a&gt; (&quot;Bitcoin Improvement Proposals&quot;). These are ways the community can propose
 new ideas or extentions to the base nostr protocol. Some may be mandatory, but most are optional, and can be specified
 for relays, clients, or both.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;05.md&quot;&gt;NIP-05&lt;&#x2F;a&gt; describes how clients can use DNS and a simple
 HTTP &lt;code&gt;GET&lt;&#x2F;code&gt; request to add an extra mapping for a user on nostr. This can give some extra assurance to a follower
 that who they are following is legitimate, or mark them as part of an organization (maybe a company or development group).&lt;&#x2F;p&gt;
-&lt;p&gt;Basically, a user can sign a nostr event published to relays that sets metadata about their &amp;quot;account&amp;quot;
+&lt;p&gt;Basically, a user can sign a nostr event published to relays that sets metadata about their &quot;account&quot;
 (technically, their public key). One of those fields that may be set is a &lt;code&gt;nip05&lt;&#x2F;code&gt; field, containing a &lt;code&gt;name@domain.com&lt;&#x2F;code&gt;
 value. Clients can make a request to &lt;code&gt;https:&#x2F;&#x2F;domain.com&#x2F;.well-known&#x2F;nostr.json?name=name&lt;&#x2F;code&gt; and if the public key returned
-matches the public key of the signed metadata event, that &amp;quot;account&amp;quot; is a considered verified against that domain.&lt;&#x2F;p&gt;
+matches the public key of the signed metadata event, that &quot;account&quot; is a considered verified against that domain.&lt;&#x2F;p&gt;
 &lt;p&gt;To be fair, if that domain is ever compromised in some way, the key mapping could also be compromised, misleading
 followers. But, it&#x27;s a reasonable level of assurance, considering we&#x27;re operating in a decentralized context.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nip-05-zola&quot;&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;h3&gt;
@@ -1396,18 +1459,29 @@ and set our &lt;code&gt;nip05&lt;&#x2F;code&gt; identifier in a nostr client tha
 &lt;li&gt;If you are not using your own server to host your zola static site, your hosting provider must support setting
 custom header responses for specific paths. In this case, I had to ensure I was setting &lt;code&gt;Access-Control-Allow-Origin: *&lt;&#x2F;code&gt;
 as a response header to all &lt;code&gt;&#x2F;.well-known&#x2F;*&lt;&#x2F;code&gt; requests, so Javascript web clients can make that request.&lt;&#x2F;li&gt;
-&lt;li&gt;If you want to just verify your top-level domain, you need to set &lt;code&gt;&amp;quot;_&amp;quot;&lt;&#x2F;code&gt; as the &amp;quot;name&amp;quot; in your &lt;code&gt;nostr.json&lt;&#x2F;code&gt;. See the
+&lt;li&gt;If you want to just verify your top-level domain, you need to set &lt;code&gt;&quot;_&quot;&lt;&#x2F;code&gt; as the &quot;name&quot; in your &lt;code&gt;nostr.json&lt;&#x2F;code&gt;. See the
 link above for this site as an example.&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
-</description>
-      </item>
-      <item>
-          <title>Initial Commit</title>
-          <pubDate>Fri, 09 Dec 2022 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2022/initial-commit/</link>
-          <guid>https://nickmonad.blog/2022/initial-commit/</guid>
-          <description>&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Initial Commit</title>
+        <published>2022-12-09T00:00:00+00:00</published>
+        <updated>2022-12-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2022/initial-commit/"/>
+        <id>https://nickmonad.blog/2022/initial-commit/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2022/initial-commit/">&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;
 &lt;p&gt;As they say, the 3rd (or maybe 10th) time is the charm. And just after I turned 30 too.&lt;&#x2F;p&gt;
 &lt;p&gt;Keep an eye out for some upcoming posts. I&#x27;m currently setting up NixOS on my homelab server, so that should be a
 fun one to write about.&lt;&#x2F;p&gt;
@@ -1416,7 +1490,7 @@ fun one to write about.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;    Ok(())
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-</description>
-      </item>
-    </channel>
-</rss>
+</content>
+        
+    </entry>
+</feed>

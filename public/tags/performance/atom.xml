@@ -1,34 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-      <title> - performance</title>
-      <link>https://nickmonad.blog</link>
-      <description></description>
-      <generator>Zola</generator>
-      <language>en</language>
-      <atom:link href="https://nickmonad.blog/tags/performance/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Mon, 03 Jun 2024 00:00:00 +0000</lastBuildDate>
-      <item>
-          <title>Advent of Performance: Go Edition</title>
-          <pubDate>Mon, 03 Jun 2024 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2024/advent-of-performance-go-edition/</link>
-          <guid>https://nickmonad.blog/2024/advent-of-performance-go-edition/</guid>
-          <description>&lt;p&gt;Every so often I like to spend some time working on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; problems when I need
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - performance</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/performance/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-06-03T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/performance/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Advent of Performance: Go Edition</title>
+        <published>2024-06-03T00:00:00+00:00</published>
+        <updated>2024-06-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2024/advent-of-performance-go-edition/"/>
+        <id>https://nickmonad.blog/2024/advent-of-performance-go-edition/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2024/advent-of-performance-go-edition/">&lt;p&gt;Every so often I like to spend some time working on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;&quot;&gt;Advent of Code&lt;&#x2F;a&gt; problems when I need
 a break from my primary projects. It&#x27;s also a great way to learn a new language, or sharpen skills in one I already know.&lt;&#x2F;p&gt;
-&lt;p&gt;Another fun angle is to spend time making solutions fast. Usually, they are &amp;quot;fast enough&amp;quot; for the purposes of solving
+&lt;p&gt;Another fun angle is to spend time making solutions fast. Usually, they are &quot;fast enough&quot; for the purposes of solving
 the problem and moving on, just to get the gist of how to think algorithmically. But, in some cases, there is an obvious
 slow down when going from part 1 to part 2 of a problem statement, which usually means there&#x27;s a faster alternative.
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;adventofcode.com&#x2F;2015&#x2F;day&#x2F;4&quot;&gt;Day 4&lt;&#x2F;a&gt; from the 2015 problem set provided exactly that opportunity.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;mining-adventcoin&quot;&gt;Mining AdventCoin&lt;&#x2F;h2&gt;
 &lt;p&gt;The problem statement for this day is essentially a simplified example of how &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.bitcoin.it&#x2F;wiki&#x2F;Mining&quot;&gt;bitcoin mining&lt;&#x2F;a&gt;
-works, by finding a hash collision. Given some input string (e.g. &lt;code&gt;yzbqklnj&lt;&#x2F;code&gt;), the goal is to find some &amp;quot;nonce&amp;quot; integer,
+works, by finding a hash collision. Given some input string (e.g. &lt;code&gt;yzbqklnj&lt;&#x2F;code&gt;), the goal is to find some &quot;nonce&quot; integer,
 that when appended to the input string and hashed (using MD5), the resulting hash will have some number of leading zeros.&lt;&#x2F;p&gt;
 &lt;p&gt;For example,&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;If your secret key is &lt;code&gt;abcdef&lt;&#x2F;code&gt;, the answer is &lt;code&gt;609043&lt;&#x2F;code&gt;, because the MD5 hash of &lt;code&gt;abcdef609043&lt;&#x2F;code&gt; starts with five zeroes (&lt;code&gt;000001dbbfa...&lt;&#x2F;code&gt;), and it is the lowest such number to do so.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;Hashes can&#x27;t be &amp;quot;reversed&amp;quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
+&lt;p&gt;Hashes can&#x27;t be &quot;reversed&quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
 with the required number of leading zeros.&lt;&#x2F;p&gt;
 &lt;p&gt;Fortunately, Go&#x27;s standard &lt;code&gt;crypto&lt;&#x2F;code&gt; package gives us a function to compute an MD5 hash of a byte array, so we can do this
 pretty simply.&lt;&#x2F;p&gt;
@@ -74,13 +82,13 @@ but it&#x27;s just slow.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;9962624
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;time:&lt;&#x2F;span&gt;&lt;span&gt; 4.029076709s
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;Technically, nothing is &amp;quot;wrong&amp;quot; with our algorithm here. It&#x27;s just dealing with a much larger space of possibilities.
+&lt;p&gt;Technically, nothing is &quot;wrong&quot; with our algorithm here. It&#x27;s just dealing with a much larger space of possibilities.
 Generally speaking, the more specific your target hash is, the longer it&#x27;s going to take, effectively trying random
 nonce values until you find the needle in a ridiculously large haystack.&lt;&#x2F;p&gt;
 &lt;p&gt;Of course, Go is known for making concurrency relatively easy, so let&#x27;s just spin up a goroutine for each CPU core
 and try as many different nonces as we can simultaneously.&lt;&#x2F;p&gt;
-&lt;p&gt;Originally, I had thought I would have &lt;code&gt;runtime.NumCPU()&lt;&#x2F;code&gt; goroutines as &amp;quot;workers&amp;quot; crunching on our hash function, with
-&lt;em&gt;another&lt;&#x2F;em&gt; goroutine that would act as a &amp;quot;ticket counter&amp;quot;, giving out the next nonce over a channel when a worker needed
+&lt;p&gt;Originally, I had thought I would have &lt;code&gt;runtime.NumCPU()&lt;&#x2F;code&gt; goroutines as &quot;workers&quot; crunching on our hash function, with
+&lt;em&gt;another&lt;&#x2F;em&gt; goroutine that would act as a &quot;ticket counter&quot;, giving out the next nonce over a channel when a worker needed
 a new one after failing to find the desired hash prefix.&lt;&#x2F;p&gt;
 &lt;p&gt;Although, it didn&#x27;t actually work. At least not in the way I expected. We got the right number, but it took &lt;em&gt;even longer&lt;&#x2F;em&gt; than
 the naive solution when looking for 6 leading zeros.&lt;&#x2F;p&gt;
@@ -100,7 +108,7 @@ tests a unique sequence of integers, but doesn&#x27;t overlap with any other wor
 &lt;&#x2F;span&gt;&lt;span&gt;worker 2 -&amp;gt; 2, 6, 10, 14, ...
 &lt;&#x2F;span&gt;&lt;span&gt;worker 3 -&amp;gt; 3, 7, 11, 15, ...
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;Each worker can calculate this sequence with 2 constants, the &amp;quot;base&amp;quot; (starting point), and &amp;quot;N&amp;quot;, the number of workers.&lt;&#x2F;p&gt;
+&lt;p&gt;Each worker can calculate this sequence with 2 constants, the &quot;base&quot; (starting point), and &quot;N&quot;, the number of workers.&lt;&#x2F;p&gt;
 &lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;nonce = base + (i * N)
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;If &lt;code&gt;i&lt;&#x2F;code&gt; increases indefinitely until we either find a solution, or are told to stop looking, we can parallelize this
@@ -233,7 +241,7 @@ the naive solution, and optimized solution that uses parallelization!&lt;&#x2F;p
 &lt;h2 id=&quot;summary&quot;&gt;Summary&lt;&#x2F;h2&gt;
 &lt;p&gt;Here&#x27;s a table summarizing the performance improvements for both part 1 and part 2. In each case, I ran the
 solutions 10 times and took the average of those reported run times, rounded to 2 decimal places.&lt;&#x2F;p&gt;
-&lt;p&gt;(&amp;quot;no alloc&amp;quot; means the version of &lt;code&gt;check&lt;&#x2F;code&gt; that doesn&#x27;t allocate a string and encode to hex)&lt;&#x2F;p&gt;
+&lt;p&gt;(&quot;no alloc&quot; means the version of &lt;code&gt;check&lt;&#x2F;code&gt; that doesn&#x27;t allocate a string and encode to hex)&lt;&#x2F;p&gt;
 &lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Solution&lt;&#x2F;th&gt;&lt;th&gt;Version&lt;&#x2F;th&gt;&lt;th&gt;Run Time&lt;&#x2F;th&gt;&lt;th&gt;Speedup&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
 &lt;tr&gt;&lt;td&gt;Part 1&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;naive&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;118.16 ms&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;1.0x&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;naive + no alloc&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;53.2 ms&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;2.2x&lt;&#x2F;code&gt;&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
@@ -248,7 +256,7 @@ solutions 10 times and took the average of those reported run times, rounded to 
 &lt;p&gt;I ran these tests using Go version &lt;code&gt;go1.22.3 linux&#x2F;amd64&lt;&#x2F;code&gt;, on a ThinkPad X1 Extreme Gen 4i, rocking an
 11th Gen Intel i7-11800H (16) @ 4.600GHz (reported by &lt;code&gt;neofetch&lt;&#x2F;code&gt;)&lt;&#x2F;p&gt;
 &lt;p&gt;All code for this and other solutions can be found on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;advent-of-code&#x2F;&quot;&gt;GitHub&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
-</description>
-      </item>
-    </channel>
-</rss>
+</content>
+        
+    </entry>
+</feed>

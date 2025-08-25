@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -92,19 +90,19 @@
         <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
             <p>Every so often I like to spend some time working on <a rel="noopener" target="_blank" href="https://adventofcode.com/">Advent of Code</a> problems when I need
 a break from my primary projects. It's also a great way to learn a new language, or sharpen skills in one I already know.</p>
-<p>Another fun angle is to spend time making solutions fast. Usually, they are &quot;fast enough&quot; for the purposes of solving
+<p>Another fun angle is to spend time making solutions fast. Usually, they are "fast enough" for the purposes of solving
 the problem and moving on, just to get the gist of how to think algorithmically. But, in some cases, there is an obvious
 slow down when going from part 1 to part 2 of a problem statement, which usually means there's a faster alternative.
 <a rel="noopener" target="_blank" href="https://adventofcode.com/2015/day/4">Day 4</a> from the 2015 problem set provided exactly that opportunity.</p>
 <h2 id="mining-adventcoin">Mining AdventCoin</h2>
 <p>The problem statement for this day is essentially a simplified example of how <a rel="noopener" target="_blank" href="https://en.bitcoin.it/wiki/Mining">bitcoin mining</a>
-works, by finding a hash collision. Given some input string (e.g. <code>yzbqklnj</code>), the goal is to find some &quot;nonce&quot; integer,
+works, by finding a hash collision. Given some input string (e.g. <code>yzbqklnj</code>), the goal is to find some "nonce" integer,
 that when appended to the input string and hashed (using MD5), the resulting hash will have some number of leading zeros.</p>
 <p>For example,</p>
 <blockquote>
 <p>If your secret key is <code>abcdef</code>, the answer is <code>609043</code>, because the MD5 hash of <code>abcdef609043</code> starts with five zeroes (<code>000001dbbfa...</code>), and it is the lowest such number to do so.</p>
 </blockquote>
-<p>Hashes can't be &quot;reversed&quot;, meaning that the only way to do this is to try a bunch of nonces until we find a hash
+<p>Hashes can't be "reversed", meaning that the only way to do this is to try a bunch of nonces until we find a hash
 with the required number of leading zeros.</p>
 <p>Fortunately, Go's standard <code>crypto</code> package gives us a function to compute an MD5 hash of a byte array, so we can do this
 pretty simply.</p>
@@ -150,13 +148,13 @@ but it's just slow.</p>
 </span><span style="color:#bf616a;">9962624
 </span><span style="color:#bf616a;">time:</span><span> 4.029076709s
 </span></code></pre>
-<p>Technically, nothing is &quot;wrong&quot; with our algorithm here. It's just dealing with a much larger space of possibilities.
+<p>Technically, nothing is "wrong" with our algorithm here. It's just dealing with a much larger space of possibilities.
 Generally speaking, the more specific your target hash is, the longer it's going to take, effectively trying random
 nonce values until you find the needle in a ridiculously large haystack.</p>
 <p>Of course, Go is known for making concurrency relatively easy, so let's just spin up a goroutine for each CPU core
 and try as many different nonces as we can simultaneously.</p>
-<p>Originally, I had thought I would have <code>runtime.NumCPU()</code> goroutines as &quot;workers&quot; crunching on our hash function, with
-<em>another</em> goroutine that would act as a &quot;ticket counter&quot;, giving out the next nonce over a channel when a worker needed
+<p>Originally, I had thought I would have <code>runtime.NumCPU()</code> goroutines as "workers" crunching on our hash function, with
+<em>another</em> goroutine that would act as a "ticket counter", giving out the next nonce over a channel when a worker needed
 a new one after failing to find the desired hash prefix.</p>
 <p>Although, it didn't actually work. At least not in the way I expected. We got the right number, but it took <em>even longer</em> than
 the naive solution when looking for 6 leading zeros.</p>
@@ -176,7 +174,7 @@ tests a unique sequence of integers, but doesn't overlap with any other worker.<
 </span><span>worker 2 -&gt; 2, 6, 10, 14, ...
 </span><span>worker 3 -&gt; 3, 7, 11, 15, ...
 </span></code></pre>
-<p>Each worker can calculate this sequence with 2 constants, the &quot;base&quot; (starting point), and &quot;N&quot;, the number of workers.</p>
+<p>Each worker can calculate this sequence with 2 constants, the "base" (starting point), and "N", the number of workers.</p>
 <pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>nonce = base + (i * N)
 </span></code></pre>
 <p>If <code>i</code> increases indefinitely until we either find a solution, or are told to stop looking, we can parallelize this
@@ -309,7 +307,7 @@ the naive solution, and optimized solution that uses parallelization!</p>
 <h2 id="summary">Summary</h2>
 <p>Here's a table summarizing the performance improvements for both part 1 and part 2. In each case, I ran the
 solutions 10 times and took the average of those reported run times, rounded to 2 decimal places.</p>
-<p>(&quot;no alloc&quot; means the version of <code>check</code> that doesn't allocate a string and encode to hex)</p>
+<p>("no alloc" means the version of <code>check</code> that doesn't allocate a string and encode to hex)</p>
 <table><thead><tr><th>Solution</th><th>Version</th><th>Run Time</th><th>Speedup</th></tr></thead><tbody>
 <tr><td>Part 1</td><td><code>naive</code></td><td><code>118.16 ms</code></td><td><code>1.0x</code></td></tr>
 <tr><td></td><td><code>naive + no alloc</code></td><td><code>53.2 ms</code></td><td><code>2.2x</code></td></tr>
@@ -334,7 +332,7 @@ solutions 10 times and took the average of those reported run times, rounded to 
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

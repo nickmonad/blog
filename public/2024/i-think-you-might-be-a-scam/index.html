@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -88,10 +86,10 @@
             </div>
         </div>
         <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
-            <p>Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means &quot;easy.&quot;
+            <p>Learning how to talk to customers has been a fun aspect of building a business. Although, it is by no means "easy."
 Like many engineers, I struggle with this, because what we <em>really</em> know how to do is write code, and we think if we
 just buckle down and knock it out quickly, we could validate our idea that way.</p>
-<p>That might work for some product ideas, but I'm becoming increasingly convinced that &quot;build first&quot; approaches are a
+<p>That might work for some product ideas, but I'm becoming increasingly convinced that "build first" approaches are a
 great way to waste a bunch of time, effort, and money towards building a product nobody cares about.</p>
 <p>I'm not alone in this way of thinking, and it certainly wasn't my idea. My mentor at the startup incubator
 I'm currently in encouraged me to stop building and actually talk to some customers. I definitely wasn't
@@ -102,11 +100,11 @@ on those assumptions.</p>
 <a rel="noopener" target="_blank" href="https://www.momtestbook.com/">The Mom Test</a>, and now I couldn't agree more. It's a concise little book that gives you that real, practical advice
 on how to approach customer discovery, with a particular emphasis on <em>not biasing the prospect.</em> As Rob Fitzpatrick
 outlines his approach, he details a particular mistake he finds a lot of entrepreneurs making, where they'll pitch an
-idea and immediately ask &quot;What do you think? Is it a good idea?&quot; This leads to all sorts of psychological issues
+idea and immediately ask "What do you think? Is it a good idea?" This leads to all sorts of psychological issues
 surrounding human behavior.</p>
 <p>The basic issue is that, nobody wants to hurt your feelings. When they are really
-thinking &quot;meh, I'm not sure why I would use that.&quot; Or, &quot;I really don't want to switch products right now.&quot;, they are
-telling you &quot;Yeah sounds great! Let me know when it launches.&quot; You walk away feeling like a business genius, but in
+thinking "meh, I'm not sure why I would use that." Or, "I really don't want to switch products right now.", they are
+telling you "Yeah sounds great! Let me know when it launches." You walk away feeling like a business genius, but in
 reality, they just told you what they thought you wanted to hear. This is particularly the case when the person you
 are pitching your idea to is your mom. But friends and colleagues are guilty of the same thing.</p>
 <p>So, how do we address that problem? <em>Just ask people questions about their lives and jobs.</em> You can start out pretty
@@ -155,7 +153,7 @@ of their time. No problem.</p>
 <blockquote>
 <p>Hi [redacted],</p>
 <p>Thank you for your response!</p>
-<p>I'm looking to learn more about your volunteer program, in terms of how it operates. Thinking about the &quot;lifecycle&quot;
+<p>I'm looking to learn more about your volunteer program, in terms of how it operates. Thinking about the "lifecycle"
 of a volunteer - how they show interest, how they get approved / onboarded, and how they schedule shifts.
 I'm interested in hearing specifically how you do those kinds of things today, tools you use, and where you see some
 of the challenges. I am hoping to develop new solutions for this space, but I first need to validate some of my
@@ -176,16 +174,16 @@ on providing our information.</p>
 <p>I was honestly shocked.</p>
 <p>Maybe it's just me, but if I think something is a scam, the last thing I do is reply to it.
 Oh, I definitely want to - especially so I can mess with them - but I know I'm better off not engaging.</p>
-<p>(Although, the lone &quot;Thank you.&quot; is probably my favorite part.)</p>
+<p>(Although, the lone "Thank you." is probably my favorite part.)</p>
 <p>In all seriousness, I expected to be ghosted by a few contacts, but I never expected to be told I might be somebody
 trying to execute a scam. I re-read my messages probably a dozen times, pouring over every word, trying to figure out
 what I said that was so concerning.</p>
 <p>I did end up sending a response that I won't show here. I wasn't mean or snarky with them, and even apologized for
 how I came across, but it's just a little embarrassing. I probably over explained what I was trying to do, and even
-mentioned things like &quot;I didn't lead with that information (about my company and idea) because I didn't want to bias you.&quot;
+mentioned things like "I didn't lead with that information (about my company and idea) because I didn't want to bias you."
 It's absolutely the truth, but I'm sure they don't really care at this point. Phrasing it that way might even come
 across as me essentially admitting I was trying to play some scammer Jedi mind-trick I was certain would win them over,
-but now that they've caught me, we can get to the &quot;real&quot; facts to calm their nerves.</p>
+but now that they've caught me, we can get to the "real" facts to calm their nerves.</p>
 <p>I can laugh about this experience now, but it definitely rocked me at first. It sucks to be told something so blatantly
 wrong, especially when you make the effort to be as cordial and concise as possible. It also made me wonder if the
 people who ghosted me did so because I came across in a sketchy way.</p>
@@ -194,15 +192,15 @@ people who ghosted me did so because I came across in a sketchy way.</p>
 <li>
 <p><strong>Don't be afraid to say you are a software developer trying to build a new product.</strong>
 Saying you have an idea isn't the same as telling them what the idea is, and I think my prospective contact would have
-appreciated knowing what exactly I was attempting to do up front. Framing it as &quot;just a conversation&quot; works for
+appreciated knowing what exactly I was attempting to do up front. Framing it as "just a conversation" works for
 some people, but others might find that to be a little odd.</p>
 </li>
 <li>
 <p><strong>Stop talking so much like an engineer.</strong> In my follow-up response to their question about what exactly
-I was looking for, I threw out words like &quot;lifecycle&quot; and started to describe the problem as I would describe
-it to another engineer. I went way over the top with detail when I should have just said, &quot;Oh my gosh, I'm sorry I
+I was looking for, I threw out words like "lifecycle" and started to describe the problem as I would describe
+it to another engineer. I went way over the top with detail when I should have just said, "Oh my gosh, I'm sorry I
 wasn't clear. I really just want to learn more about your organization so I can better understand the problems facing
-volunteer organizers. I do some volunteering myself and I'm curious if other organizations are facing the same problems.&quot;</p>
+volunteer organizers. I do some volunteering myself and I'm curious if other organizations are facing the same problems."</p>
 </li>
 </ul>
 <p>Even with all that, you can't win them all. People will ghost you, and they may not be very helpful.
@@ -219,7 +217,7 @@ Then, go build a kick-ass product.</p>
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

@@ -1,0 +1,251 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "version": 1,
+    "install": {
+      "tailwindcss_3": {
+        "pkg-path": "tailwindcss_3"
+      },
+      "zola": {
+        "pkg-path": "zola"
+      }
+    },
+    "hook": {},
+    "profile": {},
+    "options": {}
+  },
+  "packages": [
+    {
+      "attr_path": "tailwindcss_3",
+      "broken": false,
+      "derivation": "/nix/store/vclz0lw6s719wffmb1vdyl2bx9508iib-tailwindcss_3-3.4.17.drv",
+      "description": "Command-line tool for the CSS framework with composable CSS classes, standalone CLI",
+      "install_id": "tailwindcss_3",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "tailwindcss_3-3.4.17",
+      "pname": "tailwindcss_3",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T15:39:57.192032Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.4.17",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/ywm6k9rii4q79i224ky4m0vcnvd1d53j-tailwindcss_3-3.4.17"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "tailwindcss_3",
+      "broken": false,
+      "derivation": "/nix/store/r0x7r07l49a5r2n13a7d0wgn5x3x47i2-tailwindcss_3-3.4.17.drv",
+      "description": "Command-line tool for the CSS framework with composable CSS classes, standalone CLI",
+      "install_id": "tailwindcss_3",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "tailwindcss_3-3.4.17",
+      "pname": "tailwindcss_3",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T16:07:07.868737Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.4.17",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/3ibmjh1wnsyw4qs7dv5l20vdjppxfkm0-tailwindcss_3-3.4.17"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "tailwindcss_3",
+      "broken": false,
+      "derivation": "/nix/store/npkmdmgcvrhz3v9m9jzmc0wsa2pb5a04-tailwindcss_3-3.4.17.drv",
+      "description": "Command-line tool for the CSS framework with composable CSS classes, standalone CLI",
+      "install_id": "tailwindcss_3",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "tailwindcss_3-3.4.17",
+      "pname": "tailwindcss_3",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T16:30:25.270682Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.4.17",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/10pbck0jxmxqf9zjfhqmdpsiia2132q0-tailwindcss_3-3.4.17"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "tailwindcss_3",
+      "broken": false,
+      "derivation": "/nix/store/fxg3pjibibn7ap99rlcajpadfzrj7k2i-tailwindcss_3-3.4.17.drv",
+      "description": "Command-line tool for the CSS framework with composable CSS classes, standalone CLI",
+      "install_id": "tailwindcss_3",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "tailwindcss_3-3.4.17",
+      "pname": "tailwindcss_3",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T16:59:10.596861Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "3.4.17",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/1rg0s2xh8ghcgg3k0ki7xxj1ykyy9701-tailwindcss_3-3.4.17"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/kqqqgqk13jpfsjcdjcgy2vqfp3d8a642-zola-0.21.0.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "zola-0.21.0",
+      "pname": "zola",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T15:40:36.006001Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.21.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/4kj95vgkrnyrgbvjh652wr1mc5l7fdni-zola-0.21.0"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/xz65n6902ahb3dq0kmw5kbyx3nzcqsal-zola-0.21.0.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "zola-0.21.0",
+      "pname": "zola",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T16:08:00.476004Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.21.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/cy99s25kxnxbii682a0dxarv18bdnfv4-zola-0.21.0"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/4bppxl0inm5pks37ks33ri6gd169klhm-zola-0.21.0.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "zola-0.21.0",
+      "pname": "zola",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T16:31:00.388847Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.21.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/b3rs4633alh15an4l9pb018z3sqp8jfd-zola-0.21.0"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "zola",
+      "broken": false,
+      "derivation": "/nix/store/qcy8lg8glf0c9s1sjxi3ypjr21h5gi2n-zola-0.21.0.drv",
+      "description": "Fast static site generator with everything built-in",
+      "install_id": "zola",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=20075955deac2583bb12f07151c2df830ef346b4",
+      "name": "zola-0.21.0",
+      "pname": "zola",
+      "rev": "20075955deac2583bb12f07151c2df830ef346b4",
+      "rev_count": 846535,
+      "rev_date": "2025-08-19T15:00:17Z",
+      "scrape_date": "2025-08-24T17:00:01.285456Z",
+      "stabilities": [
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.21.0",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/sv36acgvbzcjzjcrrjwh606lwb16fdna-zola-0.21.0"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    }
+  ]
+}

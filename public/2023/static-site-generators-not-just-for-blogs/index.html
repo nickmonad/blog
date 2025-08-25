@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="Static generation should be the default">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -93,8 +91,8 @@ programs that allow anybody with a little bit of HTML and CSS skill to produce a
 content (typically) using <a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Markdown">markdown</a> in a simple folder structure, and commit it
 all to git. Truly a gift and a joy to work with, compared to something like Wordpress.</p>
 <p><a rel="noopener" target="_blank" href="https://www.cloudflare.com/learning/performance/static-site-generator/">Cloudflare</a> defines a
-static site generator (SSG) as <strong>&quot;a tool that generates a full static HTML website based on raw data and a set of templates&quot;</strong>.
-In this context, &quot;static&quot; means that the end result of the build is a set of HTML pages that don't change when the page is
+static site generator (SSG) as <strong>"a tool that generates a full static HTML website based on raw data and a set of templates"</strong>.
+In this context, "static" means that the end result of the build is a set of HTML pages that don't change when the page is
 refreshed, not that those pages <em>never</em> change.</p>
 <p>Static site generators are incredibly powerful tools available for modern web development and I think a lot of developers
 are missing out on what they offer in terms of development time, hosting cost, and overall simplicity.</p>
@@ -104,7 +102,7 @@ makes a lot of sense, as once blog posts are published, they rarely change, and 
 of a company blog, SEO is a major factor as well, since search engine crawlers need to parse content quickly.</p>
 <p>Unfortunately, I think a lot of the understanding around static site generation ends here, even among web developers.
 For a long time, I was in this camp as well. I knew I could use static site generation effectively for my blog site, or
-a simple &quot;about&quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
+a simple "about" page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
 the content could be shown in a long, continuous block of text.</p>
 <p>This understanding makes some product pages, or pages that require laying out collections of blocks in a grid-like
 structure difficult to reason about, and nearly impossible to build in some cases. If I can only store content in a big
@@ -113,12 +111,12 @@ content to different sections of the page and style it appropriately? Worse yet,
 update copy on the page without having to dig around in the HTML directly?</p>
 <h2 id="options-for-managing-structured-content">Options for managing structured content</h2>
 <p>I'm going to use <a rel="noopener" target="_blank" href="https://www.getzola.org/">zola</a> as my static site generator of choice and show some examples of
-creating and rendering &quot;non-blog&quot; content, in a few different ways. This is only because I'm the most familiar with it,
+creating and rendering "non-blog" content, in a few different ways. This is only because I'm the most familiar with it,
 but there are lots of good options out there, such as <a rel="noopener" target="_blank" href="https://gohugo.io/">hugo</a>. They may or may not work in exactly
 the same way, but what's important here is taking the ideas and expanding our understanding of how we can utilize SSGs
 to their full potential.</p>
 <h3 id="1-section-and-page-metadata">1. Section and Page Metadata</h3>
-<p>Sometimes called &quot;front matter&quot;, each section or page of our site can have metadata associated with it.</p>
+<p>Sometimes called "front matter", each section or page of our site can have metadata associated with it.</p>
 <p>Even in the case of a blog, you'll see this metadata above the markdown content, enclosed in some kind of marker, to
 separate it from the main content of the post. This would include things like <code>title</code>, <code>description</code>, <code>author</code>, and <code>date</code>,
 and read by the static site generator itself to organize and template the page. The front matter of this post looks like,</p>
@@ -189,7 +187,7 @@ to bring in data from a remote source, within a template.</p>
 </span><span>&lt;/ul&gt;
 </span></code></pre>
 <blockquote>
-<p>The &quot;url&quot; passed to <code>load_data</code> can be a local file as well, if it makes sense to store that JSON locally.</p>
+<p>The "url" passed to <code>load_data</code> can be a local file as well, if it makes sense to store that JSON locally.</p>
 </blockquote>
 <p>This gives us the flexibility to put content somewhere else that is more accessible to a wider group of people on our team.
 Any change in the CMS can be detected (hopefully via a webhook) and the site can be rebuilt, previewed and pushed to production.</p>
@@ -206,7 +204,7 @@ of <code>bips.dev</code>, that source is a <a rel="noopener" target="_blank" hre
 <h2 id="simple-as-the-default">Simple as the default</h2>
 <p><strong>TL;DR</strong></p>
 <p>With the proliferation and increasing sophistication of SSGs, I think the time has come where we can say that the <em>default</em>
-choice of any &quot;non-application&quot; website should be static generation. Statically generated sites are faster to develop,
+choice of any "non-application" website should be static generation. Statically generated sites are faster to develop,
 easier to host, and easier to reason about over the lifetime of the project.</p>
 <p>I want to be explicit in stating what I hope is the obvious: If you are building a highly interactive application with
 lots of business logic, <em>obviously</em> a fully featured programming language and deployment environment is going to be a better option.
@@ -238,7 +236,7 @@ soon, where the simple choice is the default choice.</p>
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

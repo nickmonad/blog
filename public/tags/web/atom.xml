@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-      <title> - web</title>
-      <link>https://nickmonad.blog</link>
-      <description></description>
-      <generator>Zola</generator>
-      <language>en</language>
-      <atom:link href="https://nickmonad.blog/tags/web/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Mon, 11 Dec 2023 00:00:00 +0000</lastBuildDate>
-      <item>
-          <title>Static Site Generators: Not Just for Blogs</title>
-          <pubDate>Mon, 11 Dec 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</link>
-          <guid>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</guid>
-          <description>&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - web</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/web/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2023-12-11T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/web/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Static Site Generators: Not Just for Blogs</title>
+        <published>2023-12-11T00:00:00+00:00</published>
+        <updated>2023-12-11T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/"/>
+        <id>https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/static-site-generators-not-just-for-blogs/">&lt;p&gt;Static site generators have become popular within the technical and programming focused communities. They are fast, focused
 programs that allow anybody with a little bit of HTML and CSS skill to produce a blog or product page quickly, write all their
 content (typically) using &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Markdown&quot;&gt;markdown&lt;&#x2F;a&gt; in a simple folder structure, and commit it
 all to git. Truly a gift and a joy to work with, compared to something like Wordpress.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.cloudflare.com&#x2F;learning&#x2F;performance&#x2F;static-site-generator&#x2F;&quot;&gt;Cloudflare&lt;&#x2F;a&gt; defines a
-static site generator (SSG) as &lt;strong&gt;&amp;quot;a tool that generates a full static HTML website based on raw data and a set of templates&amp;quot;&lt;&#x2F;strong&gt;.
-In this context, &amp;quot;static&amp;quot; means that the end result of the build is a set of HTML pages that don&#x27;t change when the page is
+static site generator (SSG) as &lt;strong&gt;&quot;a tool that generates a full static HTML website based on raw data and a set of templates&quot;&lt;&#x2F;strong&gt;.
+In this context, &quot;static&quot; means that the end result of the build is a set of HTML pages that don&#x27;t change when the page is
 refreshed, not that those pages &lt;em&gt;never&lt;&#x2F;em&gt; change.&lt;&#x2F;p&gt;
 &lt;p&gt;Static site generators are incredibly powerful tools available for modern web development and I think a lot of developers
 are missing out on what they offer in terms of development time, hosting cost, and overall simplicity.&lt;&#x2F;p&gt;
@@ -30,7 +38,7 @@ makes a lot of sense, as once blog posts are published, they rarely change, and 
 of a company blog, SEO is a major factor as well, since search engine crawlers need to parse content quickly.&lt;&#x2F;p&gt;
 &lt;p&gt;Unfortunately, I think a lot of the understanding around static site generation ends here, even among web developers.
 For a long time, I was in this camp as well. I knew I could use static site generation effectively for my blog site, or
-a simple &amp;quot;about&amp;quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
+a simple &quot;about&quot; page here or there, and maybe even a legal statement or privacy policy. Basically, anything where
 the content could be shown in a long, continuous block of text.&lt;&#x2F;p&gt;
 &lt;p&gt;This understanding makes some product pages, or pages that require laying out collections of blocks in a grid-like
 structure difficult to reason about, and nearly impossible to build in some cases. If I can only store content in a big
@@ -39,12 +47,12 @@ content to different sections of the page and style it appropriately? Worse yet,
 update copy on the page without having to dig around in the HTML directly?&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;options-for-managing-structured-content&quot;&gt;Options for managing structured content&lt;&#x2F;h2&gt;
 &lt;p&gt;I&#x27;m going to use &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;zola&lt;&#x2F;a&gt; as my static site generator of choice and show some examples of
-creating and rendering &amp;quot;non-blog&amp;quot; content, in a few different ways. This is only because I&#x27;m the most familiar with it,
+creating and rendering &quot;non-blog&quot; content, in a few different ways. This is only because I&#x27;m the most familiar with it,
 but there are lots of good options out there, such as &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;gohugo.io&#x2F;&quot;&gt;hugo&lt;&#x2F;a&gt;. They may or may not work in exactly
 the same way, but what&#x27;s important here is taking the ideas and expanding our understanding of how we can utilize SSGs
 to their full potential.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;1-section-and-page-metadata&quot;&gt;1. Section and Page Metadata&lt;&#x2F;h3&gt;
-&lt;p&gt;Sometimes called &amp;quot;front matter&amp;quot;, each section or page of our site can have metadata associated with it.&lt;&#x2F;p&gt;
+&lt;p&gt;Sometimes called &quot;front matter&quot;, each section or page of our site can have metadata associated with it.&lt;&#x2F;p&gt;
 &lt;p&gt;Even in the case of a blog, you&#x27;ll see this metadata above the markdown content, enclosed in some kind of marker, to
 separate it from the main content of the post. This would include things like &lt;code&gt;title&lt;&#x2F;code&gt;, &lt;code&gt;description&lt;&#x2F;code&gt;, &lt;code&gt;author&lt;&#x2F;code&gt;, and &lt;code&gt;date&lt;&#x2F;code&gt;,
 and read by the static site generator itself to organize and template the page. The front matter of this post looks like,&lt;&#x2F;p&gt;
@@ -115,7 +123,7 @@ to bring in data from a remote source, within a template.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;&#x2F;ul&amp;gt;
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The &amp;quot;url&amp;quot; passed to &lt;code&gt;load_data&lt;&#x2F;code&gt; can be a local file as well, if it makes sense to store that JSON locally.&lt;&#x2F;p&gt;
+&lt;p&gt;The &quot;url&quot; passed to &lt;code&gt;load_data&lt;&#x2F;code&gt; can be a local file as well, if it makes sense to store that JSON locally.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;This gives us the flexibility to put content somewhere else that is more accessible to a wider group of people on our team.
 Any change in the CMS can be detected (hopefully via a webhook) and the site can be rebuilt, previewed and pushed to production.&lt;&#x2F;p&gt;
@@ -132,7 +140,7 @@ of &lt;code&gt;bips.dev&lt;&#x2F;code&gt;, that source is a &lt;a rel=&quot;noop
 &lt;h2 id=&quot;simple-as-the-default&quot;&gt;Simple as the default&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;strong&gt;TL;DR&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;With the proliferation and increasing sophistication of SSGs, I think the time has come where we can say that the &lt;em&gt;default&lt;&#x2F;em&gt;
-choice of any &amp;quot;non-application&amp;quot; website should be static generation. Statically generated sites are faster to develop,
+choice of any &quot;non-application&quot; website should be static generation. Statically generated sites are faster to develop,
 easier to host, and easier to reason about over the lifetime of the project.&lt;&#x2F;p&gt;
 &lt;p&gt;I want to be explicit in stating what I hope is the obvious: If you are building a highly interactive application with
 lots of business logic, &lt;em&gt;obviously&lt;&#x2F;em&gt; a fully featured programming language and deployment environment is going to be a better option.
@@ -154,7 +162,7 @@ the way to go.&lt;&#x2F;p&gt;
 &lt;p&gt;I could be way behind on this. If you&#x27;re reading and find all of it to be blatantly obvious, or something that was figured out
 years ago, awesome! In my recent experience, there is still a lack of understanding around SSGs, and I hope we&#x27;ll see a renaissance
 soon, where the simple choice is the default choice.&lt;&#x2F;p&gt;
-</description>
-      </item>
-    </channel>
-</rss>
+</content>
+        
+    </entry>
+</feed>

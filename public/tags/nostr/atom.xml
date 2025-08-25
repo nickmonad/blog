@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-      <title> - nostr</title>
-      <link>https://nickmonad.blog</link>
-      <description></description>
-      <generator>Zola</generator>
-      <language>en</language>
-      <atom:link href="https://nickmonad.blog/tags/nostr/rss.xml" rel="self" type="application/rss+xml"/>
-      <lastBuildDate>Thu, 31 Aug 2023 00:00:00 +0000</lastBuildDate>
-      <item>
-          <title>Building a nostr client [1]</title>
-          <pubDate>Thu, 31 Aug 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/building-nostr-client-index-1/</link>
-          <guid>https://nickmonad.blog/2023/building-nostr-client-index-1/</guid>
-          <description>&lt;p&gt;Welcome to the second installation of the &amp;quot;Building a nostr client&amp;quot; series. The goal of this series is to walk through
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - nostr</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/nostr/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2023-08-31T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/nostr/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Building a nostr client [1]</title>
+        <published>2023-08-31T00:00:00+00:00</published>
+        <updated>2023-08-31T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/building-nostr-client-index-1/"/>
+        <id>https://nickmonad.blog/2023/building-nostr-client-index-1/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/building-nostr-client-index-1/">&lt;p&gt;Welcome to the second installation of the &quot;Building a nostr client&quot; series. The goal of this series is to walk through
 building a simple nostr client in Rust. If you haven&#x27;t seen the first post &lt;a href=&quot;https:&#x2F;&#x2F;nickmonad.blog&#x2F;2023&#x2F;building-nostr-client-index-0&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;,
 I would recommend doing so, as we&#x27;ll build on those concepts. Also, if you aren&#x27;t familiar with nostr and why I&#x27;m doing this,
 that would be a good place to start as well!&lt;&#x2F;p&gt;
@@ -23,7 +31,7 @@ could look like.&lt;&#x2F;p&gt;
 &lt;p&gt;In this post, I want to start connecting to relays, and build a simple TUI (terminal user interface) to display events.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;building-on-prior-art&quot;&gt;Building on prior art...&lt;&#x2F;h3&gt;
 &lt;p&gt;When I first considered doing this series of posts, I had the thought that I would do pretty much everything
-&amp;quot;from scratch&amp;quot;. Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
+&quot;from scratch&quot;. Essentially, use libraries available to me in Rust, but nothing nostr specific. After finding the
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;nostr&#x2F;latest&#x2F;nostr&#x2F;index.html&quot;&gt;nostr crate&lt;&#x2F;a&gt; and giving it some thought, I decided that I would, at the very least,
 use its core data structures, event generation and signing capabilities to build my client. &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;yukibtc&quot;&gt;yukibtc&lt;&#x2F;a&gt;
 and other contributors have done an incredible job with this crate so far. Much better than I could do. It&#x27;s easy
@@ -38,14 +46,14 @@ crate, so we&#x27;ll have plenty of code to write there.&lt;&#x2F;p&gt;
 interested clients. By design, there are many relays a client could possibly connect to. Some require payment for access,
 but many are free. Some are built for a specific community or topic in mind, but most right now seem to be pretty
 free-form. If one relay goes down, for any reason, temporarily or permanently, clients can just connect to another.&lt;&#x2F;p&gt;
-&lt;p&gt;Clients connect to relays and send events (or &amp;quot;notes&amp;quot;) across them, and clients on the other end set up &lt;em&gt;filters&lt;&#x2F;em&gt;
+&lt;p&gt;Clients connect to relays and send events (or &quot;notes&quot;) across them, and clients on the other end set up &lt;em&gt;filters&lt;&#x2F;em&gt;
 for those events. Not every user is automatically connected to every other user, as they would be on the global
 feed of a centralized platform, so there are some issues around discovery, as you need to know which relays
 people are posting to. But, in practice, it&#x27;s not a big deal. (And there are some NIPs out there attempting to mitigate this.)&lt;&#x2F;p&gt;
 &lt;p&gt;As you start to think about how a client should interact with its configured relays, you tend to realize:&lt;&#x2F;p&gt;
 &lt;ol&gt;
 &lt;li&gt;
-&lt;p&gt;&lt;strong&gt;There is no &amp;quot;should&amp;quot;.&lt;&#x2F;strong&gt; Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
+&lt;p&gt;&lt;strong&gt;There is no &quot;should&quot;.&lt;&#x2F;strong&gt; Other than the basic data over-the-wire requirements of the protocol, clients can and actively do
 all sorts of things to transmit and receive events to and from relays. Without &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;twitter&#x2F;the-algorithm&quot;&gt;The Algorithm&lt;&#x2F;a&gt;
 handed down from on high, there are really no rules here. You want events chronologically? Great. You want events from your
 followed accounts and the accounts they follow? Sure. Only show events whose ID ends with the hex digit &lt;code&gt;f&lt;&#x2F;code&gt;? I guess.
@@ -53,7 +61,7 @@ Allow the user to selectively send events to some relays but not others? Yes, ab
 &lt;&#x2F;li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;It&#x27;s suprisingly deep.&lt;&#x2F;strong&gt; There are a lot of practical elements to consider when building a client&#x27;s view
-of the nostr world, especially in a &amp;quot;twitter-like&amp;quot; way. Generally you want to have the option of viewing something other than the &amp;quot;global&amp;quot; feed
+of the nostr world, especially in a &quot;twitter-like&quot; way. Generally you want to have the option of viewing something other than the &quot;global&quot; feed
 of all their connected relays, as it can either be extremely spammy, or just too much information, too quickly. So,
 you need some kind of view filtering, even if it&#x27;s just showing events from the user&#x27;s followed accounts. Also, what if the user
 is away from the client for a while (say a month) and decides to come back? Do you start showing them events from exactly
@@ -70,7 +78,7 @@ followed accounts, in the order we receive them. But first, we need to connect t
 &lt;p&gt;Fortunately, the really low-level details are already handled for us in a crate called
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio-tungstenite&#x2F;latest&#x2F;tokio_tungstenite&#x2F;index.html&quot;&gt;tokio-tungstenite&lt;&#x2F;a&gt;. &lt;code&gt;tungstenite&lt;&#x2F;code&gt; is a popular
 Rust crate for handling &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;developer.mozilla.org&#x2F;en-US&#x2F;docs&#x2F;Web&#x2F;API&#x2F;WebSockets_API&quot;&gt;WebSocket&lt;&#x2F;a&gt; connections, which
-nostr uses for its protocol communication layer. The &amp;quot;tokio&amp;quot; side of this crate just brings it into the
+nostr uses for its protocol communication layer. The &quot;tokio&quot; side of this crate just brings it into the
 most popular ecosystem for asynchronous programming in Rust... &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;tokio.rs&#x2F;&quot;&gt;tokio&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;I believe the primary motivating factor for using WebSockets in nostr instead of some other transport protocol
@@ -91,36 +99,36 @@ typically on the same thread.&lt;&#x2F;p&gt;
 and have another task that is aggregating these events together in some way: de-duplicating them,
 showing them to the user, saving them to disk, etc.&lt;&#x2F;p&gt;
 &lt;p&gt;So, we need a way to spawn the async I&#x2F;O task for each relay we want to interact with, and then communicate with that task
-using nifty little tools called &amp;quot;channels&amp;quot;. I&#x27;ll try to illustrate how this is going to look.&lt;&#x2F;p&gt;
+using nifty little tools called &quot;channels&quot;. I&#x27;ll try to illustrate how this is going to look.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;architecture&quot;&gt;Architecture&lt;&#x2F;h4&gt;
 &lt;p&gt;Relays are implemented as a Rust &lt;code&gt;struct&lt;&#x2F;code&gt; type, with a few properties. First, it must be configured with a WebSocket
 URL, which is published by a relay operator, and is up to our client to store and use. Internally, a &lt;code&gt;Relay&lt;&#x2F;code&gt; must
-also create and reference a &amp;quot;channel&amp;quot;, that is used by the client to communicate with it asynchronously. These are
-&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio&#x2F;latest&#x2F;tokio&#x2F;sync&#x2F;mpsc&#x2F;index.html&quot;&gt;&lt;code&gt;tokio::sync::mpsc&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; channels (&lt;strong&gt;&amp;quot;multiple producer, single
-consumer&amp;quot;&lt;&#x2F;strong&gt;), and aren&#x27;t exposed directly to the client, but is indirectly through a function interface, as illustrated
+also create and reference a &quot;channel&quot;, that is used by the client to communicate with it asynchronously. These are
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;tokio&#x2F;latest&#x2F;tokio&#x2F;sync&#x2F;mpsc&#x2F;index.html&quot;&gt;&lt;code&gt;tokio::sync::mpsc&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; channels (&lt;strong&gt;&quot;multiple producer, single
+consumer&quot;&lt;&#x2F;strong&gt;), and aren&#x27;t exposed directly to the client, but is indirectly through a function interface, as illustrated
 below. Relays are created in a &lt;code&gt;disconnected&lt;&#x2F;code&gt; state.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture disconnected&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-disconnected.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
-&lt;p&gt;These &amp;quot;control&amp;quot; messages are used to tell the relay to send us events that match a certain filter
+&lt;p&gt;These &quot;control&quot; messages are used to tell the relay to send us events that match a certain filter
 (as defined by &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;01.md&quot;&gt;NIP-01&lt;&#x2F;a&gt;), publish our own events, or disconnect.
 They must be sent over a channel that the &lt;code&gt;Relay&lt;&#x2F;code&gt; manages since there is an underlying async task that must listen for
 events from the relay and be responsive.&lt;&#x2F;p&gt;
 &lt;p&gt;But first, we have to actually connect to the relay with its WebSocket address, and receive those events from it. When we
 call the &lt;code&gt;Relay::connect()&lt;&#x2F;code&gt; method, we use the &lt;code&gt;tungstenite&lt;&#x2F;code&gt; crate underneath to open a WebSocket connection, and spin
-up an async task to handle the &amp;quot;up&amp;quot; stream (messages &lt;em&gt;to&lt;&#x2F;em&gt; the relay), and the &amp;quot;down&amp;quot; stream (messages &lt;em&gt;from&lt;&#x2F;em&gt; the relay).
-These &amp;quot;up&amp;quot; and &amp;quot;down&amp;quot; handles are also part of a &lt;code&gt;Stream&lt;&#x2F;code&gt; construct that is well beyond the scope of this post, but for
-our purposes, &amp;quot;up&amp;quot; is like a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; and &amp;quot;down&amp;quot; is like a &lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+up an async task to handle the &quot;up&quot; stream (messages &lt;em&gt;to&lt;&#x2F;em&gt; the relay), and the &quot;down&quot; stream (messages &lt;em&gt;from&lt;&#x2F;em&gt; the relay).
+These &quot;up&quot; and &quot;down&quot; handles are also part of a &lt;code&gt;Stream&lt;&#x2F;code&gt; construct that is well beyond the scope of this post, but for
+our purposes, &quot;up&quot; is like a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; and &quot;down&quot; is like a &lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture connected&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-connected.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;These relay messages are written over the wire as &lt;code&gt;Message&lt;&#x2F;code&gt; types from the &lt;code&gt;tungstenite&lt;&#x2F;code&gt; crate, and are translated
 from the &lt;code&gt;nostr::ClientMessage&lt;&#x2F;code&gt; and to &lt;code&gt;nostr::RelayMessage&lt;&#x2F;code&gt; types.&lt;&#x2F;p&gt;
 &lt;p&gt;Lastly, we have to consider how it looks when there are multiple relays involved, as is expected within a nostr client.
 When the &lt;code&gt;Relay::connect()&lt;&#x2F;code&gt; method is called, it expects to be given a &lt;code&gt;mpsc::Sender&lt;&#x2F;code&gt; side of a channel, which can
-be cloned and given to &lt;em&gt;every&lt;&#x2F;em&gt; relay we are interested in. These &amp;quot;producers&amp;quot; will all funnel to one &amp;quot;consumer&amp;quot; (&lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;),
+be cloned and given to &lt;em&gt;every&lt;&#x2F;em&gt; relay we are interested in. These &quot;producers&quot; will all funnel to one &quot;consumer&quot; (&lt;code&gt;mpsc::Receiver&lt;&#x2F;code&gt;),
 which acts as our firehose of events coming from all relays we have a connection with. There&#x27;s nothing required about this,
 it just makes it easier to deal with in a simple implementation like this one. We can treat all &lt;code&gt;Relay&lt;&#x2F;code&gt; structs as if they
 were one big set of relays, producing a single stream of events.&lt;&#x2F;p&gt;
 &lt;div align=&quot;center&quot;&gt;&lt;img alt=&quot;nostr relay architecture stream&quot; src=&quot;..&#x2F;images&#x2F;nostr-relay-stream.png&quot;&#x2F;&gt;&lt;&#x2F;div&gt;
 &lt;p&gt;As far as technical implementation details, there&#x27;s a lot left to go over here. I think the best way to think about this
-is you have an async task (&amp;quot;thread&amp;quot;) driving the inbound&#x2F;outbound connection with the WebSocket relay
+is you have an async task (&quot;thread&quot;) driving the inbound&#x2F;outbound connection with the WebSocket relay
 itself, and another, at the client level, that is driving the state of the &lt;code&gt;Relay&lt;&#x2F;code&gt; struct, and that is why we need
 to use async channels behind &lt;code&gt;Arc&amp;lt;Mutex&amp;lt;...&amp;gt;&amp;gt;&lt;&#x2F;code&gt; primitives, so they can be safely cloned and shared throughout the client as necessary.
 The &lt;code&gt;Relay&lt;&#x2F;code&gt; struct is a effectively just a handle over a set of common data structures, making the initial connection and
@@ -152,8 +160,8 @@ user hits Ctrl-C, we disconnect from each relay and shutdown.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The inital messages showing &lt;code&gt;EndOfStoredEvents&lt;&#x2F;code&gt; from each configured relay are due to the fact we set the &lt;code&gt;since&lt;&#x2F;code&gt;
-value on our filter message to be &lt;code&gt;Timestamp::now()&lt;&#x2F;code&gt; and the relay is just saying, &amp;quot;eveything after this will be in
-real-time.&amp;quot;&lt;&#x2F;p&gt;
+value on our filter message to be &lt;code&gt;Timestamp::now()&lt;&#x2F;code&gt; and the relay is just saying, &quot;eveything after this will be in
+real-time.&quot;&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;h3 id=&quot;tui&quot;&gt;TUI&lt;&#x2F;h3&gt;
 &lt;p&gt;Now that we have events coming in from the relay, we can start on the real &lt;em&gt;client&lt;&#x2F;em&gt; functionality. As I stated earlier,
@@ -161,9 +169,9 @@ this can go really deep on implementation, and wide on feature set. I want to ke
 it won&#x27;t do much for now.&lt;&#x2F;p&gt;
 &lt;p&gt;To help set some direction on where to focus next, I think we can break it down like so:&lt;&#x2F;p&gt;
 &lt;ul&gt;
-&lt;li&gt;First, read a list of public keys to &amp;quot;follow&amp;quot; from a local config file.&lt;&#x2F;li&gt;
+&lt;li&gt;First, read a list of public keys to &quot;follow&quot; from a local config file.&lt;&#x2F;li&gt;
 &lt;li&gt;Using the public keys present in that config, setup and send filters to each relay, asking first for kind &lt;code&gt;0&lt;&#x2F;code&gt; events
-associated with the public key(s), giving us &amp;quot;profile&amp;quot; metadata, like the user&#x27;s preferred display name, followed by kind &lt;code&gt;1&lt;&#x2F;code&gt; events, the actual text notes,
+associated with the public key(s), giving us &quot;profile&quot; metadata, like the user&#x27;s preferred display name, followed by kind &lt;code&gt;1&lt;&#x2F;code&gt; events, the actual text notes,
 from the past &lt;strong&gt;day&lt;&#x2F;strong&gt;. (Arbitrary choice.)&lt;&#x2F;li&gt;
 &lt;li&gt;Listening on the aggregated event stream, use some kind of mechanism to ensure that events aren&#x27;t shown twice, in the case where
 a followed public key is published to more than one of the relays we are interested in. This is quite common, and must be handled
@@ -172,10 +180,10 @@ in performance and memory usage over time. We could use a SQLite based implement
 but for now, let&#x27;s just use a simple in-memory set, and vector (list) of events.&lt;&#x2F;li&gt;
 &lt;li&gt;Build a simple TUI (terminal user interface) for showing the events and navigating through the list.&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
-&lt;p&gt;This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a &amp;quot;real&amp;quot; client
+&lt;p&gt;This is the simplest possible start I can imagine, while building something at least marginally useful. Many factors of a &quot;real&quot; client
 won&#x27;t be considered here, but, it&#x27;ll be fun to continue adding features over time.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;starting-up&quot;&gt;Starting up&lt;&#x2F;h4&gt;
-&lt;p&gt;First, we need to read our config file, and create our primary &lt;code&gt;mpsc&lt;&#x2F;code&gt; channels. One for that relay &amp;quot;firehose&amp;quot; mentioned
+&lt;p&gt;First, we need to read our config file, and create our primary &lt;code&gt;mpsc&lt;&#x2F;code&gt; channels. One for that relay &quot;firehose&quot; mentioned
 above, and another for terminal events (user input, resize notifications, etc). The first block here is our example
 &lt;code&gt;config.toml&lt;&#x2F;code&gt; file.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;toml&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-toml &quot;&gt;&lt;code class=&quot;language-toml&quot; data-lang=&quot;toml&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;follow &lt;&#x2F;span&gt;&lt;span&gt;= [
@@ -238,7 +246,7 @@ not to implement that right now, since we don&#x27;t have a database yet.&lt;&#x
 &lt;h4 id=&quot;processing-and-displaying-events&quot;&gt;Processing and displaying events&lt;&#x2F;h4&gt;
 &lt;p&gt;Once the client has completed this initial startup, it can run its primary processing loop, reading events
 from the relays, and user input from the terminal.&lt;&#x2F;p&gt;
-&lt;p&gt;Since we aren&#x27;t using SQLite right now as we prove all this out, we&#x27;ll use an in-memory &amp;quot;database&amp;quot; structure.&lt;&#x2F;p&gt;
+&lt;p&gt;Since we aren&#x27;t using SQLite right now as we prove all this out, we&#x27;ll use an in-memory &quot;database&quot; structure.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Simple &amp;quot;database&amp;quot; implementation,
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; storing a list of Events, and a map of Metadata objects, accessible via pubkey
 &lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Default)]
@@ -247,11 +255,11 @@ from the relays, and user input from the terminal.&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;metadata&lt;&#x2F;span&gt;&lt;span&gt;: HashMap&amp;lt;String, Metadata&amp;gt;,
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;The &lt;code&gt;metadata&lt;&#x2F;code&gt; attribute is important, as we want to show every pubkey&#x27;s &amp;quot;username&amp;quot; as they have published them
+&lt;p&gt;The &lt;code&gt;metadata&lt;&#x2F;code&gt; attribute is important, as we want to show every pubkey&#x27;s &quot;username&quot; as they have published them
 under the &lt;code&gt;kind:0&lt;&#x2F;code&gt; event. Since we have a filter setup for those, we can update this struct as a mapping between the
 followed pubkeys and their metadata. The &lt;code&gt;events&lt;&#x2F;code&gt; attribute is a simple vector of all the &lt;code&gt;kind:1&lt;&#x2F;code&gt; events we receive.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Obviously, this isn&#x27;t really scalable for &amp;quot;real-world&amp;quot; usage. We&#x27;d ideally push these to a local SQLite file,
+&lt;p&gt;Obviously, this isn&#x27;t really scalable for &quot;real-world&quot; usage. We&#x27;d ideally push these to a local SQLite file,
 and maybe use these in-memory structures for a bounded cache. Just indefinitely growing this vector isn&#x27;t
 efficient at all, but again, this is more of a proof-of-concept.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -352,32 +360,43 @@ provides really simple ways to put the terminal in the correct mode it needs to 
 it to take. It&#x27;s been a really busy summer - full of good and beautiful things, just not as much coding time outside of work.&lt;&#x2F;p&gt;
 &lt;p&gt;There&#x27;s a lot that can still be done to make this TUI more functional, useful, and pretty. I think the first
 thing I would do is make the rendered height of each note fixed and consistent, and allow the user to expand longer notes
-if they want to read them. Since the terminal doesn&#x27;t have a &amp;quot;continuous&amp;quot; scrolling frame, like a fully graphical UI would
+if they want to read them. Since the terminal doesn&#x27;t have a &quot;continuous&quot; scrolling frame, like a fully graphical UI would
 have, notes of different length can really break the rendering flow while scrolling through, as you can see in the demo.&lt;&#x2F;p&gt;
 &lt;p&gt;But, for now, let&#x27;s move onto other things!&lt;&#x2F;p&gt;
 &lt;p&gt;In the next (and likely final) installation of this series, I&#x27;ll add some basic key management, paving the way
 for signing and publishing events.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>Building a nostr client [0]</title>
-          <pubDate>Sun, 26 Mar 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/building-nostr-client-index-0/</link>
-          <guid>https://nickmonad.blog/2023/building-nostr-client-index-0/</guid>
-          <description>&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Building a nostr client [0]</title>
+        <published>2023-03-26T00:00:00+00:00</published>
+        <updated>2023-03-26T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/building-nostr-client-index-0/"/>
+        <id>https://nickmonad.blog/2023/building-nostr-client-index-0/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/building-nostr-client-index-0/">&lt;p&gt;Over the past few weeks, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;nostr.how&#x2F;&quot;&gt;nostr&lt;&#x2F;a&gt; has continued to take much of my attention. I&#x27;m still
 fascinated by this protocol and I&#x27;m very curious to see where it goes in the coming years.&lt;&#x2F;p&gt;
-&lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &amp;quot;Notes and Other Stuff Transmitted over Relays&amp;quot;, and is a pretty
+&lt;p&gt;If you haven&#x27;t heard of nostr yet, it stands for &quot;Notes and Other Stuff Transmitted over Relays&quot;, and is a pretty
 simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
-federated servers that talk to each other) it uses the concept of &amp;quot;relays&amp;quot; that allow clients to connect to them and,
-you guessed it, &lt;em&gt;transmit&lt;&#x2F;em&gt; &amp;quot;notes&amp;quot; and &amp;quot;other stuff&amp;quot;, using a cryptographic key pair to sign and verify that data.&lt;&#x2F;p&gt;
+federated servers that talk to each other) it uses the concept of &quot;relays&quot; that allow clients to connect to them and,
+you guessed it, &lt;em&gt;transmit&lt;&#x2F;em&gt; &quot;notes&quot; and &quot;other stuff&quot;, using a cryptographic key pair to sign and verify that data.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;i&gt;By the way, how do people pronouce this thing? Is it &amp;quot;nos-ter&amp;quot;, &amp;quot;nose-ter&amp;quot;, ... something else? I tend towards the
+&lt;p&gt;&lt;i&gt;By the way, how do people pronouce this thing? Is it &quot;nos-ter&quot;, &quot;nose-ter&quot;, ... something else? I tend towards the
 first way for some reason.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;As the protocol&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;GitHub&lt;&#x2F;a&gt; states:&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The simplest open protocol that is able to create a censorship-resistant global &amp;quot;social&amp;quot; network once and for all.
+&lt;p&gt;The simplest open protocol that is able to create a censorship-resistant global &quot;social&quot; network once and for all.
 It doesn&#x27;t rely on any trusted central server, hence it is resilient; it is based on cryptographic keys and
 signatures, so it is tamperproof; it does not rely on P2P techniques, and therefore it works.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -392,7 +411,7 @@ and things are a little bit crazy, but the hype is real, and I believe for good 
 &lt;h3 id=&quot;let-s-build-a-client&quot;&gt;Let&#x27;s build a client!&lt;&#x2F;h3&gt;
 &lt;p&gt;Besides all the reasons I mentioned above, I&#x27;m excited about nostr, because, as a programmer, I get to &lt;em&gt;build&lt;&#x2F;em&gt; things.
 My own things. Things that define how I interact with the network. There are a lot of good clients out there already,
-but I figured, &amp;quot;why not try and build my own?&amp;quot;&lt;&#x2F;p&gt;
+but I figured, &quot;why not try and build my own?&quot;&lt;&#x2F;p&gt;
 &lt;p&gt;This is the first entry (index &lt;code&gt;0&lt;&#x2F;code&gt;) in a series of posts I intend to write outlining the basic discovery and process
 of building a client. Hopefully we&#x27;ll run into some interesting challenges that need thoughtful solutions, and we&#x27;ll
 progress towards something relatively usable.&lt;&#x2F;p&gt;
@@ -406,10 +425,10 @@ client after I wrap up this series, and anyone can follow along on GitHub once w
 &lt;p&gt;Hopefully I won&#x27;t give so much detail that it&#x27;s exhausting to read. I&#x27;m hoping I&#x27;ll get better about tightening up
 these posts as I go.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;Wait, what about the name? After looking at all sorts of weird combinations of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;, I came up
-with &lt;code&gt;roostr&lt;&#x2F;code&gt;. I like it because it gives the project its own identity, and is actually pronoucable as &amp;quot;rooster&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;Wait, what about the name? After looking at all sorts of weird combinations of &quot;rust&quot; and &quot;nostr&quot;, I came up
+with &lt;code&gt;roostr&lt;&#x2F;code&gt;. I like it because it gives the project its own identity, and is actually pronoucable as &quot;rooster&quot;.&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;I&#x27;m aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &amp;quot;rust&amp;quot; and &amp;quot;nostr&amp;quot;
+&lt;p&gt;I&#x27;m aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &quot;rust&quot; and &quot;nostr&quot;
 and settled on something unique in the space!&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;h3 id=&quot;the-stack&quot;&gt;THE STACK&lt;&#x2F;h3&gt;
@@ -478,14 +497,14 @@ The serialization is done over the UTF-8 JSON-serialized string
 &lt;&#x2F;span&gt;&lt;span&gt;]
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;&#x2F;blockquote&gt;
-&lt;p&gt;I&#x27;ll be honest, I&#x27;m a little confused by the &amp;quot;with no white space or line breaks&amp;quot; comment. Does that also mean
+&lt;p&gt;I&#x27;ll be honest, I&#x27;m a little confused by the &quot;with no white space or line breaks&quot; comment. Does that also mean
 for the &lt;em&gt;content&lt;&#x2F;em&gt;? I could see it either way, but I&#x27;m going to lean towards we don&#x27;t manipulate the content in any
 way to obtain this event &lt;code&gt;id&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;Before we can actually sign the event, we need that &lt;code&gt;id&lt;&#x2F;code&gt;, which means we need a method to generate the JSON string
 described above, based on the event.&lt;&#x2F;p&gt;
 &lt;p&gt;In the Rust world, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;serde.rs&#x2F;&quot;&gt;&lt;code&gt;serde&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; has become a go-to crate for (ser)ialization, and
 (de)serialization, and has support for JSON, so it makes sense for us to start there. &lt;code&gt;serde&lt;&#x2F;code&gt; supports the notion
-of a &lt;code&gt;Serialize&lt;&#x2F;code&gt; trait (or &amp;quot;interface&amp;quot;), we can implement to tell &lt;code&gt;serde&lt;&#x2F;code&gt; how we want our custom types to look when
+of a &lt;code&gt;Serialize&lt;&#x2F;code&gt; trait (or &quot;interface&quot;), we can implement to tell &lt;code&gt;serde&lt;&#x2F;code&gt; how we want our custom types to look when
 they are represented as JSON. Explaining all the details of &lt;code&gt;serde&lt;&#x2F;code&gt; is definitely outside of the scope of this
 post, but this should give you a rough idea.&lt;&#x2F;p&gt;
 &lt;p&gt;For &lt;code&gt;Kind&lt;&#x2F;code&gt;, it&#x27;s pretty straightforward, just map each &lt;code&gt;enum&lt;&#x2F;code&gt; variant to a number.&lt;&#x2F;p&gt;
@@ -541,7 +560,7 @@ of implementing &lt;code&gt;Serialize&lt;&#x2F;code&gt; for &lt;code&gt;Event&lt
 in determining the event &lt;code&gt;id&lt;&#x2F;code&gt;, but quickly realized that wouldn&#x27;t be so great.&lt;&#x2F;p&gt;
 &lt;p&gt;One thing that&#x27;s really cool about Rust, or even just modern statically typed languages in general, is that we can
 encode certain aspects of our problem domain into the types themselves. In this case, &lt;code&gt;EventData&lt;&#x2F;code&gt; is something dynamic,
-generated by the user, and can reasonably be &amp;quot;edited&amp;quot;, up until the point we are ready to sign the event for
+generated by the user, and can reasonably be &quot;edited&quot;, up until the point we are ready to sign the event for
 publication to the network. Once that event is signed though, it doesn&#x27;t make sense that we should be able to edit
 that &lt;code&gt;EventData&lt;&#x2F;code&gt; anymore, since changing it necessarily changes the &lt;code&gt;id&lt;&#x2F;code&gt;, which changes the signature
 (more on that later).&lt;&#x2F;p&gt;
@@ -556,7 +575,7 @@ that &lt;code&gt;EventData&lt;&#x2F;code&gt; anymore, since changing it necessar
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;blockquote&gt;
-&lt;p&gt;The astute reader might comment that since our &lt;code&gt;Event&lt;&#x2F;code&gt; fields are &amp;quot;pub&amp;quot; here, it doesn&#x27;t actually quite
+&lt;p&gt;The astute reader might comment that since our &lt;code&gt;Event&lt;&#x2F;code&gt; fields are &quot;pub&quot; here, it doesn&#x27;t actually quite
 get us to the point where we have full encapsulation within this module. That&#x27;s something I hope to address
 fully, with accessor methods later on.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
@@ -629,7 +648,7 @@ using string formatting.&lt;&#x2F;p&gt;
 &lt;p&gt;The next critical piece we need to consider is signing the events with a key pair.&lt;&#x2F;p&gt;
 &lt;p&gt;By utilizing digital signatures, nostr clients and relays can verify the integrity of messages. They are the core piece
 of a user&#x27;s identity as they move from one relay to another. This what people mean when they say nostr is
-&amp;quot;tamperproof&amp;quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
+&quot;tamperproof&quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
 your public key.&lt;&#x2F;p&gt;
 &lt;p&gt;As stated in the NIP-01 specification,&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
@@ -637,8 +656,8 @@ your public key.&lt;&#x2F;p&gt;
 standard for the curve secp256k1.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;The whole cryptography thing is a &lt;em&gt;h u g e&lt;&#x2F;em&gt; topic to cover, and I am by no means an expert, so I won&#x27;t go into much
-detail. The basic idea is that everybody has a public key and a private key. This is called the &amp;quot;key pair&amp;quot;.
-A user can &amp;quot;sign&amp;quot; data with their private key, and share their public key with the world. Anybody can then look
+detail. The basic idea is that everybody has a public key and a private key. This is called the &quot;key pair&quot;.
+A user can &quot;sign&quot; data with their private key, and share their public key with the world. Anybody can then look
 at the signature data, and verify it was in fact signed by the user with the associated public key, all without
 revealing the private key itself, so it can be re-used.&lt;&#x2F;p&gt;
 &lt;p&gt;Fortunately, there is a lot of prior art out there we can utilize to get this working pretty easily.&lt;&#x2F;p&gt;
@@ -707,9 +726,9 @@ when we expose the secret value to other functions. We&#x27;ll revisit this topi
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;I had to find the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.x_only_public_key&quot;&gt;&lt;code&gt;KeyPair::x_only_public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
 function after I had originally just tried to test with &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;secp256k1&#x2F;latest&#x2F;secp256k1&#x2F;struct.KeyPair.html#method.public_key&quot;&gt;&lt;code&gt;KeyPair::public_key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
-which seems to include some kind of &amp;quot;parity&amp;quot; byte at the front of the hex output. I can&#x27;t see that being relevant
+which seems to include some kind of &quot;parity&quot; byte at the front of the hex output. I can&#x27;t see that being relevant
 when looking at the raw data of other valid nostr events out in the wild, so I don&#x27;t think it&#x27;s necessary. This makes
-sense actually when we see that &amp;quot;X only&amp;quot; intends the key to be used only for signature verification.&lt;&#x2F;p&gt;
+sense actually when we see that &quot;X only&quot; intends the key to be used only for signature verification.&lt;&#x2F;p&gt;
 &lt;p&gt;Finally, we can put our types together in the way we described above to generate a signed &lt;code&gt;Event&lt;&#x2F;code&gt; from &lt;code&gt;EventData&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(serde::Serialize)]
 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;EventData {
@@ -754,11 +773,11 @@ sense actually when we see that &amp;quot;X only&amp;quot; intends the key to be
 &lt;p&gt;You may notice, I also changed up the the type definitions a little bit here. I found it a bit awkward to have the
 &lt;code&gt;pubkey&lt;&#x2F;code&gt; of the signing key pair on the &lt;code&gt;EventData&lt;&#x2F;code&gt; struct. So instead, I added it as a parameter to the &lt;code&gt;id()&lt;&#x2F;code&gt;
 generation function, which is then utilized in the &lt;code&gt;sign()&lt;&#x2F;code&gt; function. This all seemed a bit cleaner to me,
-as I really only have to give the signing &amp;quot;context&amp;quot; &lt;em&gt;once&lt;&#x2F;em&gt; when &lt;code&gt;EventData&lt;&#x2F;code&gt; is actually signed and produces
+as I really only have to give the signing &quot;context&quot; &lt;em&gt;once&lt;&#x2F;em&gt; when &lt;code&gt;EventData&lt;&#x2F;code&gt; is actually signed and produces
 an &lt;code&gt;Event&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;It&#x27;s also worthwhile to note some Rust semantics here. In the &lt;code&gt;sign()&lt;&#x2F;code&gt; function signature (no pun intended), there&#x27;s
 this &lt;code&gt;self&lt;&#x2F;code&gt; parameter, which doesn&#x27;t include the more common &lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;, or immutable reference. In this case, we
-actually want the &lt;code&gt;sign()&lt;&#x2F;code&gt; function to take &amp;quot;ownership&amp;quot; of the &lt;code&gt;EventData&lt;&#x2F;code&gt;, consuming it in a such a way that prevents
+actually want the &lt;code&gt;sign()&lt;&#x2F;code&gt; function to take &quot;ownership&quot; of the &lt;code&gt;EventData&lt;&#x2F;code&gt;, consuming it in a such a way that prevents
 the caller from using &lt;em&gt;their&lt;&#x2F;em&gt; reference to it anymore, which helps us to encode this idea that once you sign &lt;code&gt;EventData&lt;&#x2F;code&gt;,
 it really shouldn&#x27;t be modified anymore.&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;the-result&quot;&gt;The Result&lt;&#x2F;h4&gt;
@@ -805,15 +824,26 @@ make sense to do so. Part of this exercise is for my own learning experience as 
 pull requests just yet.&lt;&#x2F;p&gt;
 &lt;p&gt;In the next post in this series, we&#x27;ll look at connecting to relays, and building a simple user interface to read
 messages from those relays.&lt;&#x2F;p&gt;
-</description>
-      </item>
-      <item>
-          <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
-          <pubDate>Sun, 05 Feb 2023 00:00:00 +0000</pubDate>
-          <author>Nick Miller</author>
-          <link>https://nickmonad.blog/2023/nostr-verification/</link>
-          <guid>https://nickmonad.blog/2023/nostr-verification/</guid>
-          <description>&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>nostr NIP-05 DNS Verification for a Zola-based Static Site</title>
+        <published>2023-02-05T00:00:00+00:00</published>
+        <updated>2023-02-05T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2023/nostr-verification/"/>
+        <id>https://nickmonad.blog/2023/nostr-verification/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2023/nostr-verification/">&lt;p&gt;&lt;i&gt;Skip down to the &lt;code&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;code&gt; section if you already know about nostr and want to get right into the technical
 specifics about nostr DNS verification with zola.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;For the past few weeks, I&#x27;ve been doing some research on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nostr&quot;&gt;nostr&lt;&#x2F;a&gt;,
 a new approach for decentralized social-networking.&lt;&#x2F;p&gt;
@@ -836,17 +866,17 @@ a lot of people see that same magic in bitcoin as well.&lt;&#x2F;p&gt;
 started posting to relays, I wanted to make a quick post about how I setup DNS verification of my public key using
 &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;getzola.org&quot;&gt;&lt;code&gt;zola&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, the static site generator this blog is rendered with.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nip-05&quot;&gt;NIP-05&lt;&#x2F;h3&gt;
-&lt;p&gt;The nostr protocol development process has the notion of a &amp;quot;NIP&amp;quot;, or a &amp;quot;Nostr Implementation Possibility&amp;quot;, in a similar
-vein to bitcoin&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;BIPs&lt;&#x2F;a&gt; (&amp;quot;Bitcoin Improvement Proposals&amp;quot;). These are ways the community can propose
+&lt;p&gt;The nostr protocol development process has the notion of a &quot;NIP&quot;, or a &quot;Nostr Implementation Possibility&quot;, in a similar
+vein to bitcoin&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bips.dev&quot;&gt;BIPs&lt;&#x2F;a&gt; (&quot;Bitcoin Improvement Proposals&quot;). These are ways the community can propose
 new ideas or extentions to the base nostr protocol. Some may be mandatory, but most are optional, and can be specified
 for relays, clients, or both.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nostr-protocol&#x2F;nips&#x2F;blob&#x2F;master&#x2F;05.md&quot;&gt;NIP-05&lt;&#x2F;a&gt; describes how clients can use DNS and a simple
 HTTP &lt;code&gt;GET&lt;&#x2F;code&gt; request to add an extra mapping for a user on nostr. This can give some extra assurance to a follower
 that who they are following is legitimate, or mark them as part of an organization (maybe a company or development group).&lt;&#x2F;p&gt;
-&lt;p&gt;Basically, a user can sign a nostr event published to relays that sets metadata about their &amp;quot;account&amp;quot;
+&lt;p&gt;Basically, a user can sign a nostr event published to relays that sets metadata about their &quot;account&quot;
 (technically, their public key). One of those fields that may be set is a &lt;code&gt;nip05&lt;&#x2F;code&gt; field, containing a &lt;code&gt;name@domain.com&lt;&#x2F;code&gt;
 value. Clients can make a request to &lt;code&gt;https:&#x2F;&#x2F;domain.com&#x2F;.well-known&#x2F;nostr.json?name=name&lt;&#x2F;code&gt; and if the public key returned
-matches the public key of the signed metadata event, that &amp;quot;account&amp;quot; is a considered verified against that domain.&lt;&#x2F;p&gt;
+matches the public key of the signed metadata event, that &quot;account&quot; is a considered verified against that domain.&lt;&#x2F;p&gt;
 &lt;p&gt;To be fair, if that domain is ever compromised in some way, the key mapping could also be compromised, misleading
 followers. But, it&#x27;s a reasonable level of assurance, considering we&#x27;re operating in a decentralized context.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;nip-05-zola&quot;&gt;NIP-05 &amp;amp; Zola&lt;&#x2F;h3&gt;
@@ -877,10 +907,10 @@ and set our &lt;code&gt;nip05&lt;&#x2F;code&gt; identifier in a nostr client tha
 &lt;li&gt;If you are not using your own server to host your zola static site, your hosting provider must support setting
 custom header responses for specific paths. In this case, I had to ensure I was setting &lt;code&gt;Access-Control-Allow-Origin: *&lt;&#x2F;code&gt;
 as a response header to all &lt;code&gt;&#x2F;.well-known&#x2F;*&lt;&#x2F;code&gt; requests, so Javascript web clients can make that request.&lt;&#x2F;li&gt;
-&lt;li&gt;If you want to just verify your top-level domain, you need to set &lt;code&gt;&amp;quot;_&amp;quot;&lt;&#x2F;code&gt; as the &amp;quot;name&amp;quot; in your &lt;code&gt;nostr.json&lt;&#x2F;code&gt;. See the
+&lt;li&gt;If you want to just verify your top-level domain, you need to set &lt;code&gt;&quot;_&quot;&lt;&#x2F;code&gt; as the &quot;name&quot; in your &lt;code&gt;nostr.json&lt;&#x2F;code&gt;. See the
 link above for this site as an example.&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
-</description>
-      </item>
-    </channel>
-</rss>
+</content>
+        
+    </entry>
+</feed>

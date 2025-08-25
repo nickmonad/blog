@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="Basic data structures and Event generation">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -92,17 +90,17 @@
         <article class="max-w-none prose prose-lg prose-zinc prose-code:overflow-x-auto prose-pre:overflow-x-auto prose-code:before:content-none prose-code:after:content-none prose-p:leading-relaxed prose-a:font-bold prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-sky-700 prose-pre:bg-zinc-200 prose-pre:text-zinc-800 dark:prose-invert dark:prose-pre:bg-zinc-600 dark:prose-pre:text-white">
             <p>Over the past few weeks, <a rel="noopener" target="_blank" href="https://nostr.how/">nostr</a> has continued to take much of my attention. I'm still
 fascinated by this protocol and I'm very curious to see where it goes in the coming years.</p>
-<p>If you haven't heard of nostr yet, it stands for &quot;Notes and Other Stuff Transmitted over Relays&quot;, and is a pretty
+<p>If you haven't heard of nostr yet, it stands for "Notes and Other Stuff Transmitted over Relays", and is a pretty
 simple, yet powerful, idea for defining and growing a social network. Instead of a centralized server (or even
-federated servers that talk to each other) it uses the concept of &quot;relays&quot; that allow clients to connect to them and,
-you guessed it, <em>transmit</em> &quot;notes&quot; and &quot;other stuff&quot;, using a cryptographic key pair to sign and verify that data.</p>
+federated servers that talk to each other) it uses the concept of "relays" that allow clients to connect to them and,
+you guessed it, <em>transmit</em> "notes" and "other stuff", using a cryptographic key pair to sign and verify that data.</p>
 <blockquote>
-<p><i>By the way, how do people pronouce this thing? Is it &quot;nos-ter&quot;, &quot;nose-ter&quot;, ... something else? I tend towards the
+<p><i>By the way, how do people pronouce this thing? Is it "nos-ter", "nose-ter", ... something else? I tend towards the
 first way for some reason.</i></p>
 </blockquote>
 <p>As the protocol's <a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nostr">GitHub</a> states:</p>
 <blockquote>
-<p>The simplest open protocol that is able to create a censorship-resistant global &quot;social&quot; network once and for all.
+<p>The simplest open protocol that is able to create a censorship-resistant global "social" network once and for all.
 It doesn't rely on any trusted central server, hence it is resilient; it is based on cryptographic keys and
 signatures, so it is tamperproof; it does not rely on P2P techniques, and therefore it works.</p>
 </blockquote>
@@ -117,7 +115,7 @@ and things are a little bit crazy, but the hype is real, and I believe for good 
 <h3 id="let-s-build-a-client">Let's build a client!</h3>
 <p>Besides all the reasons I mentioned above, I'm excited about nostr, because, as a programmer, I get to <em>build</em> things.
 My own things. Things that define how I interact with the network. There are a lot of good clients out there already,
-but I figured, &quot;why not try and build my own?&quot;</p>
+but I figured, "why not try and build my own?"</p>
 <p>This is the first entry (index <code>0</code>) in a series of posts I intend to write outlining the basic discovery and process
 of building a client. Hopefully we'll run into some interesting challenges that need thoughtful solutions, and we'll
 progress towards something relatively usable.</p>
@@ -131,10 +129,10 @@ client after I wrap up this series, and anyone can follow along on GitHub once w
 <p>Hopefully I won't give so much detail that it's exhausting to read. I'm hoping I'll get better about tightening up
 these posts as I go.</p>
 </blockquote>
-<p>Wait, what about the name? After looking at all sorts of weird combinations of &quot;rust&quot; and &quot;nostr&quot;, I came up
-with <code>roostr</code>. I like it because it gives the project its own identity, and is actually pronoucable as &quot;rooster&quot;.</p>
+<p>Wait, what about the name? After looking at all sorts of weird combinations of "rust" and "nostr", I came up
+with <code>roostr</code>. I like it because it gives the project its own identity, and is actually pronoucable as "rooster".</p>
 <blockquote>
-<p>I'm aware of the whole ostrich thing nostr has going for it. I just wanted some combination of &quot;rust&quot; and &quot;nostr&quot;
+<p>I'm aware of the whole ostrich thing nostr has going for it. I just wanted some combination of "rust" and "nostr"
 and settled on something unique in the space!</p>
 </blockquote>
 <h3 id="the-stack">THE STACK</h3>
@@ -203,14 +201,14 @@ The serialization is done over the UTF-8 JSON-serialized string
 </span><span>]
 </span></code></pre>
 </blockquote>
-<p>I'll be honest, I'm a little confused by the &quot;with no white space or line breaks&quot; comment. Does that also mean
+<p>I'll be honest, I'm a little confused by the "with no white space or line breaks" comment. Does that also mean
 for the <em>content</em>? I could see it either way, but I'm going to lean towards we don't manipulate the content in any
 way to obtain this event <code>id</code>.</p>
 <p>Before we can actually sign the event, we need that <code>id</code>, which means we need a method to generate the JSON string
 described above, based on the event.</p>
 <p>In the Rust world, <a rel="noopener" target="_blank" href="https://serde.rs/"><code>serde</code></a> has become a go-to crate for (ser)ialization, and
 (de)serialization, and has support for JSON, so it makes sense for us to start there. <code>serde</code> supports the notion
-of a <code>Serialize</code> trait (or &quot;interface&quot;), we can implement to tell <code>serde</code> how we want our custom types to look when
+of a <code>Serialize</code> trait (or "interface"), we can implement to tell <code>serde</code> how we want our custom types to look when
 they are represented as JSON. Explaining all the details of <code>serde</code> is definitely outside of the scope of this
 post, but this should give you a rough idea.</p>
 <p>For <code>Kind</code>, it's pretty straightforward, just map each <code>enum</code> variant to a number.</p>
@@ -266,7 +264,7 @@ of implementing <code>Serialize</code> for <code>Event</code>, so it would produ
 in determining the event <code>id</code>, but quickly realized that wouldn't be so great.</p>
 <p>One thing that's really cool about Rust, or even just modern statically typed languages in general, is that we can
 encode certain aspects of our problem domain into the types themselves. In this case, <code>EventData</code> is something dynamic,
-generated by the user, and can reasonably be &quot;edited&quot;, up until the point we are ready to sign the event for
+generated by the user, and can reasonably be "edited", up until the point we are ready to sign the event for
 publication to the network. Once that event is signed though, it doesn't make sense that we should be able to edit
 that <code>EventData</code> anymore, since changing it necessarily changes the <code>id</code>, which changes the signature
 (more on that later).</p>
@@ -281,7 +279,7 @@ that <code>EventData</code> anymore, since changing it necessarily changes the <
 </span><span>}
 </span></code></pre>
 <blockquote>
-<p>The astute reader might comment that since our <code>Event</code> fields are &quot;pub&quot; here, it doesn't actually quite
+<p>The astute reader might comment that since our <code>Event</code> fields are "pub" here, it doesn't actually quite
 get us to the point where we have full encapsulation within this module. That's something I hope to address
 fully, with accessor methods later on.</p>
 </blockquote>
@@ -354,7 +352,7 @@ using string formatting.</p>
 <p>The next critical piece we need to consider is signing the events with a key pair.</p>
 <p>By utilizing digital signatures, nostr clients and relays can verify the integrity of messages. They are the core piece
 of a user's identity as they move from one relay to another. This what people mean when they say nostr is
-&quot;tamperproof&quot;. As long as you practice secure handling of your keys, no one can generate fake events associated with
+"tamperproof". As long as you practice secure handling of your keys, no one can generate fake events associated with
 your public key.</p>
 <p>As stated in the NIP-01 specification,</p>
 <blockquote>
@@ -362,8 +360,8 @@ your public key.</p>
 standard for the curve secp256k1.</p>
 </blockquote>
 <p>The whole cryptography thing is a <em>h u g e</em> topic to cover, and I am by no means an expert, so I won't go into much
-detail. The basic idea is that everybody has a public key and a private key. This is called the &quot;key pair&quot;.
-A user can &quot;sign&quot; data with their private key, and share their public key with the world. Anybody can then look
+detail. The basic idea is that everybody has a public key and a private key. This is called the "key pair".
+A user can "sign" data with their private key, and share their public key with the world. Anybody can then look
 at the signature data, and verify it was in fact signed by the user with the associated public key, all without
 revealing the private key itself, so it can be re-used.</p>
 <p>Fortunately, there is a lot of prior art out there we can utilize to get this working pretty easily.</p>
@@ -432,9 +430,9 @@ when we expose the secret value to other functions. We'll revisit this topic of 
 </span></code></pre>
 <p>I had to find the <a rel="noopener" target="_blank" href="https://docs.rs/secp256k1/latest/secp256k1/struct.KeyPair.html#method.x_only_public_key"><code>KeyPair::x_only_public_key</code></a>
 function after I had originally just tried to test with <a rel="noopener" target="_blank" href="https://docs.rs/secp256k1/latest/secp256k1/struct.KeyPair.html#method.public_key"><code>KeyPair::public_key</code></a>
-which seems to include some kind of &quot;parity&quot; byte at the front of the hex output. I can't see that being relevant
+which seems to include some kind of "parity" byte at the front of the hex output. I can't see that being relevant
 when looking at the raw data of other valid nostr events out in the wild, so I don't think it's necessary. This makes
-sense actually when we see that &quot;X only&quot; intends the key to be used only for signature verification.</p>
+sense actually when we see that "X only" intends the key to be used only for signature verification.</p>
 <p>Finally, we can put our types together in the way we described above to generate a signed <code>Event</code> from <code>EventData</code>.</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(serde::Serialize)]
 </span><span style="color:#b48ead;">pub struct </span><span>EventData {
@@ -479,11 +477,11 @@ sense actually when we see that &quot;X only&quot; intends the key to be used on
 <p>You may notice, I also changed up the the type definitions a little bit here. I found it a bit awkward to have the
 <code>pubkey</code> of the signing key pair on the <code>EventData</code> struct. So instead, I added it as a parameter to the <code>id()</code>
 generation function, which is then utilized in the <code>sign()</code> function. This all seemed a bit cleaner to me,
-as I really only have to give the signing &quot;context&quot; <em>once</em> when <code>EventData</code> is actually signed and produces
+as I really only have to give the signing "context" <em>once</em> when <code>EventData</code> is actually signed and produces
 an <code>Event</code>.</p>
 <p>It's also worthwhile to note some Rust semantics here. In the <code>sign()</code> function signature (no pun intended), there's
 this <code>self</code> parameter, which doesn't include the more common <code>&amp;</code>, or immutable reference. In this case, we
-actually want the <code>sign()</code> function to take &quot;ownership&quot; of the <code>EventData</code>, consuming it in a such a way that prevents
+actually want the <code>sign()</code> function to take "ownership" of the <code>EventData</code>, consuming it in a such a way that prevents
 the caller from using <em>their</em> reference to it anymore, which helps us to encode this idea that once you sign <code>EventData</code>,
 it really shouldn't be modified anymore.</p>
 <h4 id="the-result">The Result</h4>
@@ -540,7 +538,7 @@ messages from those relays.</p>
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

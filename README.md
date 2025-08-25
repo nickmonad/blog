@@ -1,9 +1,7 @@
 blog
 ====
 
-> asynchronous communication about programming and whatever else
-
-Built with [zola](https://www.getzola.org/) and [bulma](https://bulma.io/).
+> asynchronous communication about programming
 
 ### License
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="description" content="Verifiy your identity using a custom domain">
-    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, code, tech, thoughts, rambling">
+    <meta name="keywords" content="nickmonad, blog, programming, infrastructure, rust, zig, performance, testing, code, tech, thoughts, rambling">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <meta property="og:type" content="summary" />
@@ -26,7 +26,7 @@
     
 
     
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/rss.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
     
 
     <script defer data-domain="nickmonad.blog" src="/js/script.js"></script>
@@ -44,7 +44,7 @@
     </script>
 </head>
 
-<body class="bg-stone-100 dark:bg-zinc-800">
+<body class="bg-stone-100 dark:bg-[#1f2329]">
     <div class="container mx-auto flex justify-center px-6 py-14">
         <div class="flex flex-col space-y-10 text-zinc-800 dark:text-zinc-200 min-w-full max-w-full lg:min-w-[1000px] lg:max-w-[1000px]">
 
@@ -63,13 +63,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                     </svg>
                 </div>
-                <div class="font-semibold text-xl">[ asynchronous communication about programming and whatever else ]</div>
+                <div class="text-xl">[ asynchronous communication about programming ]</div>
                 <div class="flex space-x-2 font-semibold text-xl">
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/about">about</a>
-                    <div>-</div>
+                    <div>:</div>
                     <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/projects">projects</a>
-                    <div>-</div>
-                    <a class="underline underline-offset-2 decoration-2 decoration-sky-700" href="/rss.xml">rss feed</a>
                 </div>
             </div>
 
@@ -111,17 +109,17 @@ a lot of people see that same magic in bitcoin as well.</p>
 started posting to relays, I wanted to make a quick post about how I setup DNS verification of my public key using
 <a rel="noopener" target="_blank" href="https://getzola.org"><code>zola</code></a>, the static site generator this blog is rendered with.</p>
 <h3 id="nip-05">NIP-05</h3>
-<p>The nostr protocol development process has the notion of a &quot;NIP&quot;, or a &quot;Nostr Implementation Possibility&quot;, in a similar
-vein to bitcoin's <a rel="noopener" target="_blank" href="https://bips.dev">BIPs</a> (&quot;Bitcoin Improvement Proposals&quot;). These are ways the community can propose
+<p>The nostr protocol development process has the notion of a "NIP", or a "Nostr Implementation Possibility", in a similar
+vein to bitcoin's <a rel="noopener" target="_blank" href="https://bips.dev">BIPs</a> ("Bitcoin Improvement Proposals"). These are ways the community can propose
 new ideas or extentions to the base nostr protocol. Some may be mandatory, but most are optional, and can be specified
 for relays, clients, or both.</p>
 <p><a rel="noopener" target="_blank" href="https://github.com/nostr-protocol/nips/blob/master/05.md">NIP-05</a> describes how clients can use DNS and a simple
 HTTP <code>GET</code> request to add an extra mapping for a user on nostr. This can give some extra assurance to a follower
 that who they are following is legitimate, or mark them as part of an organization (maybe a company or development group).</p>
-<p>Basically, a user can sign a nostr event published to relays that sets metadata about their &quot;account&quot;
+<p>Basically, a user can sign a nostr event published to relays that sets metadata about their "account"
 (technically, their public key). One of those fields that may be set is a <code>nip05</code> field, containing a <code>name@domain.com</code>
 value. Clients can make a request to <code>https://domain.com/.well-known/nostr.json?name=name</code> and if the public key returned
-matches the public key of the signed metadata event, that &quot;account&quot; is a considered verified against that domain.</p>
+matches the public key of the signed metadata event, that "account" is a considered verified against that domain.</p>
 <p>To be fair, if that domain is ever compromised in some way, the key mapping could also be compromised, misleading
 followers. But, it's a reasonable level of assurance, considering we're operating in a decentralized context.</p>
 <h3 id="nip-05-zola">NIP-05 &amp; Zola</h3>
@@ -152,7 +150,7 @@ and set our <code>nip05</code> identifier in a nostr client that supports it. (I
 <li>If you are not using your own server to host your zola static site, your hosting provider must support setting
 custom header responses for specific paths. In this case, I had to ensure I was setting <code>Access-Control-Allow-Origin: *</code>
 as a response header to all <code>/.well-known/*</code> requests, so Javascript web clients can make that request.</li>
-<li>If you want to just verify your top-level domain, you need to set <code>&quot;_&quot;</code> as the &quot;name&quot; in your <code>nostr.json</code>. See the
+<li>If you want to just verify your top-level domain, you need to set <code>"_"</code> as the "name" in your <code>nostr.json</code>. See the
 link above for this site as an example.</li>
 </ul>
 
@@ -165,7 +163,7 @@ link above for this site as an example.</li>
                     <a class="text-sky-700" property="dct:title" rel="cc:attributionURL" href="https://nickmonad.blog">This blog</a> by <span property="cc:attributionName">Nick Miller</span> is licensed under
                     <a class="text-sky-700" href="http://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC-SA 4.0</a>
                 </p>
-                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>.</div>
+                <div>Built with ☕ and <a class="text-sky-700" href="https://getzola.org">zola</a>. Please subscribe via <a class="text-sky-700" href="/atom.xml">RSS</a>!</div>
             </div>
         </div>
     </div>

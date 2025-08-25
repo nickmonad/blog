@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title> - meta</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/meta/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2022-12-09T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/meta/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Initial Commit</title>
+        <published>2022-12-09T00:00:00+00:00</published>
+        <updated>2022-12-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2022/initial-commit/"/>
+        <id>https://nickmonad.blog/2022/initial-commit/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2022/initial-commit/">&lt;p&gt;I did the thing.&lt;&#x2F;p&gt;
+&lt;p&gt;As they say, the 3rd (or maybe 10th) time is the charm. And just after I turned 30 too.&lt;&#x2F;p&gt;
+&lt;p&gt;Keep an eye out for some upcoming posts. I&#x27;m currently setting up NixOS on my homelab server, so that should be a
+fun one to write about.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() -&amp;gt; anyhow::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;initial commit!&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;    Ok(())
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+</feed>
