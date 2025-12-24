@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+img {
+    @apply rounded-md;
+}
+
+.footnote-definition {
+    margin-bottom: 10px;
+}
+
+.footnote-definition p {
+    display: unset;
+}
