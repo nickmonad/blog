@@ -9,5 +9,6 @@ taxonomies = [
 ]
 
 [markdown]
+bottom_footnotes = true
 external_links_target_blank = true
 highlight_code = true
