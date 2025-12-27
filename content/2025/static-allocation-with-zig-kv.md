@@ -1,7 +1,7 @@
 +++
 title = "Static Allocation with Zig"
 description = "Introducing kv, a statically allocated key/value server."
-date = 2025-12-26
+date = 2025-12-29
 draft = true
 [taxonomies]
 tags = [ "zig", "kv" ]
@@ -14,7 +14,7 @@ implementing it in Zig and learning about some new (to me) techniques for system
 
 One of those techniques is static memory allocation during initialization. The idea here is that all memory is requested
 and allocated from the OS _at startup_, and held until termination. I first heard about this while learning about
-TigerBeetle, and they reference it explicitly in their development style guide dubbed "TigerStyle".
+[TigerBeetle](https://tigerbeetle.com/), and they reference it explicitly in their development style guide dubbed "TigerStyle".
 
 > All memory must be statically allocated at startup. **No memory may be dynamically allocated (or freed and reallocated)
 > after initialization.** This avoids unpredictable behavior that can significantly affect performance, and avoids use-after-free.
@@ -22,7 +22,7 @@ TigerBeetle, and they reference it explicitly in their development style guide d
 > performant and easier to maintain and reason about, compared to designs that do not consider all possible memory usage
 > patterns upfront as part of the design.
 >
-> [TigerStyle](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md) (as of November 2025)
+> [TigerStyle](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md)
 
 Although, this isn't as straightforward as it might sound at first. The first question that comes to mind might be:
 "How much memory do I allocate?" Of course, the answer depends on the system. If we're writing a server, how many
@@ -152,7 +152,7 @@ pub fn parse(config: Config, alloc: std.mem.Allocator, buf: []const u8) !Command
 ```
 
 The allocator is used to create some book-keeping structure as we parse through the command. We need to create a list
-of `[]const u8` slices that "point into" the whole buffer and then are given to the command's `parse()` function, once
+of `[]const u8` slices that points into the whole buffer and then is given to a command's `parse()` function, once
 we know the command. This has the benefit of being a "zero copy" approach to parsing. No request data needs to be copied,
 only pointed to.
 
@@ -163,16 +163,15 @@ that memory allocated within the fixed buffer can't be free'd directly. Instead,
 which simply resets an index back to `0`. (Just about as cheap as an operation can get!)
 
 Since our server is single-threaded[^2] and processes one request at a time, we can re-use this `FixedBufferAllocator`
-across every request. The parsing and additional allocation that happens during command execution uses this allocator.
-After the request is processed, the response is copied to a `Writer` object backed by the connection's `send` buffer
-and the `FixedBufferAllocator` is reset for the next request.
+across every request. After the request is processed, the response is copied to a `Writer` object backed by the
+connection's `send` buffer and the `FixedBufferAllocator` is reset for the next request.
 
 ![A diagram showing how parsing state works in kv.](../images/kv-parsing-state.png)
 
 Knowing how much space to give the `FixedBufferAllocator` depends again on our system configuration. We need space for
 the `ArrayList` of parsed command items, and space for any copied list items that are written back as a response during
-command execution. Parsing must be able to support the largest possible command (a push with maximum list items) and
-copying has to support the largest possible response (again, a list of maximum size).
+command execution. Parsing must be able to support the largest possible command (a list `PUSH` of maximum size/length) and
+copying has to support the largest possible response (again, a maximally sized list).
 
 Copying has the extra consideration that we have to actually store the copied list items, which are duplicated when
 read from the key/value store. During parsing, we just need to keep _slices_ into the request buffer. For the copied

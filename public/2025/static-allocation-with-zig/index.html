@@ -74,7 +74,7 @@
             <div class="text-3xl font-semibold">Static Allocation with Zig</div>
             <div class="text-xl font-semibold">Introducing kv, a statically allocated key&#x2F;value server.</div>
             <div class="flex space-x-4">
-                <div>December 26, 2025</div>
+                <div>December 29, 2025</div>
                 
                 
                     <div class="font-mono text-sky-700"><a href="/tags/zig">#zig</a></div>
@@ -91,14 +91,14 @@ only a small subset of commands. The world doesn't necessarily need another key/
 implementing it in Zig and learning about some new (to me) techniques for systems programming.</p>
 <p>One of those techniques is static memory allocation during initialization. The idea here is that all memory is requested
 and allocated from the OS <em>at startup</em>, and held until termination. I first heard about this while learning about
-TigerBeetle, and they reference it explicitly in their development style guide dubbed "TigerStyle".</p>
+<a rel="noopener" target="_blank" href="https://tigerbeetle.com/">TigerBeetle</a>, and they reference it explicitly in their development style guide dubbed "TigerStyle".</p>
 <blockquote>
 <p>All memory must be statically allocated at startup. <strong>No memory may be dynamically allocated (or freed and reallocated)
 after initialization.</strong> This avoids unpredictable behavior that can significantly affect performance, and avoids use-after-free.
 As a second-order effect, it is our experience that this also makes for more efficient, simpler designs that are more
 performant and easier to maintain and reason about, compared to designs that do not consider all possible memory usage
 patterns upfront as part of the design.</p>
-<p><a rel="noopener" target="_blank" href="https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md">TigerStyle</a> (as of November 2025)</p>
+<p><a rel="noopener" target="_blank" href="https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md">TigerStyle</a></p>
 </blockquote>
 <p>Although, this isn't as straightforward as it might sound at first. The first question that comes to mind might be:
 "How much memory do I allocate?" Of course, the answer depends on the system. If we're writing a server, how many
@@ -204,7 +204,7 @@ the function that does just that.</p>
 <pre data-lang="zig" style="background-color:#2b303b;color:#c0c5ce;" class="language-zig "><code class="language-zig" data-lang="zig"><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">parse</span><span>(</span><span style="color:#bf616a;">config</span><span>: </span><span style="color:#b48ead;">Config</span><span>, </span><span style="color:#bf616a;">alloc</span><span>: </span><span style="color:#b48ead;">std.mem.Allocator</span><span>, </span><span style="color:#bf616a;">buf</span><span>: []</span><span style="color:#b48ead;">const u8</span><span>) !</span><span style="color:#b48ead;">Command
 </span></code></pre>
 <p>The allocator is used to create some book-keeping structure as we parse through the command. We need to create a list
-of <code>[]const u8</code> slices that "point into" the whole buffer and then are given to the command's <code>parse()</code> function, once
+of <code>[]const u8</code> slices that points into the whole buffer and then is given to a command's <code>parse()</code> function, once
 we know the command. This has the benefit of being a "zero copy" approach to parsing. No request data needs to be copied,
 only pointed to.</p>
 <p>Zig's <code>std.heap.FixedBufferAllocator</code> is perfect for this kind of operation. During initialization, we ask for buffer
@@ -213,14 +213,13 @@ where each internal allocation happens in a linear fashion, up to the amount of 
 that memory allocated within the fixed buffer can't be free'd directly. Instead, the entire buffer is reset after use,
 which simply resets an index back to <code>0</code>. (Just about as cheap as an operation can get!)</p>
 <p>Since our server is single-threaded<sup class="footnote-reference" id="fr-2-1"><a href="#fn-2">2</a></sup> and processes one request at a time, we can re-use this <code>FixedBufferAllocator</code>
-across every request. The parsing and additional allocation that happens during command execution uses this allocator.
-After the request is processed, the response is copied to a <code>Writer</code> object backed by the connection's <code>send</code> buffer
-and the <code>FixedBufferAllocator</code> is reset for the next request.</p>
+across every request. After the request is processed, the response is copied to a <code>Writer</code> object backed by the
+connection's <code>send</code> buffer and the <code>FixedBufferAllocator</code> is reset for the next request.</p>
 <p><img src="../images/kv-parsing-state.png" alt="A diagram showing how parsing state works in kv." /></p>
 <p>Knowing how much space to give the <code>FixedBufferAllocator</code> depends again on our system configuration. We need space for
 the <code>ArrayList</code> of parsed command items, and space for any copied list items that are written back as a response during
-command execution. Parsing must be able to support the largest possible command (a push with maximum list items) and
-copying has to support the largest possible response (again, a list of maximum size).</p>
+command execution. Parsing must be able to support the largest possible command (a list <code>PUSH</code> of maximum size/length) and
+copying has to support the largest possible response (again, a maximally sized list).</p>
 <p>Copying has the extra consideration that we have to actually store the copied list items, which are duplicated when
 read from the key/value store. During parsing, we just need to keep <em>slices</em> into the request buffer. For the copied
 items, we need to keep a list of slices that point to the items, and the items themselves. As long as we give the
