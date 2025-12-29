@@ -2,7 +2,6 @@
 title = "Static Allocation with Zig"
 description = "Introducing kv, a statically allocated key/value server."
 date = 2025-12-29
-draft = true
 [taxonomies]
 tags = [ "zig", "kv" ]
 +++

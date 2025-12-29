@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>nickmonad - zig</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/zig/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2025-12-29T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/zig/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Static Allocation with Zig</title>
+        <published>2025-12-29T00:00:00+00:00</published>
+        <updated>2025-12-29T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2025/static-allocation-with-zig-kv/"/>
+        <id>https://nickmonad.blog/2025/static-allocation-with-zig-kv/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2025/static-allocation-with-zig-kv/">&lt;p&gt;Over the past few months I&#x27;ve been chipping away at a small Redis-compatible key&#x2F;value server called
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;kv&quot;&gt;&lt;code&gt;kv&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. The goal is to have something (mostly) production-ready, while implementing
+only a small subset of commands. The world doesn&#x27;t necessarily need another key&#x2F;value store, I&#x27;m just interested in
+implementing it in Zig and learning about some new (to me) techniques for systems programming.&lt;&#x2F;p&gt;
+&lt;p&gt;One of those techniques is static memory allocation during initialization. The idea here is that all memory is requested
+and allocated from the OS &lt;em&gt;at startup&lt;&#x2F;em&gt;, and held until termination. I first heard about this while learning about
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;tigerbeetle.com&#x2F;&quot;&gt;TigerBeetle&lt;&#x2F;a&gt;, and they reference it explicitly in their development style guide dubbed &quot;TigerStyle&quot;.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;All memory must be statically allocated at startup. &lt;strong&gt;No memory may be dynamically allocated (or freed and reallocated)
+after initialization.&lt;&#x2F;strong&gt; This avoids unpredictable behavior that can significantly affect performance, and avoids use-after-free.
+As a second-order effect, it is our experience that this also makes for more efficient, simpler designs that are more
+performant and easier to maintain and reason about, compared to designs that do not consider all possible memory usage
+patterns upfront as part of the design.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tigerbeetle&#x2F;tigerbeetle&#x2F;blob&#x2F;main&#x2F;docs&#x2F;TIGER_STYLE.md&quot;&gt;TigerStyle&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Although, this isn&#x27;t as straightforward as it might sound at first. The first question that comes to mind might be:
+&quot;How much memory do I allocate?&quot; Of course, the answer depends on the system. If we&#x27;re writing a server, how many
+concurrent connections do we allow? How much space is each connection allowed to work with? How much data do we expect
+to process at any given time? Are there limits in response size? Do we need all the data at once, or can it streamed in
+some fashion?&lt;&#x2F;p&gt;
+&lt;p&gt;These are all questions that depend on the nature of the system and the context in which it will operate. I believe
+that going through the exercise of answering these questions is ultimately a good thing, as it seems to have a strong
+possibility of resulting in more stable systems, and forces us to understand the nature of our program at a deeper level.&lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-1-1&quot;&gt;&lt;a href=&quot;#fn-1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;On the language front, I feel like Zig is currently the best option out there for doing this with &lt;em&gt;relative&lt;&#x2F;em&gt; ease,
+considering its design choices around explicit memory allocation and the &lt;code&gt;std.mem.Allocator&lt;&#x2F;code&gt; interface, which allows
+the standard library to ship with a variety of different allocators.&lt;&#x2F;p&gt;
+&lt;p&gt;Let&#x27;s take a look at how we can manage static allocation in &lt;code&gt;kv&lt;&#x2F;code&gt;, considering three areas of request handling in
+sequence: connection handling, command parsing, and key&#x2F;value storage.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A lot of this is pretty new to me, and I&#x27;m still wrestling with all these concepts. (And learning Zig!) I&#x27;m sure
+there are better ways of handling this stuff. I&#x27;m presenting this as one possible implementation completed as a
+learning exercise. I&#x27;ll speak more about the trade-offs and where I think it can go further at the end of this post.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;connection-handling&quot;&gt;Connection Handling&lt;&#x2F;h2&gt;
+&lt;p&gt;The first thing we have to consider is how data comes into the system, which we&#x27;ll maintain through the concept
+of a &lt;code&gt;Connection&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;A connection represents the communication to a particular client that wants to access the key&#x2F;value store.
+Since we&#x27;re using &lt;code&gt;io_uring&lt;&#x2F;code&gt; for asynchronous I&#x2F;O, we have to keep some information around through the life-cycle of
+a request, so the kernel can use it. The space for that information is what we&#x27;ll statically allocate and re-use across
+different connections as they come and go.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const &lt;&#x2F;span&gt;&lt;span&gt;Connection = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;completion&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Completion &lt;&#x2F;span&gt;&lt;span&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;undefined&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;client&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;posix.socket_t &lt;&#x2F;span&gt;&lt;span&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;undefined&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;recv_buffer&lt;&#x2F;span&gt;&lt;span&gt;: *&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;ByteArray&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;send_buffer&lt;&#x2F;span&gt;&lt;span&gt;: *&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;ByteArray&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Connections also must maintain something called a &quot;completion&quot;. This detail is related to integration with &lt;code&gt;io_uring&lt;&#x2F;code&gt;,
+the full details of which are outside the scope of this post. There are some good resources
+&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;unixism.net&#x2F;loti&#x2F;index.html&quot;&gt;here&lt;&#x2F;a&gt; and &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;man7.org&#x2F;linux&#x2F;man-pages&#x2F;man7&#x2F;io_uring.7.html&quot;&gt;here&lt;&#x2F;a&gt;.
+I also took some inspiration from TigerBeetle&#x27;s &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tigerbeetle&#x2F;tigerbeetle&#x2F;blob&#x2F;522c0b9d15b112b20c57903987f140f1c16f627b&#x2F;src&#x2F;io&#x2F;linux.zig&quot;&gt;IO module&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;During initialization, we create three pools: one for the Connection structs themselves, one for receive buffers
+(requests), and one for send buffers (responses). When a request comes in to the server, a Connection is pulled
+from a &lt;code&gt;std.heap.MemoryPool&lt;&#x2F;code&gt;, and then two buffers are associated with that &lt;code&gt;Connection&lt;&#x2F;code&gt;. The buffers are
+implemented as &lt;code&gt;ByteArray&lt;&#x2F;code&gt; structs, which are in turn allocated as part of a &lt;code&gt;ByteArrayPool&lt;&#x2F;code&gt;. The &lt;code&gt;ByteArrayPool&lt;&#x2F;code&gt;
+is custom and uses a &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Free_list&quot;&gt;free list&lt;&#x2F;a&gt; to keep track of which buffers are available
+to reserve for a new connection.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const &lt;&#x2F;span&gt;&lt;span&gt;ConnectionPool = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; Pool = std.heap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;MemoryPoolExtra&lt;&#x2F;span&gt;&lt;span&gt;(Connection, .{ .growable = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;false &lt;&#x2F;span&gt;&lt;span&gt;});
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;recv_buffers&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;ByteArrayPool&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;send_buffers&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;ByteArrayPool&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connections&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Pool&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;init&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Config&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;gpa&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;std.mem.Allocator&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    ) !&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;ConnectionPool &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; allocation = config.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;allocation&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; recv_size = allocation.connection_recv_size;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; send_size = allocation.connection_send_size;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; pool = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt; Pool.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;initPreheated&lt;&#x2F;span&gt;&lt;span&gt;(gpa, config.connections_max);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; recv_buffers = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt; ByteArrayPool.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;init&lt;&#x2F;span&gt;&lt;span&gt;(gpa, config.connections_max, recv_size);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; send_buffers = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt; ByteArrayPool.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;init&lt;&#x2F;span&gt;&lt;span&gt;(gpa, config.connections_max, send_size);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return&lt;&#x2F;span&gt;&lt;span&gt; .{
+&lt;&#x2F;span&gt;&lt;span&gt;            .recv_buffers = recv_buffers,
+&lt;&#x2F;span&gt;&lt;span&gt;            .send_buffers = send_buffers,
+&lt;&#x2F;span&gt;&lt;span&gt;            .connections = pool,
+&lt;&#x2F;span&gt;&lt;span&gt;        };
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;	
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;kv-connection-pool.png&quot; alt=&quot;A diagram showing how the kv connection pool works. A connection has two buffers, one for receive and one for send. Each come from a separate pool.&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;At runtime, connections are created and destroyed (marked as available) using these pools and no actual allocation
+needs to happen. If no &lt;code&gt;Connection&lt;&#x2F;code&gt; is available in the pool, the request is rejected and the client will have to try again.&lt;&#x2F;p&gt;
+&lt;p&gt;This does mean that the server must be configured with an upper limit on the number of connections. Each connection
+must also have a limit on how much data it can receive and send.&lt;&#x2F;p&gt;
+&lt;p&gt;At first this might seem limiting, but in practice, it creates a more robust system. Databases in particular will
+enforce a limit on the number of active connections for that exact reason! For a backend, networked system like &lt;code&gt;kv&lt;&#x2F;code&gt;,
+I would say something like 1000 active connections is a pretty reasonable limit. For a public facing system you&#x27;d
+likely want more. Of course, this should all be configurable by the user.&lt;&#x2F;p&gt;
+&lt;p&gt;The &lt;code&gt;Config&lt;&#x2F;code&gt; struct given to the &lt;code&gt;ConnectionPool&lt;&#x2F;code&gt; represents these user-configured options. Note that the &lt;code&gt;Config&lt;&#x2F;code&gt;
+struct has a method &lt;code&gt;.allocation()&lt;&#x2F;code&gt; which is computed after the options have been set. In this case,
+the &lt;code&gt;connection_recv_size&lt;&#x2F;code&gt; and &lt;code&gt;connection_send_size&lt;&#x2F;code&gt; depend on other options, such as &lt;code&gt;config.key_count&lt;&#x2F;code&gt; and
+&lt;code&gt;config.key_size_max&lt;&#x2F;code&gt;. We&#x27;ll revisit those later.&lt;&#x2F;p&gt;
+&lt;p&gt;Now that data can get into the system, the next step is to parse out Redis commands.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;command-parsing&quot;&gt;Command Parsing&lt;&#x2F;h2&gt;
+&lt;p&gt;In an attempt to be compatible with Redis (at least a very small subset of it), &lt;code&gt;kv&lt;&#x2F;code&gt; has to parse incoming commands
+following the &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;redis.io&#x2F;docs&#x2F;latest&#x2F;develop&#x2F;reference&#x2F;protocol-spec&#x2F;&quot;&gt;Redis serialization protocol&lt;&#x2F;a&gt; (&quot;RESP&quot;) format.&lt;&#x2F;p&gt;
+&lt;p&gt;Here&#x27;s an example of an incoming &lt;code&gt;GET key&lt;&#x2F;code&gt; command.&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#c0c5ce;&quot;&gt;&lt;code&gt;&lt;span&gt;*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I won&#x27;t go into detail on how these commands are structured, the RESP document will do a much better job there.
+Basically, what we&#x27;re looking at is &quot;Here&#x27;s an array with 2 elements. The first element has 3 characters,
+with the content &lt;code&gt;GET&lt;&#x2F;code&gt; and the second element has 3 characters, with the contenhttps:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;kvt &lt;code&gt;key&lt;&#x2F;code&gt;.&quot;&lt;&#x2F;p&gt;
+&lt;p&gt;In order to parse this command, we need to look at the buffer that contains the request data, create some kind of
+iterator over that buffer, and split each entry on the CRLF &lt;code&gt;\r\n&lt;&#x2F;code&gt; byte sequence. Here&#x27;s the signature for &lt;code&gt;parse&lt;&#x2F;code&gt;,
+the function that does just that.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;parse&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Config&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;alloc&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;std.mem.Allocator&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;buf&lt;&#x2F;span&gt;&lt;span&gt;: []&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const u8&lt;&#x2F;span&gt;&lt;span&gt;) !&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Command
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The allocator is used to create some book-keeping structure as we parse through the command. We need to create a list
+of &lt;code&gt;[]const u8&lt;&#x2F;code&gt; slices that points into the whole buffer and then is given to a command&#x27;s &lt;code&gt;parse()&lt;&#x2F;code&gt; function, once
+we know the command. This has the benefit of being a &quot;zero copy&quot; approach to parsing. No request data needs to be copied,
+only pointed to.&lt;&#x2F;p&gt;
+&lt;p&gt;Zig&#x27;s &lt;code&gt;std.heap.FixedBufferAllocator&lt;&#x2F;code&gt; is perfect for this kind of operation. During initialization, we ask for buffer
+space from a general purpose allocator, and pass it to the &lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt;. This allocator works as &quot;bump&quot; allocator,
+where each internal allocation happens in a linear fashion, up to the amount of available space. The trade-off here is
+that memory allocated within the fixed buffer can&#x27;t be free&#x27;d directly. Instead, the entire buffer is reset after use,
+which simply resets an index back to &lt;code&gt;0&lt;&#x2F;code&gt;. (Just about as cheap as an operation can get!)&lt;&#x2F;p&gt;
+&lt;p&gt;Since our server is single-threaded&lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-2-1&quot;&gt;&lt;a href=&quot;#fn-2&quot;&gt;2&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt; and processes one request at a time, we can re-use this &lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt;
+across every request. After the request is processed, the response is copied to a &lt;code&gt;Writer&lt;&#x2F;code&gt; object backed by the
+connection&#x27;s &lt;code&gt;send&lt;&#x2F;code&gt; buffer and the &lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt; is reset for the next request.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;kv-parsing-state.png&quot; alt=&quot;A diagram showing how parsing state works in kv.&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Knowing how much space to give the &lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt; depends again on our system configuration. We need space for
+the &lt;code&gt;ArrayList&lt;&#x2F;code&gt; of parsed command items, and space for any copied list items that are written back as a response during
+command execution. Parsing must be able to support the largest possible command (a list &lt;code&gt;PUSH&lt;&#x2F;code&gt; of maximum size&#x2F;length) and
+copying has to support the largest possible response (again, a maximally sized list).&lt;&#x2F;p&gt;
+&lt;p&gt;Copying has the extra consideration that we have to actually store the copied list items, which are duplicated when
+read from the key&#x2F;value store. During parsing, we just need to keep &lt;em&gt;slices&lt;&#x2F;em&gt; into the request buffer. For the copied
+items, we need to keep a list of slices that point to the items, and the items themselves. As long as we give the
+&lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt; space, we can use it for all these (sub-)allocations.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub const &lt;&#x2F;span&gt;&lt;span&gt;Runner = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Config&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fba&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;std.heap.FixedBufferAllocator&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;kv&lt;&#x2F;span&gt;&lt;span&gt;: *&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Store&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;init&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Config&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;gpa&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;std.mem.Allocator&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;kv&lt;&#x2F;span&gt;&lt;span&gt;: *&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Store&lt;&#x2F;span&gt;&lt;span&gt;) !&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Runner &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; L = config.list_length_max;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; V = config.val_size_max;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; ArrayList([]const u8) of largest possible command.
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; &amp;quot;[L&#x2F;R]PUSH list item1 item2 ... itemL&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; parse_cap = (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;+ L);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;parse_size&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64 &lt;&#x2F;span&gt;&lt;span&gt;= (parse_cap * &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;@sizeOf&lt;&#x2F;span&gt;&lt;span&gt;([]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; u8));
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; ArrayList([]const u8) pointing to duplicated values.
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; copy_size = (L * &lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;@sizeOf&lt;&#x2F;span&gt;&lt;span&gt;([]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; u8));
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; copy_data = (L * V);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fba_size&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64 &lt;&#x2F;span&gt;&lt;span&gt;= parse_size + copy_size + copy_data;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; buffer = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt; gpa.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;alloc&lt;&#x2F;span&gt;&lt;span&gt;(u8, fba_size);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; fba = std.heap.FixedBufferAllocator.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;init&lt;&#x2F;span&gt;&lt;span&gt;(buffer);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return&lt;&#x2F;span&gt;&lt;span&gt; .{
+&lt;&#x2F;span&gt;&lt;span&gt;            .config = config,
+&lt;&#x2F;span&gt;&lt;span&gt;            .fba = fba,
+&lt;&#x2F;span&gt;&lt;span&gt;            .kv = kv,
+&lt;&#x2F;span&gt;&lt;span&gt;        };
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;...
+&lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;kv-fixed-buffer-space.png&quot; alt=&quot;A diagram showing how the Fixed Buffer Allocator is utilized in kv. The first section is the parse array, the second is the copy array, and the third is copy data.&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The underlying &lt;code&gt;Store&lt;&#x2F;code&gt; will use the &lt;code&gt;FixedBufferAllocator&lt;&#x2F;code&gt; to allocate an &lt;code&gt;ArrayList&lt;&#x2F;code&gt; of fixed capacity
+(determined by &lt;code&gt;config.list_length_max&lt;&#x2F;code&gt;) and then use the remaining space in the allocator for the copied data.&lt;&#x2F;p&gt;
+&lt;p&gt;Hopefully all is clear so far! Now we can move on to the core of the system: key&#x2F;value storage.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;key-value-storage&quot;&gt;Key&#x2F;Value Storage&lt;&#x2F;h2&gt;
+&lt;p&gt;Perhaps obviously, the fundamental data structure in &lt;code&gt;kv&lt;&#x2F;code&gt; is a hash map, used to associate user provided keys with
+user provided values.&lt;&#x2F;p&gt;
+&lt;p&gt;Without looking too closely at the standard library, if you grab one of the provided hash map implementations,
+it will accept a &lt;code&gt;std.mem.Allocator&lt;&#x2F;code&gt; and hold onto the allocator for the lifetime of the map. When a key&#x2F;value pair
+is added to the map, it will use that same allocator and request the appropriate amount of memory to store that data.
+This won&#x27;t work for our case though, since we need to control allocation prior to adding any data to the map.&lt;&#x2F;p&gt;
+&lt;p&gt;Fortunately, Zig also provides an &quot;unmanaged&quot; version of a hash map. Generally, these unmanaged versions of data
+structures in the standard library mean that an allocator is not held by the structure itself. It&#x27;s up to us to provide
+that allocator when needed. A cool trick we can play with an unmanaged map is ask it to ensure it has enough capacity
+up front, and then &quot;assume&quot; that capacity during runtime when adding data to it. The hashing and internal details are
+still handled by the map.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;var &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;: std.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;StringHashMapUnmanaged&lt;&#x2F;span&gt;&lt;span&gt;(Value) =&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt; .empty&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt; map.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;ensureTotalCapacity&lt;&#x2F;span&gt;&lt;span&gt;(gpa, capacity);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The &lt;code&gt;ensure&lt;&#x2F;code&gt; operation can fail with &lt;code&gt;error.OutOfMemory&lt;&#x2F;code&gt;, which is OK during initialization. But, assuming this succeeds,
+we no longer need to pass an allocator when we store data in the map.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span&gt;store.map.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;putAssumeCapacity&lt;&#x2F;span&gt;&lt;span&gt;(key, value);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;This &lt;em&gt;could&lt;&#x2F;em&gt; in theory fail, in which case there would an assertion failure. It&#x27;s ultimately up to us to check against
+the map&#x27;s available capacity before calling this function. But, again, no allocation is required.&lt;&#x2F;p&gt;
+&lt;p&gt;Since the map itself doesn&#x27;t do any allocation at runtime, we have to provide space for incoming keys and values. We&#x27;ll
+reuse the same &lt;code&gt;ByteArrayPool&lt;&#x2F;code&gt; implementation that we used for connection buffers. Basically, we have a big space
+allocated for keys and values and the hash map just maintains an association of pointers from keys to values.
+The key&#x2F;value data isn&#x27;t literally &lt;em&gt;stored&lt;&#x2F;em&gt; &quot;in the map.&quot; The allocation that happens in &lt;code&gt;ensureTotalCapacity&lt;&#x2F;code&gt; is for
+the internal book-keeping structure of the map, not for the user data.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;navigating-the-map&quot;&gt;Navigating the map&lt;&#x2F;h3&gt;
+&lt;p&gt;At the highest level, the primary challenge with storing keys and values in a statically allocated map is that we
+could get poor utilization of the allocated space, especially when we need to support keys pointed at lists as values.&lt;&#x2F;p&gt;
+&lt;p&gt;To illustrate this, let&#x27;s say our map is configured to allocate space for 5 keys and 5 values. If each key maps to one
+value, we get perfect utilization. At the other extreme, if one key maps to a value containing a list of 5 elements,
+we have to use all the allocated value space for this one key, preventing other keys from using any value space,
+causing the map to be &quot;biased&quot;. The store wouldn&#x27;t be able to hold any more key&#x2F;value pairs, even though there is
+allocated memory &quot;on the table.&quot;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;images&#x2F;kv-map-utilization.png&quot; alt=&quot;A diagram showing three different possibilities of how allocated memory can be used in a static hash map.&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Basically, the only way to mitigate this is to make sure there&#x27;s enough allocated space for &lt;em&gt;every&lt;&#x2F;em&gt; key to hold a
+list of maximum size. This definitely inflates the amount of space we have to allocate, but the alternative is a
+system that doesn&#x27;t support its configured properties. Every key must be &lt;em&gt;able&lt;&#x2F;em&gt; to store a list of maximum size,
+even if they don&#x27;t during actual use.&lt;&#x2F;p&gt;
+&lt;p&gt;Another issue with static allocation in the context of a map is dealing with map deletions. Our
+&lt;code&gt;std.StringHashMapUnmanaged&lt;&#x2F;code&gt; structure uses open-addressing and linear probing to place keys in the map when hash
+collisions occur. Deletions are tricky because they can break the map&#x27;s ability to know if a key is actually present
+in the map. To handle this, a &quot;tombstone&quot; technique is used to mark a space as logically (but not physically) deleted
+in order to preserve accurate lookups.&lt;&#x2F;p&gt;
+&lt;p&gt;There&#x27;s a lot more to figure out here, but it&#x27;s my understanding that a map will have to periodically rehash the
+keys in order to reclaim space if too many tombstones pile up. When this occurs is still a bit of mystery to me.
+If it occurs when the map needs to grow to accommodate more key&#x2F;value pairs, we&#x27;ll never actually trigger that
+condition in a static context. If it occurs at some other point, based on number of keys compared to capacity,
+perhaps that could work. Or maybe, it&#x27;s up to us to call &lt;code&gt;rehash()&lt;&#x2F;code&gt; whenever it appears there is no space left,
+and try the operation again.&lt;&#x2F;p&gt;
+&lt;p&gt;All of this considered, I think a custom map implementation is more appropriate for the context of static allocation.
+This current implementation proves the concept, but definitely leaves room for improvement!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;revisiting-allocation-size&quot;&gt;Revisiting allocation size&lt;&#x2F;h2&gt;
+&lt;p&gt;Now that we have a method for statically allocating space for these three components (connections, parsing, and storage),
+we can finally answer the first question: How much space do we allocate?&lt;&#x2F;p&gt;
+&lt;p&gt;In this current iteration of &lt;code&gt;kv&lt;&#x2F;code&gt;, the answer can really only be determined after the fact, once configuration has
+been set and all the allocations have been made. There are five options that can be configured by the user,
+and two derived properties based on those options.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;zig&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-zig &quot;&gt;&lt;code class=&quot;language-zig&quot; data-lang=&quot;zig&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub const &lt;&#x2F;span&gt;&lt;span&gt;Config = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; Allocation is a calculated set of values (in bytes), based on the given configuration.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; This informs static allocation requested at initialization.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub const &lt;&#x2F;span&gt;&lt;span&gt;Allocation = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connection_recv_size&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connection_send_size&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u64&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    };
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; Maximum number of concurrent connections.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connections_max&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; Key count is the number of possible keys we can store.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; Internally, the store will allocate (key_count * list_length_max) number
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; of values, such that each key could support the maximum number of list elements.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;key_count&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; The maximum allowable key size in bytes.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;key_size_max&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; The maximum allowable value size in bytes.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;val_size_max&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F;&#x2F; The maximum allowable length for a list as a value.
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;list_length_max&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;allocation&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Config&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Allocation &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; ... calculate recv and send size ....
+&lt;&#x2F;span&gt;&lt;span&gt;		
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return&lt;&#x2F;span&gt;&lt;span&gt; .{
+&lt;&#x2F;span&gt;&lt;span&gt;            .connection_recv_size = connection_recv_size,
+&lt;&#x2F;span&gt;&lt;span&gt;            .connection_send_size = connection_send_size,
+&lt;&#x2F;span&gt;&lt;span&gt;        };
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The &lt;code&gt;connection_recv_size&lt;&#x2F;code&gt; and &lt;code&gt;connection_send_size&lt;&#x2F;code&gt; properties of &lt;code&gt;Allocation&lt;&#x2F;code&gt; depend on some details of the
+RESP protocol, but is mostly informed by our user configuration. In the interest of wrapping this post up,
+I&#x27;ll gloss over those details, and encourage you to check out &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;kv&#x2F;blob&#x2F;master&#x2F;src&#x2F;config.zig&quot;&gt;&lt;code&gt;src&#x2F;config.zig&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;This &lt;code&gt;Config&lt;&#x2F;code&gt; struct doesn&#x27;t directly specify &lt;em&gt;every&lt;&#x2F;em&gt; aspect of allocation, but it does provide the basis for it.
+Something not listed in the &lt;code&gt;Config&lt;&#x2F;code&gt; struct directly is the &quot;list item pool&quot;, part of the key&#x2F;value &lt;code&gt;Store&lt;&#x2F;code&gt; struct.
+When keys point to lists as values, there is a linked list backing that value in the hash map, and we need a pool of
+structs to assist in the construction and iteration of that linked list.&lt;&#x2F;p&gt;
+&lt;p&gt;With some reasonable configuration options set, let&#x27;s see just how much memory we allocate!&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;$&lt;&#x2F;span&gt;&lt;span&gt; zig build run
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;config
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connections_max&lt;&#x2F;span&gt;&lt;span&gt; = 1000
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;key_count&lt;&#x2F;span&gt;&lt;span&gt;       = 1000
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;key_size_max&lt;&#x2F;span&gt;&lt;span&gt;    = 1024
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;val_size_max&lt;&#x2F;span&gt;&lt;span&gt;    = 4096
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;list_length_max&lt;&#x2F;span&gt;&lt;span&gt; = 50
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;allocation
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connection_recv_size&lt;&#x2F;span&gt;&lt;span&gt; = 206299
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;connection_send_size&lt;&#x2F;span&gt;&lt;span&gt; = 205255
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt; capacity = 2048, map size = 0, available = 1638
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;total_requested_bytes&lt;&#x2F;span&gt;&lt;span&gt; = 748213015
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;ready!
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Everything here is measured in bytes, so we&#x27;re looking at approximately &lt;code&gt;750 MB&lt;&#x2F;code&gt; of memory for the given configuration.
+&lt;code&gt;total_requested_bytes&lt;&#x2F;code&gt; is a feature of Zig&#x27;s &lt;code&gt;std.heap.DebugAllocator&lt;&#x2F;code&gt;. The exact number of bytes will be different
+on each run, although it will hover around that value. I think the reason for this is how Zig requests &lt;em&gt;pages&lt;&#x2F;em&gt; of
+memory from the OS. It won&#x27;t always be the same and the OS is very likely doing some fancy book-keeping of its own.&lt;&#x2F;p&gt;
+&lt;p&gt;If you play around with the configuration options and see how &lt;code&gt;total_requested_bytes&lt;&#x2F;code&gt; changes, it might be
+surprising just how much memory is allocated up-front, before any of it is actually used! For example, if we
+double &lt;code&gt;val_size_max&lt;&#x2F;code&gt; to &lt;code&gt;8192&lt;&#x2F;code&gt; and &lt;code&gt;list_length_max&lt;&#x2F;code&gt; to &lt;code&gt;100&lt;&#x2F;code&gt;, we&#x27;re looking at about &lt;code&gt;2.8 GB&lt;&#x2F;code&gt; of allocated memory.&lt;&#x2F;p&gt;
+&lt;p&gt;In the context of modern servers, this isn&#x27;t a lot, but it can quickly grow as we adjust these parameters.
+Should we be asking ourselves: Is this inefficient? What if we don&#x27;t use all that memory?&lt;&#x2F;p&gt;
+&lt;p&gt;Like all good engineering decisions, we have to consider them in the context of the problem we&#x27;re trying to
+solve, and the guarantees we expect from our systems. With this design, ensuring that each request and each
+key&#x2F;value pair &lt;em&gt;can&lt;&#x2F;em&gt; utilize the maximum configured space, seems like a worthy trade-off to make.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;final-thoughts&quot;&gt;Final thoughts&lt;&#x2F;h2&gt;
+&lt;p&gt;Like most projects, this one took a lot longer than I expected! Trying to incorporate both &lt;code&gt;io_uring&lt;&#x2F;code&gt; and
+static allocation was something I had never done before, but I&#x27;m pretty happy with the result.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m looking forward to improving the internal hash map to better fit a static context, consider alternative
+allocator implementations to improve memory utilization, and incorporate fuzz testing to find the limits of the system.&lt;&#x2F;p&gt;
+&lt;p&gt;Checkout the code on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;kv&quot;&gt;GitHub&lt;&#x2F;a&gt;!&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;notes&quot;&gt;Notes&lt;&#x2F;h3&gt;
+&lt;section class=&quot;footnotes&quot;&gt;
+&lt;ol class=&quot;footnotes-list&quot;&gt;
+&lt;li id=&quot;fn-1&quot;&gt;
+&lt;p&gt;At the risk of stating the obvious, these limits can (and likely should) be configured at runtime by the user.
+These aren&#x27;t values that have to be set at compile time and enforced upon all users in every context,
+although some might be. Again, it depends on &lt;em&gt;which&lt;&#x2F;em&gt; part of the system is using the memory.
+The point is that once the program starts it will allocate memory, but after that, it does not. &lt;a href=&quot;#fr-1-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li id=&quot;fn-2&quot;&gt;
+&lt;p&gt;Going with a single-threaded design simplifies a lot! Even though processing in &lt;code&gt;kv&lt;&#x2F;code&gt; is single-threaded,
+it still enjoys the benefits of I&#x2F;O concurrency via &lt;code&gt;io_uring&lt;&#x2F;code&gt;. The kernel handles writing responses back out to
+clients and waiting for that operation to complete, so we don&#x27;t have to worry (as much) about slow clients. &lt;a href=&quot;#fr-2-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;&#x2F;section&gt;
+</content>
+        
+    </entry>
+</feed>

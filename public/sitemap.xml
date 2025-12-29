@@ -44,6 +44,10 @@
         <loc>https://nickmonad.blog/2025/</loc>
     </url>
     <url>
+        <loc>https://nickmonad.blog/2025/static-allocation-with-zig-kv/</loc>
+        <lastmod>2025-12-29</lastmod>
+    </url>
+    <url>
         <loc>https://nickmonad.blog/about/</loc>
     </url>
     <url>
@@ -57,6 +61,9 @@
     </url>
     <url>
         <loc>https://nickmonad.blog/tags/golang/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/tags/kv/</loc>
     </url>
     <url>
         <loc>https://nickmonad.blog/tags/meta/</loc>
@@ -75,5 +82,8 @@
     </url>
     <url>
         <loc>https://nickmonad.blog/tags/web/</loc>
+    </url>
+    <url>
+        <loc>https://nickmonad.blog/tags/zig/</loc>
     </url>
 </urlset>
