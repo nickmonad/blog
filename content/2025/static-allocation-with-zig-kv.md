@@ -41,16 +41,17 @@ the standard library to ship with a variety of different allocators.
 Let's take a look at how we can manage static allocation in `kv`, considering three areas of request handling in
 sequence: connection handling, command parsing, and key/value storage.
 
-> A lot of this is pretty new to me, and I'm still wrestling with all these concepts. (And learing Zig!) I'm sure
+> A lot of this is pretty new to me, and I'm still wrestling with all these concepts. (And learning Zig!) I'm sure
 there are better ways of handling this stuff. I'm presenting this as one possible implementation completed as a
-learning exercise. I'll speak more about the tradeoffs and where I think it can go further at the end of this post.
+learning exercise. I'll speak more about the trade-offs and where I think it can go further at the end of this post.
+
 ## Connection Handling
 
 The first thing we have to consider is how data comes into the system, which we'll maintain through the concept
 of a `Connection`.
 
-A connection represents the communcation to a particular client that wants to access the key/value store.
-Since we're using `io_uring` for asynchronous I/O, we have to keep some information around through the lifecycle of
+A connection represents the communication to a particular client that wants to access the key/value store.
+Since we're using `io_uring` for asynchronous I/O, we have to keep some information around through the life-cycle of
 a request, so the kernel can use it. The space for that information is what we'll statically allocate and re-use across
 different connections as they come and go.
 
@@ -108,7 +109,7 @@ const ConnectionPool = struct {
 };
 ```
 
-![A diagram showing how the kv connection pool works. A connection has two buffers, one for receive and one for send. Each come from a separate pool.](../images/kv-connection-pool.png)
+![A diagram showing how the kv connection pool works. A connection has two buffers, one for receive and one for send. Each come from a separate pool.](/images/kv-connection-pool.png)
 
 At runtime, connections are created and destroyed (marked as available) using these pools and no actual allocation
 needs to happen. If no `Connection` is available in the pool, the request is rejected and the client will have to try again.
@@ -141,7 +142,7 @@ Here's an example of an incoming `GET key` command.
 
 I won't go into detail on how these commands are structured, the RESP document will do a much better job there.
 Basically, what we're looking at is "Here's an array with 2 elements. The first element has 3 characters,
-with the content `GET` and the second element has 3 characters, with the content `key`."
+with the content `GET` and the second element has 3 characters, with the contenhttps://github.com/nickmonad/kvt `key`."
 
 In order to parse this command, we need to look at the buffer that contains the request data, create some kind of
 iterator over that buffer, and split each entry on the CRLF `\r\n` byte sequence. Here's the signature for `parse`,
@@ -158,7 +159,7 @@ only pointed to.
 
 Zig's `std.heap.FixedBufferAllocator` is perfect for this kind of operation. During initialization, we ask for buffer
 space from a general purpose allocator, and pass it to the `FixedBufferAllocator`. This allocator works as "bump" allocator,
-where each internal allocation happens in a linear fashion, up to the amount of available space. The tradeoff here is
+where each internal allocation happens in a linear fashion, up to the amount of available space. The trade-off here is
 that memory allocated within the fixed buffer can't be free'd directly. Instead, the entire buffer is reset after use,
 which simply resets an index back to `0`. (Just about as cheap as an operation can get!)
 
@@ -166,7 +167,7 @@ Since our server is single-threaded[^2] and processes one request at a time, we 
 across every request. After the request is processed, the response is copied to a `Writer` object backed by the
 connection's `send` buffer and the `FixedBufferAllocator` is reset for the next request.
 
-![A diagram showing how parsing state works in kv.](../images/kv-parsing-state.png)
+![A diagram showing how parsing state works in kv.](/images/kv-parsing-state.png)
 
 Knowing how much space to give the `FixedBufferAllocator` depends again on our system configuration. We need space for
 the `ArrayList` of parsed command items, and space for any copied list items that are written back as a response during
@@ -211,7 +212,7 @@ pub const Runner = struct {
 };
 ```
 
-![A diagram showing how the Fixed Buffer Allocator is utilized in kv. The first section is the parse array, the second is the copy array, and the third is copy data.](../images/kv-fixed-buffer-space.png)
+![A diagram showing how the Fixed Buffer Allocator is utilized in kv. The first section is the parse array, the second is the copy array, and the third is copy data.](/images/kv-fixed-buffer-space.png)
 
 The underlying `Store` will use the `FixedBufferAllocator` to allocate an `ArrayList` of fixed capacity
 (determined by `config.list_length_max`) and then use the remaining space in the allocator for the copied data.
@@ -254,6 +255,7 @@ reuse the same `ByteArrayPool` implementation that we used for connection buffer
 allocated for keys and values and the hash map just maintains an association of pointers from keys to values.
 The key/value data isn't literally _stored_ "in the map." The allocation that happens in `ensureTotalCapacity` is for
 the internal book-keeping structure of the map, not for the user data.
+
 ### Navigating the map
 
 At the highest level, the primary challenge with storing keys and values in a statically allocated map is that we
@@ -265,7 +267,7 @@ we have to use all the allocated value space for this one key, preventing other 
 causing the map to be "biased". The store wouldn't be able to hold any more key/value pairs, even though there is
 allocated memory "on the table."
 
-![A diagram showing three different possibilites of how allocated memory can be used in a static hash map.](../images/kv-map-utilization.png)
+![A diagram showing three different possibilities of how allocated memory can be used in a static hash map.](/images/kv-map-utilization.png)
 
 Basically, the only way to mitigate this is to make sure there's enough allocated space for _every_ key to hold a
 list of maximum size. This definitely inflates the amount of space we have to allocate, but the alternative is a
@@ -285,7 +287,7 @@ condition in a static context. If it occurs at some other point, based on number
 perhaps that could work. Or maybe, it's up to us to call `rehash()` whenever it appears there is no space left,
 and try the operation again.
 
-All of this considred, I think a custom map implementation is more appropriate for the context of static allocation.
+All of this considered, I think a custom map implementation is more appropriate for the context of static allocation.
 This current implementation proves the concept, but definitely leaves room for improvement!
 
 ## Revisiting allocation size
@@ -383,6 +385,8 @@ static allocation was something I had never done before, but I'm pretty happy wi
 
 I'm looking forward to improving the internal hash map to better fit a static context, consider alternative
 allocator implementations to improve memory utilization, and incorporate fuzz testing to find the limits of the system.
+
+Checkout the code on [GitHub](https://github.com/nickmonad/kv)!
 
 ### Notes
 
