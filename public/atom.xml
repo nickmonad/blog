@@ -329,7 +329,7 @@ static allocation was something I had never done before, but I&#x27;m pretty hap
 allocator implementations to improve memory utilization, and incorporate fuzz testing to find the limits of the system.&lt;&#x2F;p&gt;
 &lt;p&gt;Checkout the code on &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;nickmonad&#x2F;kv&quot;&gt;GitHub&lt;&#x2F;a&gt;!&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;notes&quot;&gt;Notes&lt;&#x2F;h3&gt;
-&lt;section class=&quot;footnotes&quot;&gt;
+&lt;footer class=&quot;footnotes&quot;&gt;
 &lt;ol class=&quot;footnotes-list&quot;&gt;
 &lt;li id=&quot;fn-1&quot;&gt;
 &lt;p&gt;At the risk of stating the obvious, these limits can (and likely should) be configured at runtime by the user.
@@ -343,7 +343,7 @@ it still enjoys the benefits of I&#x2F;O concurrency via &lt;code&gt;io_uring&lt
 clients and waiting for that operation to complete, so we don&#x27;t have to worry (as much) about slow clients. &lt;a href=&quot;#fr-2-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;&#x2F;li&gt;
 &lt;&#x2F;ol&gt;
-&lt;&#x2F;section&gt;
+&lt;&#x2F;footer&gt;
 </content>
         
     </entry>
