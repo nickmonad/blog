@@ -10,17 +10,24 @@
 <meta property="og:description" content="{{ page.description }}" />
 <meta property="og:url" content="{{ page.permalink }}" />
 
-<meta name="twitter:card" content="summary" />
+<meta property="twitter:url" content="{{ page.permalink }}" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@nickmonad" />
 <meta name="twitter:creator" content="@nickmonad" />
 <meta name="twitter:title" content="{{ page.title }}" />
 <meta name="twitter:description" content="{{ page.description }}" />
+
+{% if page.extra.image %}
+<meta property="og:image" content="{{ page.extra.image }}" />
+<meta name="twitter:image" content="{{ page.extra.image }}" />
+{% endif %}
+
 {% endblock %}
 
 {% block header %}
     <div class="flex items-center justify-between">
         <div class="font-mono font-semibold text-lg">
-            <span class="underline underline-offset-4 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
+            <span class="underline underline-offset-3 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
         </div>
 
         <svg id="toggleDark_light" class="hidden dark:flex w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'light'; window.setTheme()"

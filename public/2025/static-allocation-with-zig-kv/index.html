@@ -12,15 +12,24 @@
 <meta property="og:description" content="Introducing kv, a statically allocated key&#x2F;value server." />
 <meta property="og:url" content="https:&#x2F;&#x2F;nickmonad.blog&#x2F;2025&#x2F;static-allocation-with-zig-kv&#x2F;" />
 
-<meta name="twitter:card" content="summary" />
+<meta property="twitter:url" content="https:&#x2F;&#x2F;nickmonad.blog&#x2F;2025&#x2F;static-allocation-with-zig-kv&#x2F;" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@nickmonad" />
 <meta name="twitter:creator" content="@nickmonad" />
 <meta name="twitter:title" content="Static Allocation with Zig" />
 <meta name="twitter:description" content="Introducing kv, a statically allocated key&#x2F;value server." />
 
 
+
+
+
     <title>Static Allocation with Zig</title>
     <link rel="stylesheet" href="/style.css" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
     
         <link rel="alternate" type="application/rss+xml" title="RSS" href="https://nickmonad.blog/atom.xml">
@@ -48,7 +57,7 @@
             
     <div class="flex items-center justify-between">
         <div class="font-mono font-semibold text-lg">
-            <span class="underline underline-offset-4 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
+            <span class="underline underline-offset-3 decoration-6 decoration-sky-700"><a href="/">nickmonad.blog</a></span>
         </div>
 
         <svg id="toggleDark_light" class="hidden dark:flex w-6 h-6 hover:cursor-pointer" onclick="localStorage.theme = 'light'; window.setTheme()"
@@ -191,7 +200,7 @@ following the <a rel="noopener" target="_blank" href="https://redis.io/docs/late
 </span></code></pre>
 <p>I won't go into detail on how these commands are structured, the RESP document will do a much better job there.
 Basically, what we're looking at is "Here's an array with 2 elements. The first element has 3 characters,
-with the content <code>GET</code> and the second element has 3 characters, with the contenhttps://github.com/nickmonad/kvt <code>key</code>."</p>
+with the content <code>GET</code> and the second element has 3 characters, with the content <code>key</code>."</p>
 <p>In order to parse this command, we need to look at the buffer that contains the request data, create some kind of
 iterator over that buffer, and split each entry on the CRLF <code>\r\n</code> byte sequence. Here's the signature for <code>parse</code>,
 the function that does just that.</p>
@@ -386,7 +395,7 @@ static allocation was something I had never done before, but I'm pretty happy wi
 allocator implementations to improve memory utilization, and incorporate fuzz testing to find the limits of the system.</p>
 <p>Checkout the code on <a rel="noopener" target="_blank" href="https://github.com/nickmonad/kv">GitHub</a>!</p>
 <h3 id="notes">Notes</h3>
-<footer class="footnotes">
+<section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn-1">
 <p>At the risk of stating the obvious, these limits can (and likely should) be configured at runtime by the user.
@@ -400,7 +409,7 @@ it still enjoys the benefits of I/O concurrency via <code>io_uring</code>. The k
 clients and waiting for that operation to complete, so we don't have to worry (as much) about slow clients. <a href="#fr-2-1">↩</a></p>
 </li>
 </ol>
-</footer>
+</section>
 
         </article>
     </div>

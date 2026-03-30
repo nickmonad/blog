@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>nickmonad - testing</title>
+    <link rel="self" type="application/atom+xml" href="https://nickmonad.blog/tags/testing/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nickmonad.blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2026-03-30T00:00:00+00:00</updated>
+    <id>https://nickmonad.blog/tags/testing/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Working software runs locally</title>
+        <published>2026-03-30T00:00:00+00:00</published>
+        <updated>2026-03-30T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Nick Miller
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nickmonad.blog/2026/working-software-runs-locally/"/>
+        <id>https://nickmonad.blog/2026/working-software-runs-locally/</id>
+        
+        <content type="html" xml:base="https://nickmonad.blog/2026/working-software-runs-locally/">&lt;p&gt;I&#x27;ve been thinking a lot about testing recently.&lt;&#x2F;p&gt;
+&lt;p&gt;Although, it&#x27;s kind of a &quot;blessing and a curse&quot; situation. A blessing in the sense that I&#x27;ve had the
+opportunity to work on some interesting problems, with some very interesting tools. At work, we&#x27;ve been testing a product that
+does simulation testing and as a result, I&#x27;ve seen some of the most powerful software I&#x27;ve ever seen in my professional
+career. How is it a curse? Well, testing complex software is... complex. And an increased focus on testing is
+usually done after a handful of stressful situations.&lt;&#x2F;p&gt;
+&lt;p&gt;In any case, this recent focus on testing has reinforced my feeling that all software should be able to run locally,
+on every developer&#x27;s machine in the organization, all the time, with minimal friction.&lt;&#x2F;p&gt;
+&lt;p&gt;Of course, the software I&#x27;m working on &lt;em&gt;can&lt;&#x2F;em&gt; always run on my machine, in the sense that all computers
+can (theoretically) run all software. What I mean by &quot;run&quot; is more practical and pertinent to testing.
+I&#x27;m talking specifically about the ability to start something locally, run a few commands against it, or throw
+some predefined requests at it, to see how it behaves. This also includes external dependencies, to a reasonable degree
+of fidelity.&lt;&#x2F;p&gt;
+&lt;p&gt;In my experience, having the ability to do this repeatedly and reliably increases my ability to understand
+and confidently change the system I&#x27;m working on.&lt;&#x2F;p&gt;
+&lt;p&gt;As an example of this, I recently found myself trying to debug a configuration issue in a deployed testing environment.
+My initial instinct was to stay as close to the deployment as possible, in order to be certain I was making the correct
+changes. After an embarrassing amount of time fumbling around with these settings, I finally remembered that I had a
+script laying around that could run this component locally. Moving my efforts to my own machine made a huge difference!
+I didn&#x27;t have to wait nearly as long for the service to redeploy after a configuration change, and I was able to
+prove the problem persisted, regardless of the runtime platform. Having this kind of tight feedback loop gave me the
+confidence to dig more into the code and finally find the bug. Once I had a working hypothesis based on the code,
+I could validate it within seconds.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ve come across a surprising number of situations where existing tooling in a codebase doesn&#x27;t support this.
+Or, you can tell that it did at some point, but the specification for it has rotted to the point of being useless.
+At best, the service can be compiled and maybe a handful of integration tests can run. I can probably even deploy it!
+But, I can&#x27;t run it in a mock environment locally. &lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-1-1&quot;&gt;&lt;a href=&quot;#fn-1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;It&#x27;s interesting to me how this happens, because I don&#x27;t think most systems start out this way. Running things
+locally is a critical part of the early development cycle. I think that over time as more external dependencies are
+added, and especially as the CI&#x2F;CD pipeline matures, the ability to run a complex system locally moves further out of
+reach, mostly without even realizing it.&lt;&#x2F;p&gt;
+&lt;p&gt;One reason I think this tends to happen is pressure to move quickly. If a team is under the gun to ship fast and
+there is infrastructure in place to do some quick validation in the deployed environment, it&#x27;s easy to forget about
+the local experience.&lt;&#x2F;p&gt;
+&lt;p&gt;Perhaps though, there&#x27;s a sense that the local experience doesn&#x27;t actually matter all that much, because true
+validation comes from production deployment. Charity Majors argues the point about validation in her (now famous?)
+article &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;increment.com&#x2F;testing&#x2F;i-test-in-production&#x2F;&quot;&gt;&quot;I test in prod&quot;&lt;&#x2F;a&gt;.
+I don&#x27;t think she&#x27;s arguing against running things locally (the word &quot;local&quot; isn&#x27;t even in the article),
+but if the idea we should test in prod is taken to a sort of extreme, I can see how it would be easy to come to the
+conclusion that production is the only thing that matters, at the cost of other means of validation.
+I would argue that both matter: the ability to test locally, &lt;em&gt;and&lt;&#x2F;em&gt; test in production. &lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-2-1&quot;&gt;&lt;a href=&quot;#fn-2&quot;&gt;2&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Another reason I think local tooling degrades is the perception that it&#x27;s not actually possible to bring up the system
+locally, in a way that a simulated &quot;end-to-end&quot; request could be satisfied. For the most part, I haven&#x27;t ever found
+this to be true. There are tons of tools that make these setups possible: public docker images, docker compose, LocalStack,
+or straight up writing a custom fake or mock. All are viable options. &lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-3-1&quot;&gt;&lt;a href=&quot;#fn-3&quot;&gt;3&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;My general perspective is that if a tool to mock&#x2F;simulate an external dependency doesn&#x27;t already exist and is
+accessible, it&#x27;s at least worth considering building your own. This can even just be a handful of endpoints your
+specific system actually needs. Recently, I needed to mock an internal API layer so I could satisfy the system
+I was actually concerned about testing. All I needed to mock was 5 or 6 endpoints, from a system that actually has
+dozens. Finding a minimal footprint and starting there can go a long way. In this case, the mock was just a Python
+server passing some JSON back and forth, with a little bit of internal state.&lt;&#x2F;p&gt;
+&lt;p&gt;Developing a habit and practice of this sets up for a lot of really interesting testing techniques way beyond
+manual validation. Simulation testing is one of those techniques, and it feels like a super power once you
+get the hang of it. Pierre Zemb goes into more detail on this in &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;pierrezemb.fr&#x2F;posts&#x2F;why-fakes-beat-mocks-and-testcontainers&#x2F;&quot;&gt;&quot;Why Fakes Beat Mocks and Testcontainers&quot;&lt;&#x2F;a&gt;.&lt;sup class=&quot;footnote-reference&quot; id=&quot;fr-4-1&quot;&gt;&lt;a href=&quot;#fn-4&quot;&gt;4&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;At some point though, faking&#x2F;mocking &lt;em&gt;can&lt;&#x2F;em&gt; get out of control. I understand the desire to not feel like we&#x27;re maintaining a
+whole other system, with all of its complications and quirks. If that starts to happen, it might be worth thinking
+about how to bring in that other system you&#x27;re mocking, and run it alongside your system. I think this is actually the preferred option. Especially
+if that other system&#x27;s external dependencies could be mocked with a smaller footprint.&lt;&#x2F;p&gt;
+&lt;p&gt;In the worst case, build what you can. It&#x27;s OK to scope something down. A little bit goes a long way here and
+there&#x27;s always some creativity involved. We make the perfect the enemy of the good far too often.&lt;&#x2F;p&gt;
+&lt;p&gt;I want to be careful in setting the expectation here. I don&#x27;t think I should be able to run a system &lt;em&gt;at scale&lt;&#x2F;em&gt;
+on my laptop. I&#x27;m not going to run Google&#x27;s primary search infrastructure and recreate a production environment
+that serves billions of users. But, I do hope I would be able to at least run a minimally working version of it
+(or some critical component of it), in a way that approximates useful results. If I change some aspect of the code,
+I should be able to see the impact of that change.&lt;&#x2F;p&gt;
+&lt;p&gt;Just like we consider failing unit tests to be a blocker for getting to production, I think we need to start
+considering a broken local setup to be a blocker. Certainly not in the absolute sense. If you need to ship a
+fix to production &lt;em&gt;right now&lt;&#x2F;em&gt;, please, do it. But, take the time to come back and tidy up. Under normal working
+conditions, we should not neglect the workspace right in front of us.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;section class=&quot;footnotes&quot;&gt;
+&lt;ol class=&quot;footnotes-list&quot;&gt;
+&lt;li id=&quot;fn-1&quot;&gt;
+&lt;p&gt;I have also come across situations where even compiling locally is too much to ask. At some point, the
+standard advice becomes &quot;just push it to CI&quot;. This is probably the worst situation to be in. &lt;a href=&quot;#fr-1-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li id=&quot;fn-2&quot;&gt;
+&lt;p&gt;I agree with a lot of the conclusions in that article. And, at the time of this writing, Charity&#x27;s article is nearly 7 years old. Since then, there has been a lot of
+development in deterministic simulation testing (DST), which &lt;em&gt;can&lt;&#x2F;em&gt; actually bring the chaos of a production environment
+to an environment where there&#x27;s truly no risk. (See &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;antithesis.com&#x2F;&quot;&gt;Antithesis&lt;&#x2F;a&gt;)
+Also, DST tends to be far more aggressive than any real production environment.
+I still think her fundamental conclusions are sound, but new tooling improves the pre-prod testing story significantly. Ensuring a system has strong and stable
+tooling for local testing actually sets it up nicely for simulation testing, which is a big reason why I&#x27;m advocating for it here. &lt;a href=&quot;#fr-2-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li id=&quot;fn-3&quot;&gt;
+&lt;p&gt;Yes, I am aware that LocalStack has done some weird things recently, with regards to access and pricing.
+I don&#x27;t quite know what to make of it, but I remain hopeful that good tooling continues to be developed and is accessible to the broadest possible audience. &lt;a href=&quot;#fr-3-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li id=&quot;fn-4&quot;&gt;
+&lt;p&gt;Pierre specifically uses the term &quot;fake&quot; instead of &quot;mock&quot; to describe this technique. I think I would prefer the term
+&quot;simulated&quot;, since it&#x27;s so useful in the context of simulation, but &quot;fake&quot; works as well. The term mock might have
+some baggage associated with it, depending on who you&#x27;re talking to. Whatever the term is for what I&#x27;m describing here,
+the main thing is to be on the same page with your colleagues. &lt;a href=&quot;#fr-4-1&quot;&gt;↩&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;&#x2F;section&gt;
+</content>
+        
+    </entry>
+</feed>

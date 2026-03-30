@@ -141,7 +141,7 @@ Here's an example of an incoming `GET key` command.
 
 I won't go into detail on how these commands are structured, the RESP document will do a much better job there.
 Basically, what we're looking at is "Here's an array with 2 elements. The first element has 3 characters,
-with the content `GET` and the second element has 3 characters, with the contenhttps://github.com/nickmonad/kvt `key`."
+with the content `GET` and the second element has 3 characters, with the content `key`."
 
 In order to parse this command, we need to look at the buffer that contains the request data, create some kind of
 iterator over that buffer, and split each entry on the CRLF `\r\n` byte sequence. Here's the signature for `parse`,
